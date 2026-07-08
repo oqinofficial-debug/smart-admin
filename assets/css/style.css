@@ -1,0 +1,175 @@
+/* ===================================================================
+   smart-admin base stylesheet
+   Ditulis manual (bukan Bootstrap) supaya ringan & aman di:
+   - Chrome versi lama (WinXP, mentok Chrome 49)
+   - Hardware lawas (Win7 32-bit)
+   Hindari: CSS Grid, custom properties (var()) kompleks, animasi berat.
+   Boleh dipakai: float/table layout, flexbox dasar (row/wrap saja),
+   box-shadow & border-radius sederhana (didukung sejak Chrome versi tua).
+=================================================================== */
+
+* { box-sizing: border-box; }
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: Arial, Helvetica, "Segoe UI", sans-serif;
+    font-size: 14px;
+    color: #2c3e50;
+    background: #f2f4f7;
+}
+
+a { color: #2d6cdf; text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ---------- Login page ---------- */
+.login-wrapper {
+    width: 100%;
+    min-height: 100%;
+    background: #1f2d3d;
+    display: table; /* aman di browser lama, ga perlu flex utk centering */
+}
+.login-cell {
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+}
+.login-box {
+    display: inline-block;
+    width: 340px;
+    max-width: 92%;
+    background: #ffffff;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    padding: 30px 28px;
+    text-align: left;
+}
+.login-box h1 {
+    font-size: 20px;
+    margin: 0 0 4px 0;
+    color: #1f2d3d;
+}
+.login-box p.subtitle {
+    margin: 0 0 20px 0;
+    color: #8492a6;
+    font-size: 12px;
+}
+.form-group { margin-bottom: 14px; }
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 12px;
+    color: #566573;
+}
+.form-control {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #d0d5dc;
+    border-radius: 3px;
+    font-size: 14px;
+    background: #fbfcfd;
+}
+.form-control:focus { outline: none; border-color: #2d6cdf; }
+
+.btn {
+    display: inline-block;
+    padding: 9px 16px;
+    border-radius: 3px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+}
+.btn-block { width: 100%; }
+.btn-primary { background: #2d6cdf; color: #fff; }
+.btn-primary:hover { background: #245bbd; }
+
+.alert { padding: 9px 12px; border-radius: 3px; font-size: 12px; margin-bottom: 14px; }
+.alert-danger { background: #fdecea; color: #b02a1f; border: 1px solid #f5c2bd; }
+.alert-warning { background: #fff8e1; color: #8a6100; border: 1px solid #ffe08a; }
+
+/* ---------- App shell (setelah login) ---------- */
+.app-header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 50px;
+    background: #1f2d3d;
+    color: #fff;
+    z-index: 100;
+}
+.app-header .brand {
+    float: left;
+    padding: 13px 16px;
+    font-weight: bold;
+    font-size: 16px;
+    color: #fff;
+}
+.app-header .user-info {
+    float: right;
+    padding: 13px 16px;
+    font-size: 13px;
+}
+.app-header .user-info a { color: #cfd8e3; margin-left: 10px; }
+
+.app-sidebar {
+    position: fixed;
+    top: 50px; left: 0; bottom: 0;
+    width: 210px;
+    background: #263544;
+    overflow-y: auto;
+}
+.app-sidebar ul { list-style: none; margin: 0; padding: 10px 0; }
+.app-sidebar li a {
+    display: block;
+    padding: 10px 18px;
+    color: #b6c2cf;
+    font-size: 13px;
+    border-left: 3px solid transparent;
+}
+.app-sidebar li a:hover,
+.app-sidebar li a.active {
+    background: #1f2d3d;
+    color: #fff;
+    border-left-color: #2d6cdf;
+    text-decoration: none;
+}
+
+.app-content {
+    margin-left: 210px;
+    padding: 70px 22px 22px 22px;
+    min-height: 100%;
+}
+
+.card {
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    padding: 18px;
+    margin-bottom: 18px;
+}
+.card h2 { margin-top: 0; font-size: 16px; }
+
+.badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    color: #fff;
+}
+.badge-master  { background: #d9534f; }
+.badge-inputer { background: #f0ad4e; }
+.badge-viewer  { background: #5bc0de; }
+
+.app-footer {
+    margin-left: 210px;
+    padding: 14px 22px;
+    font-size: 12px;
+    color: #8492a6;
+    text-align: center;
+}
+
+/* ---------- Layar kecil / kompatibilitas ---------- */
+@media (max-width: 782px) {
+    .app-sidebar { width: 100%; height: auto; position: static; }
+    .app-content, .app-footer { margin-left: 0; }
+}
