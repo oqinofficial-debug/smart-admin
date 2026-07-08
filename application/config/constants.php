@@ -83,3 +83,41 @@ defined('EXIT_USER_INPUT')     OR define('EXIT_USER_INPUT', 7); // invalid user 
 defined('EXIT_DATABASE')       OR define('EXIT_DATABASE', 8); // database error
 defined('EXIT__AUTO_MIN')      OR define('EXIT__AUTO_MIN', 9); // lowest automatically-assigned error code
 defined('EXIT__AUTO_MAX')      OR define('EXIT__AUTO_MAX', 125); // highest automatically-assigned error code
+
+/*
+|--------------------------------------------------------------------------
+| Identitas aplikasi
+|--------------------------------------------------------------------------
+*/
+defined('APP_NAME')       OR define('APP_NAME', 'Smart Admin');
+defined('APP_SHORT_NAME') OR define('APP_SHORT_NAME', 'SmartAdmin');
+defined('APP_VERSION')    OR define('APP_VERSION', '0.1.0');
+
+/*
+|--------------------------------------------------------------------------
+| Level / Role user
+|--------------------------------------------------------------------------
+| 1 = Viewer  : hanya bisa lihat
+| 2 = Inputer : bisa lihat + input data
+| 3 = Master  : bisa lihat + input + edit + hapus
+*/
+defined('ROLE_VIEWER')  OR define('ROLE_VIEWER', 1);
+defined('ROLE_INPUTER') OR define('ROLE_INPUTER', 2);
+defined('ROLE_MASTER')  OR define('ROLE_MASTER', 3);
+
+/*
+|--------------------------------------------------------------------------
+| Path upload (untuk modul import excel/csv/txt nanti)
+|--------------------------------------------------------------------------
+| Pastikan folder ini ada dan writable.
+*/
+defined('UPLOAD_PATH')      OR define('UPLOAD_PATH', FCPATH . 'uploads/');
+defined('UPLOAD_TEMP_PATH') OR define('UPLOAD_TEMP_PATH', FCPATH . 'uploads/temp/');
+
+/*
+|--------------------------------------------------------------------------
+| Sesi login
+|--------------------------------------------------------------------------
+*/
+defined('SESSION_LOGIN_KEY')        OR define('SESSION_LOGIN_KEY', 'sa_logged_in');
+defined('SESSION_TIMEOUT_MINUTES')  OR define('SESSION_TIMEOUT_MINUTES', 120); // auto logout kalau idle, cocok utk lingkungan lawas

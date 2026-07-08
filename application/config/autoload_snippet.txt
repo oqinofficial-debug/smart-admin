@@ -1,7 +1,0 @@
-Tempel / sesuaikan bagian berikut di application/config/autoload.php (file bawaan CI3):
-
-$autoload['libraries'] = array('database', 'session', 'form_validation');
-
-$autoload['helper'] = array('url', 'form', 'app_helper', 'permission_helper');
-
-$autoload['config'] = array('app');
