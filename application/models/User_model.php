@@ -47,6 +47,14 @@ class User_model extends CI_Model
         return $this->db->order_by('username', 'ASC')->get($this->table)->result_array();
     }
 
+    /**
+     * Cek keberadaan username tanpa peduli status aktif (dipakai untuk validasi unik).
+     */
+    public function find_by_username_any_status($username)
+    {
+        return $this->db->get_where($this->table, array('username' => $username))->row_array();
+    }
+
     public function create($data)
     {
         $data['password'] = password_hash($data['password'], PASSWORD_BCRYPT);
