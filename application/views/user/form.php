@@ -47,7 +47,8 @@
             <label>Role Khusus per Modul (opsional)</label>
             <p style="font-size:12px; color:#8492a6; margin:0 0 8px 0;">
                 Biarkan "Ikut Role Global" kalau user ini pakai role default di atas untuk modul tsb.
-                Pilih role lain kalau user butuh akses berbeda khusus di modul tertentu.
+                Pilih "Tidak Ada Akses" kalau modul ini harus benar-benar disembunyikan dari user ini,
+                terlepas dari role global-nya.
             </p>
             <table class="table-list">
                 <thead>
@@ -64,6 +65,7 @@
                             <td>
                                 <select name="access_<?php echo $menu['id']; ?>" class="form-control">
                                     <option value="" <?php echo !$is_override ? 'selected' : ''; ?>>Ikut Role Global</option>
+                                    <option value="0" <?php echo ($is_override && $eff == 0) ? 'selected' : ''; ?>>Tidak Ada Akses</option>
                                     <option value="1" <?php echo ($is_override && $eff == 1) ? 'selected' : ''; ?>>Viewer</option>
                                     <option value="2" <?php echo ($is_override && $eff == 2) ? 'selected' : ''; ?>>Inputer</option>
                                     <option value="3" <?php echo ($is_override && $eff == 3) ? 'selected' : ''; ?>>Master</option>

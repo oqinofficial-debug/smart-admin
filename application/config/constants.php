@@ -97,10 +97,12 @@ defined('APP_VERSION')    OR define('APP_VERSION', '0.1.0');
 |--------------------------------------------------------------------------
 | Level / Role user
 |--------------------------------------------------------------------------
+| 0 = Tidak ada akses : modul disembunyikan & diblokir sepenuhnya
 | 1 = Viewer  : hanya bisa lihat
 | 2 = Inputer : bisa lihat + input data
 | 3 = Master  : bisa lihat + input + edit + hapus
 */
+defined('ROLE_NONE')    OR define('ROLE_NONE', 0);
 defined('ROLE_VIEWER')  OR define('ROLE_VIEWER', 1);
 defined('ROLE_INPUTER') OR define('ROLE_INPUTER', 2);
 defined('ROLE_MASTER')  OR define('ROLE_MASTER', 3);
