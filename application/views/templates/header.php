@@ -12,9 +12,8 @@
     <div class="brand"><?php echo APP_NAME; ?></div>
     <div class="user-info">
         <?php $u = current_user(); ?>
-        <span class="<?php echo role_badge_class($u['level']); ?>"><?php echo role_label($u['level']); ?></span>
-        &nbsp;<?php echo htmlspecialchars($u['fullname']); ?>
-        <a href="<?php echo base_url('auth/logout'); ?>">Logout</a>
+        Selamat datang, <?php echo htmlspecialchars($u['fullname']); ?>
+        &nbsp;<a href="<?php echo base_url('auth/logout'); ?>">Logout</a>
     </div>
     <div style="clear:both;"></div>
 </div>

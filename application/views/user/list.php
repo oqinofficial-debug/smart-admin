@@ -19,10 +19,9 @@
             <tr>
                 <th>Username</th>
                 <th>Nama Lengkap</th>
-                <th>Role</th>
                 <th>Status</th>
                 <th>Login Terakhir</th>
-                <th style="width:150px;">Aksi</th>
+                <th style="width:180px;">Aksi</th>
             </tr>
         </thead>
         <tbody>
@@ -30,12 +29,11 @@
                 <tr>
                     <td><?php echo htmlspecialchars($u['username']); ?></td>
                     <td><?php echo htmlspecialchars($u['fullname']); ?></td>
-                    <td><span class="<?php echo role_badge_class($u['level']); ?>"><?php echo role_label($u['level']); ?></span></td>
                     <td><?php echo $u['is_active'] ? 'Aktif' : 'Nonaktif'; ?></td>
                     <td><?php echo $u['last_login'] ? format_tanggal_indo($u['last_login'], TRUE) : '-'; ?></td>
                     <td>
                         <?php if ($akses && !empty($akses['can_edit'])): ?>
-                            <a href="<?php echo base_url('user/edit/' . $u['id']); ?>">Edit</a>
+                            <a href="<?php echo base_url('user/edit/' . $u['id']); ?>">Edit / Atur Akses</a>
                         <?php endif; ?>
                         <?php if ($akses && !empty($akses['can_delete']) && $u['id'] != $current_user_id): ?>
                             &nbsp;|&nbsp;
@@ -45,7 +43,7 @@
                     </td>
                 </tr>
             <?php endforeach; else: ?>
-                <tr><td colspan="6">Belum ada user.</td></tr>
+                <tr><td colspan="5">Belum ada user.</td></tr>
             <?php endif; ?>
         </tbody>
     </table>

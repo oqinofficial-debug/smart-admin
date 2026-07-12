@@ -25,16 +25,6 @@
         </div>
 
         <div class="form-group">
-            <label>Role Global (default)</label>
-            <select name="level" class="form-control">
-                <?php $current_level = set_value('level', $user_data['level'] ?? ROLE_VIEWER); ?>
-                <option value="1" <?php echo ($current_level == 1) ? 'selected' : ''; ?>>Viewer</option>
-                <option value="2" <?php echo ($current_level == 2) ? 'selected' : ''; ?>>Inputer</option>
-                <option value="3" <?php echo ($current_level == 3) ? 'selected' : ''; ?>>Master</option>
-            </select>
-        </div>
-
-        <div class="form-group">
             <label>
                 <input type="checkbox" name="is_active" value="1"
                        <?php echo !empty($user_data['is_active']) ? 'checked' : ''; ?>>
@@ -44,11 +34,10 @@
 
         <?php if ($mode === 'edit' && !empty($all_menus)): ?>
         <div class="form-group">
-            <label>Role Khusus per Modul (opsional)</label>
+            <label>Akses per Modul</label>
             <p style="font-size:12px; color:#8492a6; margin:0 0 8px 0;">
-                Biarkan "Ikut Role Global" kalau user ini pakai role default di atas untuk modul tsb.
-                Pilih "Tidak Ada Akses" kalau modul ini harus benar-benar disembunyikan dari user ini,
-                terlepas dari role global-nya.
+                Tidak ada role default — setiap modul wajib diatur sendiri. Pilih "Tidak Ada Akses"
+                kalau modul ini harus disembunyikan sepenuhnya dari user ini.
             </p>
             <table class="table-list">
                 <thead>
@@ -56,19 +45,15 @@
                 </thead>
                 <tbody>
                     <?php foreach ($all_menus as $menu): ?>
-                        <?php
-                            $eff = isset($module_access[$menu['id']]) ? $module_access[$menu['id']] : $current_level;
-                            $is_override = $eff != $current_level;
-                        ?>
+                        <?php $eff = isset($module_access[$menu['id']]) ? $module_access[$menu['id']] : 0; ?>
                         <tr>
                             <td><?php echo htmlspecialchars($menu['menu_name']); ?></td>
                             <td>
                                 <select name="access_<?php echo $menu['id']; ?>" class="form-control">
-                                    <option value="" <?php echo !$is_override ? 'selected' : ''; ?>>Ikut Role Global</option>
-                                    <option value="0" <?php echo ($is_override && $eff == 0) ? 'selected' : ''; ?>>Tidak Ada Akses</option>
-                                    <option value="1" <?php echo ($is_override && $eff == 1) ? 'selected' : ''; ?>>Viewer</option>
-                                    <option value="2" <?php echo ($is_override && $eff == 2) ? 'selected' : ''; ?>>Inputer</option>
-                                    <option value="3" <?php echo ($is_override && $eff == 3) ? 'selected' : ''; ?>>Master</option>
+                                    <option value="0" <?php echo ($eff == 0) ? 'selected' : ''; ?>>Tidak Ada Akses</option>
+                                    <option value="1" <?php echo ($eff == 1) ? 'selected' : ''; ?>>Viewer</option>
+                                    <option value="2" <?php echo ($eff == 2) ? 'selected' : ''; ?>>Inputer</option>
+                                    <option value="3" <?php echo ($eff == 3) ? 'selected' : ''; ?>>Master</option>
                                 </select>
                             </td>
                         </tr>

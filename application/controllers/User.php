@@ -19,7 +19,7 @@ class User extends MY_Controller
             'title' => 'Manajemen User - ' . APP_NAME,
             'menus' => $this->menus,
             'users' => $this->User_model->get_all(),
-            'current_user_id' => $this->user['id'], // dipakai di view untuk cek "jangan hapus diri sendiri"
+            'current_user_id' => $this->user['id'],
         );
 
         $this->load->view('templates/header', $data);
@@ -40,23 +40,26 @@ class User extends MY_Controller
                     'username' => $this->input->post('username', TRUE),
                     'password' => $this->input->post('password'),
                     'fullname' => $this->input->post('fullname', TRUE),
-                    'level'    => (int) $this->input->post('level'),
                     'is_active'=> $this->input->post('is_active') ? TRUE : FALSE,
                 ));
 
-                $this->session->set_flashdata('success', 'User baru berhasil ditambahkan.');
+                $this->session->set_flashdata('success', 'User baru berhasil ditambahkan. Silakan atur akses per modul lewat Edit.');
                 redirect('user');
                 return;
             }
         }
 
+        $all_menus = array_values(array_filter($this->Menu_model->get_all(), function ($m) {
+            return $m['menu_code'] !== 'dashboard';
+        }));
+
         $data = array(
-            'title'      => 'Tambah User - ' . APP_NAME,
-            'menus'      => $this->menus,
-            'mode'       => 'create',
-            'user_data'  => array('level' => ROLE_VIEWER, 'is_active' => TRUE),
+            'title'         => 'Tambah User - ' . APP_NAME,
+            'menus'         => $this->menus,
+            'mode'          => 'create',
+            'user_data'     => array('is_active' => TRUE),
             'module_access' => array(),
-            'all_menus'  => array(),
+            'all_menus'     => $all_menus,
         );
 
         $this->load->view('templates/header', $data);
@@ -82,7 +85,6 @@ class User extends MY_Controller
                 $update = array(
                     'username' => $this->input->post('username', TRUE),
                     'fullname' => $this->input->post('fullname', TRUE),
-                    'level'    => (int) $this->input->post('level'),
                     'is_active'=> $this->input->post('is_active') ? TRUE : FALSE,
                 );
 
@@ -93,31 +95,39 @@ class User extends MY_Controller
 
                 $this->User_model->update($id, $update);
 
-                // simpan override akses per modul
-                $all_menus = $this->Menu_model->get_all();
+                $all_menus = array_values(array_filter($this->Menu_model->get_all(), function ($m) {
+                    return $m['menu_code'] !== 'dashboard';
+                }));
+                $is_self = ((int) $id === (int) $this->user['id']);
+
                 foreach ($all_menus as $menu) {
                     $field = 'access_' . $menu['id'];
-                    $value = $this->input->post($field); // '' = ikut level global, angka = override
+                    $value = (int) $this->input->post($field);
 
-                    if ($value === '' || $value === NULL) {
-                        $this->Menu_model->clear_user_module_level($id, $menu['id']);
-                    } else {
-                        $this->Menu_model->set_user_module_level($id, $menu['id'], (int) $value);
+                    // Cegah admin mengunci diri sendiri dari modul User.
+                    if ($is_self && $menu['menu_code'] === 'user' && $value < ROLE_MASTER) {
+                        $this->session->set_flashdata('error', 'Anda tidak bisa mengurangi akses modul User untuk akun yang sedang login.');
+                        continue;
                     }
+
+                    $this->Menu_model->set_user_module_level($id, $menu['id'], $value);
                 }
 
-                $this->session->set_flashdata('success', 'Data user berhasil diperbarui.');
+                if (!$this->session->flashdata('error')) {
+                    $this->session->set_flashdata('success', 'Data user berhasil diperbarui.');
+                }
                 redirect('user');
                 return;
             }
         }
 
-        $all_menus = $this->Menu_model->get_all();
+        $all_menus = array_values(array_filter($this->Menu_model->get_all(), function ($m) {
+            return $m['menu_code'] !== 'dashboard';
+        }));
+
         $module_access = array();
         foreach ($all_menus as $menu) {
-            $module_access[$menu['id']] = $this->Menu_model->get_effective_level(
-                $menu['menu_code'], $user_data['level'], $id
-            );
+            $module_access[$menu['id']] = $this->Menu_model->get_effective_level($menu['menu_code'], $id);
         }
 
         $data = array(
@@ -154,7 +164,6 @@ class User extends MY_Controller
     {
         $this->form_validation->set_rules('username', 'Username', 'required|trim|min_length[3]|max_length[50]');
         $this->form_validation->set_rules('fullname', 'Nama Lengkap', 'required|trim|max_length[100]');
-        $this->form_validation->set_rules('level', 'Role', 'required|in_list[1,2,3]');
 
         if ($is_create) {
             $this->form_validation->set_rules('password', 'Password', 'required|min_length[6]');
@@ -162,7 +171,6 @@ class User extends MY_Controller
             $this->form_validation->set_rules('password', 'Password', 'min_length[6]');
         }
 
-        // cek username unik (kecuali punya sendiri saat edit)
         $username = $this->input->post('username', TRUE);
         if ($username) {
             $existing = $this->User_model->find_by_username_any_status($username);

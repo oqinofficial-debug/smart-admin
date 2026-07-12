@@ -18,13 +18,11 @@ class MY_Controller extends CI_Controller
         $this->load->helper(array('app_helper', 'permission_helper'));
         $this->load->model('Menu_model');
 
-        // Belum login -> lempar ke halaman login
         if (!is_logged_in()) {
             redirect('auth');
             return;
         }
 
-        // Auto-logout kalau idle terlalu lama (penting utk mesin bersama / client lawas)
         $last_activity = $this->session->userdata('last_activity');
         if ($last_activity && (time() - $last_activity) > (SESSION_TIMEOUT_MINUTES * 60)) {
             $this->session->sess_destroy();
@@ -34,20 +32,12 @@ class MY_Controller extends CI_Controller
         $this->session->set_userdata('last_activity', time());
 
         $this->user  = current_user();
-        $this->menus = $this->Menu_model->get_menu_for_level($this->user['level'], $this->user['id']);
+        $this->menus = $this->Menu_model->get_menu_for_level($this->user['id']);
     }
 
-    /**
-     * Panggil di awal method controller turunan untuk memaksa hak akses tertentu.
-     * Contoh: $this->require_access('user', 'edit');
-     *
-     * @param string $menu_code
-     * @param string $type view|input|edit|delete
-     */
     protected function require_access($menu_code, $type = 'view')
     {
         $access = cek_akses($menu_code);
-
         $allowed = $access && !empty($access['can_' . $type]);
 
         if (!$allowed) {

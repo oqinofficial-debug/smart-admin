@@ -13,7 +13,6 @@ class Auth extends CI_Controller
 
     public function index()
     {
-        // Kalau sudah login, langsung ke dashboard
         if (is_logged_in()) {
             redirect('dashboard');
             return;
@@ -62,7 +61,6 @@ class Auth extends CI_Controller
             'user_id'         => $user['id'],
             'username'        => $user['username'],
             'fullname'        => $user['fullname'],
-            'level'           => $user['level'],
             'last_activity'   => time(),
         ));
 

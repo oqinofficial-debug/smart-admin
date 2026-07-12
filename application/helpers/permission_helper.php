@@ -20,34 +20,15 @@ if (!function_exists('current_user')) {
             'id'       => $CI->session->userdata('user_id'),
             'username' => $CI->session->userdata('username'),
             'fullname' => $CI->session->userdata('fullname'),
-            'level'    => (int) $CI->session->userdata('level'),
         );
-    }
-}
-
-if (!function_exists('current_level')) {
-    function current_level()
-    {
-        $CI =& get_instance();
-        return (int) $CI->session->userdata('level');
-    }
-}
-
-if (!function_exists('has_min_level')) {
-    /**
-     * Cek apakah level user >= level minimal yang dibutuhkan
-     * Contoh: has_min_level(ROLE_MASTER) -> true hanya kalau level user 3
-     */
-    function has_min_level($min_level)
-    {
-        return current_level() >= (int) $min_level;
     }
 }
 
 if (!function_exists('cek_akses')) {
     /**
      * Cek akses menu tertentu untuk user yang sedang login.
-     * Mengembalikan array hak akses: view/input/edit/delete, atau FALSE kalau tidak ada akses.
+     * Tidak ada fallback ke role global -- kalau user tidak punya pengaturan
+     * eksplisit untuk modul ini, dianggap tidak ada akses sama sekali.
      *
      * @param string $menu_code kode menu, contoh 'user', 'import'
      */
@@ -56,9 +37,8 @@ if (!function_exists('cek_akses')) {
         $CI =& get_instance();
         $CI->load->model('Menu_model');
 
-        $level = current_level();
         $user_id = $CI->session->userdata('user_id');
 
-        return $CI->Menu_model->get_access($menu_code, $level, $user_id);
+        return $CI->Menu_model->get_access($menu_code, $user_id);
     }
 }
