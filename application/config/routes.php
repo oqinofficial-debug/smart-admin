@@ -59,6 +59,14 @@ $route['auth/logout']   = 'auth/logout';
 
 $route['dashboard']     = 'dashboard/index';
 
-// nanti setelah User.php dan Import.php dibuat:
+// nanti setelah User.php dibuat:
 // $route['user']        = 'user/index';
-// $route['import']      = 'import/index';
+
+// Import Data Laporan Produksi (Excel) + manajemen alias kolom
+$route['import']                    = 'import/index';
+$route['import/preview']            = 'import/preview';
+$route['import/process']            = 'import/process';
+$route['import/alias']              = 'import_alias/index';
+$route['import/alias/edit/(:num)']  = 'import_alias/edit/$1';
+$route['import/alias/add']          = 'import_alias/add_alias';
+$route['import/alias/delete/(:num)'] = 'import_alias/delete_alias/$1';
