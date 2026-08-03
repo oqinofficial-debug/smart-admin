@@ -66,3 +66,22 @@ if (!function_exists('role_badge_class')) {
         }
     }
 }
+
+if (!function_exists('normalize_bool')) {
+    /**
+     * Normalisasi boolean dari PostgreSQL ('t'/'f' string) ke boolean PHP asli.
+     * Driver CI3 + PostgreSQL mengembalikan 't'/'f' untuk kolom boolean, bukan
+     * true/false PHP asli — selalu pakai ini kalau menyentuh kolom boolean
+     * (is_active, is_public, is_primary, can_view, can_input, dst).
+     *
+     * Dipakai Department_model. Sebaiknya juga dipakai ulang di Menu_model
+     * untuk menggantikan Menu_model::_bool() supaya tidak duplikat logic.
+     */
+    function normalize_bool($value)
+    {
+        if (is_bool($value)) {
+            return $value;
+        }
+        return $value === 't' || $value === true || $value === '1' || $value === 1;
+    }
+}

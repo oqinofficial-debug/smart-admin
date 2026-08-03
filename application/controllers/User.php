@@ -8,6 +8,7 @@ class User extends MY_Controller
         parent::__construct();
         $this->load->model('User_model');
         $this->load->model('Menu_model');
+        $this->load->model('Department_model');
         $this->load->library('form_validation');
     }
 
@@ -86,6 +87,7 @@ class User extends MY_Controller
                     'username' => $this->input->post('username', TRUE),
                     'fullname' => $this->input->post('fullname', TRUE),
                     'is_active'=> $this->input->post('is_active') ? TRUE : FALSE,
+                    'can_view_all_departments' => $this->input->post('can_view_all_departments') ? TRUE : FALSE,
                 );
 
                 $new_password = $this->input->post('password');
@@ -113,6 +115,20 @@ class User extends MY_Controller
                     $this->Menu_model->set_user_module_level($id, $menu['id'], $value);
                 }
 
+                $all_departments = $this->Department_model->get_all();
+                $department_ids  = array();
+                $primary_id      = null;
+                foreach ($all_departments as $dept) {
+                    $membership = (int) $this->input->post('membership_' . $dept['id']);
+                    if ($membership >= 1) {
+                        $department_ids[] = $dept['id'];
+                    }
+                    if ($membership === 2) {
+                        $primary_id = $dept['id'];
+                    }
+                }
+                $this->Department_model->set_user_departments($id, $department_ids, $primary_id);
+
                 if (!$this->session->flashdata('error')) {
                     $this->session->set_flashdata('success', 'Data user berhasil diperbarui.');
                 }
@@ -131,12 +147,14 @@ class User extends MY_Controller
         }
 
         $data = array(
-            'title'         => 'Edit User - ' . APP_NAME,
-            'menus'         => $this->menus,
-            'mode'          => 'edit',
-            'user_data'     => $user_data,
-            'all_menus'     => $all_menus,
-            'module_access' => $module_access,
+            'title'            => 'Edit User - ' . APP_NAME,
+            'menus'            => $this->menus,
+            'mode'             => 'edit',
+            'user_data'        => $user_data,
+            'all_menus'        => $all_menus,
+            'module_access'    => $module_access,
+            'all_departments'  => $this->Department_model->get_all(),
+            'user_departments' => $this->Department_model->get_user_departments($id),
         );
 
         $this->load->view('templates/header', $data);

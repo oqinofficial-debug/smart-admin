@@ -87,6 +87,7 @@ a:hover { text-decoration: underline; }
 .alert { padding: 9px 12px; border-radius: 3px; font-size: 12px; margin-bottom: 14px; }
 .alert-danger { background: #fdecea; color: #b02a1f; border: 1px solid #f5c2bd; }
 .alert-warning { background: #fff8e1; color: #8a6100; border: 1px solid #ffe08a; }
+.alert-success { background: #eafaf0; color: #1e7e42; border: 1px solid #b7e6c6; }
 
 /* ---------- App shell (setelah login) ---------- */
 .app-header {
@@ -159,6 +160,40 @@ a:hover { text-decoration: underline; }
 .badge-master  { background: #d9534f; }
 .badge-inputer { background: #f0ad4e; }
 .badge-viewer  { background: #5bc0de; }
+.badge-active   { background: #2fa864; }
+.badge-inactive { background: #95a5a6; }
+
+/* ---------- Tabel data (dipakai di form matrix akses & modul departemen) ---------- */
+.table-list {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0 16px 0;
+    font-size: 13px;
+}
+.table-list th,
+.table-list td {
+    padding: 9px 10px;
+    border-bottom: 1px solid #e5e9ef;
+    text-align: left;
+    vertical-align: middle;
+}
+.table-list thead th {
+    background: #f7f9fb;
+    color: #566573;
+    font-weight: bold;
+    border-bottom: 2px solid #dde2e8;
+    white-space: nowrap;
+}
+.table-list tbody tr:hover { background: #fafbfd; }
+.table-list td form { margin: 0; } /* form kecil di dalam sel, mis. toggle bypass */
+
+.section-divider {
+    border: none;
+    border-top: 1px solid #e5e9ef;
+    margin: 22px 0 16px 0;
+}
+
+.text-muted { color: #8492a6; }
 
 .app-footer {
     margin-left: 210px;
