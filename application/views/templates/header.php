@@ -14,7 +14,10 @@
 <body>
 
 <div class="app-header">
-    <div class="brand"><?php echo APP_NAME; ?></div>
+    <div class="brand">
+        <img src="<?php echo base_url('assets/favicon/android-chrome-192x192.png'); ?>" alt="Logo" class="brand-logo">
+        <?php echo APP_NAME; ?>
+    </div>
     <div class="user-info">
         <?php $u = current_user(); ?>
         Selamat datang, <?php echo htmlspecialchars($u['fullname']); ?>
