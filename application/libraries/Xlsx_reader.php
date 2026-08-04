@@ -2,112 +2,169 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Xlsx_reader
+ * Reader untuk file .xlsx (Office Open XML), TANPA dependency Composer /
+ * PhpSpreadsheet -- xlsx sebenarnya cuma arsip ZIP berisi file-file XML.
  *
- * Pembaca file .xlsx yang RINGAN, tanpa dependency Composer/PhpSpreadsheet.
- * Cukup pakai ekstensi bawaan PHP: ZipArchive + SimpleXML.
- *
- * File .xlsx sebenarnya adalah file ZIP berisi beberapa XML:
- *   - xl/worksheets/sheet1.xml   -> isi sel per baris/kolom (sheet pertama)
- *   - xl/sharedStrings.xml       -> tabel string (sel bertipe teks menunjuk
- *                                   ke index di tabel ini, bukan simpan
- *                                   teks langsung, untuk hemat ukuran file)
- *
- * Cukup untuk kebutuhan import sederhana: baca sheet pertama menjadi
- * array 2 dimensi (baris x kolom), semua nilai dikembalikan sebagai
- * string mentah (pemanggil yang cast ke tanggal/angka sesuai kebutuhan).
- *
- * Hanya mendukung file .xlsx (Excel 2007+). File .xls (format lama/biner)
- * TIDAK didukung -- minta user simpan-ulang sebagai .xlsx, atau upload csv.
+ * Perubahan dari versi sebelumnya:
+ *  1) list_sheets() -- baca xl/workbook.xml + xl/_rels/workbook.xml.rels
+ *     supaya bisa menampilkan pilihan sheet ke user (dulu selalu sheet1
+ *     yang dibaca, hardcoded).
+ *  2) Parsing baris pakai XMLReader (pull/streaming parser), BUKAN
+ *     simplexml_load_string ke seluruh dokumen. Untuk sheet besar (puluhan
+ *     ribu baris) ini jauh lebih hemat memori dan lebih cepat, karena tidak
+ *     perlu membangun seluruh DOM di memori sekaligus.
  */
-class Xlsx_reader
+class Xlsx_reader implements File_reader_interface
 {
-    /**
-     * Baca sheet pertama dari file .xlsx menjadi array baris.
-     * Setiap baris adalah array asosiatif kolom-huruf => nilai string,
-     * mis. ['A' => 'Tanggal', 'B' => 'NIK', ...], supaya kolom kosong
-     * di tengah tetap punya "posisi" yang benar.
-     *
-     * @param  string $filepath path absolut ke file .xlsx
-     * @return array
-     * @throws Exception kalau file tidak valid / bukan xlsx
-     */
-    public function read($filepath)
+    public function list_sheets($filepath)
     {
-        if (!is_file($filepath)) {
-            throw new Exception('File tidak ditemukan.');
+        $zip = $this->_open_zip($filepath);
+
+        $wb_xml = $zip->getFromName('xl/workbook.xml');
+        if ($wb_xml === false) {
+            $zip->close();
+            throw new Exception('File tidak valid: xl/workbook.xml tidak ditemukan di dalam arsip xlsx.');
+        }
+        $rels_xml = $zip->getFromName('xl/_rels/workbook.xml.rels');
+        $zip->close();
+
+        $wb = @simplexml_load_string($wb_xml);
+        if ($wb === false) {
+            throw new Exception('Gagal membaca struktur workbook (xl/workbook.xml rusak).');
         }
 
-        if (!class_exists('ZipArchive')) {
-            throw new Exception('Ekstensi PHP "zip" tidak aktif di server ini, tidak bisa membaca file .xlsx.');
+        // pemetaan r:id -> path file sheet fisik, lewat file .rels
+        $rid_to_target = array();
+        if ($rels_xml !== false) {
+            $rels = @simplexml_load_string($rels_xml);
+            if ($rels !== false) {
+                foreach ($rels->Relationship as $rel) {
+                    $rid_to_target[(string) $rel['Id']] = (string) $rel['Target'];
+                }
+            }
         }
 
-        $zip = new ZipArchive();
-        if ($zip->open($filepath) !== TRUE) {
-            throw new Exception('File bukan .xlsx yang valid (gagal dibuka sebagai ZIP).');
+        $sheets = array();
+        $fallback_index = 1;
+        $ns_r = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships';
+
+        foreach ($wb->sheets->sheet as $sheet) {
+            $name = (string) $sheet['name'];
+            $r_attrs = $sheet->attributes($ns_r);
+            $rid = isset($r_attrs['id']) ? (string) $r_attrs['id'] : '';
+
+            if (isset($rid_to_target[$rid])) {
+                $target = ltrim($rid_to_target[$rid], '/');
+                $path = (strpos($target, 'worksheets/') === 0) ? 'xl/' . $target : 'xl/' . $target;
+            } else {
+                $path = 'xl/worksheets/sheet' . $fallback_index . '.xml';
+            }
+
+            $sheets[] = array('name' => $name, 'path' => $path);
+            $fallback_index++;
         }
 
+        if (empty($sheets)) {
+            throw new Exception('Tidak ada worksheet yang terbaca di dalam file xlsx ini.');
+        }
+
+        return $sheets;
+    }
+
+    public function read($filepath, $sheet = null, array $options = array())
+    {
+        $sheets = $this->list_sheets($filepath);
+
+        $target = null;
+        if ($sheet === null) {
+            $target = $sheets[0];
+        } else {
+            foreach ($sheets as $s) {
+                if ($s['name'] === $sheet) {
+                    $target = $s;
+                    break;
+                }
+            }
+            if ($target === null) {
+                throw new Exception('Sheet "' . $sheet . '" tidak ditemukan di dalam file.');
+            }
+        }
+
+        $zip = $this->_open_zip($filepath);
         $shared_strings = $this->_read_shared_strings($zip);
 
-        $sheet_path = $this->_find_first_sheet_path($zip);
-        if (!$sheet_path) {
+        $sheet_path = $target['path'];
+        if ($zip->locateName($sheet_path) === false) {
+            // fallback: cari file worksheet apa saja kalau path dari rels meleset
+            $sheet_path = null;
+            for ($i = 0; $i < $zip->numFiles; $i++) {
+                $name = $zip->getNameIndex($i);
+                if (preg_match('#^xl/worksheets/sheet[0-9]+\.xml$#', $name)) {
+                    $sheet_path = $name;
+                    break;
+                }
+            }
+        }
+
+        if ($sheet_path === null) {
             $zip->close();
-            throw new Exception('Tidak menemukan worksheet di dalam file.');
+            throw new Exception('File worksheet untuk sheet "' . $target['name'] . '" tidak ditemukan di dalam arsip.');
         }
 
         $sheet_xml = $zip->getFromName($sheet_path);
         $zip->close();
 
-        if ($sheet_xml === FALSE) {
-            throw new Exception('Gagal membaca isi worksheet.');
+        if ($sheet_xml === false) {
+            throw new Exception('Gagal membaca isi worksheet "' . $target['name'] . '".');
         }
 
-        return $this->_parse_sheet_xml($sheet_xml, $shared_strings);
+        // XMLReader butuh path file (bukan string di memori) untuk benar-benar
+        // streaming, jadi ditulis dulu ke temp file.
+        $tmp_path = tempnam(sys_get_temp_dir(), 'xlsx_sheet_');
+        file_put_contents($tmp_path, $sheet_xml);
+        unset($sheet_xml);
+
+        try {
+            $rows = $this->_stream_parse_sheet($tmp_path, $shared_strings);
+        } finally {
+            @unlink($tmp_path);
+        }
+
+        return $rows;
     }
 
-    /**
-     * Sheet1.xml bisa berada di path yang berbeda-beda tergantung aplikasi
-     * yang membuat file (Excel, LibreOffice, Google Sheets export, dst).
-     * Cara paling aman: baca xl/workbook.xml + _rels untuk urutan sheet
-     * yang sebenarnya. Untuk kesederhanaan (hanya butuh sheet pertama),
-     * kita coba path standar dulu, baru fallback cari file worksheet apa
-     * saja di dalam arsip.
-     */
-    private function _find_first_sheet_path(ZipArchive $zip)
+    private function _open_zip($filepath)
     {
-        if ($zip->locateName('xl/worksheets/sheet1.xml') !== FALSE) {
-            return 'xl/worksheets/sheet1.xml';
+        if (!is_file($filepath)) {
+            throw new Exception('File tidak ditemukan: ' . $filepath);
         }
-
-        for ($i = 0; $i < $zip->numFiles; $i++) {
-            $name = $zip->getNameIndex($i);
-            if (preg_match('#^xl/worksheets/sheet\d+\.xml$#', $name)) {
-                return $name;
-            }
+        if (!class_exists('ZipArchive')) {
+            throw new Exception('Ekstensi PHP "zip" tidak aktif di server, tidak bisa membaca file xlsx.');
         }
-
-        return null;
+        $zip = new ZipArchive();
+        if ($zip->open($filepath) !== true) {
+            throw new Exception('File bukan .xlsx yang valid (gagal dibuka sebagai arsip ZIP).');
+        }
+        return $zip;
     }
 
-    private function _read_shared_strings(ZipArchive $zip)
+    private function _read_shared_strings($zip)
     {
         $xml_content = $zip->getFromName('xl/sharedStrings.xml');
-        if ($xml_content === FALSE) {
-            return array(); // wajar kalau file tidak punya sharedStrings (semua sel angka/formula)
+        if ($xml_content === false) {
+            return array();
         }
-
-        $xml = simplexml_load_string($xml_content);
-        if ($xml === FALSE) {
+        $xml = @simplexml_load_string($xml_content);
+        if ($xml === false) {
             return array();
         }
 
         $strings = array();
         foreach ($xml->si as $si) {
             if (isset($si->t)) {
-                // teks sederhana <si><t>...</t></si>
                 $strings[] = (string) $si->t;
             } else {
-                // teks dengan formatting campuran <si><r><t>...</t></r>...</si>
+                // rich text (banyak <r><t>...</t></r>), gabungkan semua potongannya
                 $text = '';
                 foreach ($si->r as $r) {
                     $text .= (string) $r->t;
@@ -115,45 +172,62 @@ class Xlsx_reader
                 $strings[] = $text;
             }
         }
-
         return $strings;
     }
 
-    private function _parse_sheet_xml($xml_content, array $shared_strings)
+    /**
+     * Baca sheetN.xml baris demi baris pakai XMLReader (streaming), bukan
+     * load seluruh dokumen ke DOM sekaligus seperti simplexml. Tiap elemen
+     * <row> diambil outer XML-nya lalu diparse kecil-kecilan (murah, karena
+     * cuma 1 baris) -- kombinasi ini jauh lebih hemat memori untuk sheet
+     * dengan puluhan ribu baris dibanding load semuanya lewat SimpleXML.
+     */
+    private function _stream_parse_sheet($xml_path, array $shared_strings)
     {
-        $xml = simplexml_load_string($xml_content);
-        if ($xml === FALSE) {
-            throw new Exception('Format worksheet tidak bisa dibaca (XML rusak).');
+        $reader = new XMLReader();
+        if (!$reader->open($xml_path)) {
+            throw new Exception('Gagal membuka worksheet untuk dibaca (streaming).');
         }
 
         $rows = array();
 
-        foreach ($xml->sheetData->row as $row) {
+        while ($reader->read()) {
+            if ($reader->nodeType !== XMLReader::ELEMENT || $reader->name !== 'row') {
+                continue;
+            }
+
+            $row_xml = $reader->readOuterXML();
+            $row_node = @simplexml_load_string($row_xml);
+            if ($row_node === false) {
+                continue;
+            }
+
             $row_data = array();
-
-            foreach ($row->c as $cell) {
-                $ref = (string) $cell['r'];         // contoh: "C5"
+            foreach ($row_node->c as $cell) {
+                $ref = (string) $cell['r'];               // contoh: "C5"
                 $col_letter = preg_replace('/[0-9]/', '', $ref);
-                $type = (string) $cell['t'];        // 's' = shared string, 'str' = formula string, '' = angka
+                if ($col_letter === '') {
+                    continue;
+                }
 
+                $type = (string) $cell['t'];
                 $value = '';
+
                 if (isset($cell->v)) {
                     $raw = (string) $cell->v;
                     if ($type === 's') {
+                        // index ke shared strings
                         $value = isset($shared_strings[(int) $raw]) ? $shared_strings[(int) $raw] : '';
-                    } elseif ($type === 'str' || $type === 'inlineStr') {
-                        $value = $raw;
                     } else {
-                        $value = $raw; // angka / tanggal (serial number Excel) / boolean
+                        // angka, tanggal (serial number), atau string biasa (t="str")
+                        $value = $raw;
                     }
                 } elseif (isset($cell->is->t)) {
-                    // inline string <c t="inlineStr"><is><t>...</t></is></c>
+                    // inline string
                     $value = (string) $cell->is->t;
                 }
 
-                if ($col_letter !== '') {
-                    $row_data[$col_letter] = trim($value);
-                }
+                $row_data[$col_letter] = trim($value);
             }
 
             if (!empty($row_data)) {
@@ -161,52 +235,38 @@ class Xlsx_reader
             }
         }
 
+        $reader->close();
         return $rows;
     }
 
     /**
-     * Konversi serial number tanggal Excel (mis. 45678) ke format Y-m-d.
-     * Excel menyimpan tanggal sebagai jumlah hari sejak 1899-12-30.
-     * Kalau nilainya sudah berupa teks tanggal biasa (dd/mm/yyyy dst),
-     * dikembalikan apa adanya lewat strtotime.
+     * Konversi nilai serial tanggal Excel (angka) ke format Y-m-d.
+     * Excel menghitung hari sejak 1899-12-30 (termasuk bug tahun kabisat 1900).
      */
     public function excel_value_to_date($value)
     {
-        $value = trim((string) $value);
-        if ($value === '') {
+        if ($value === '' || $value === null) {
             return null;
         }
-
-        if (is_numeric($value)) {
-            $unix_timestamp = ((int) $value - 25569) * 86400; // 25569 = hari antara 1899-12-30 dan 1970-01-01
-            return gmdate('Y-m-d', $unix_timestamp);
+        if (!is_numeric($value)) {
+            // sudah berupa teks tanggal (misal dari kolom bertipe teks), coba parse langsung
+            $timestamp = strtotime($value);
+            return $timestamp !== false ? date('Y-m-d', $timestamp) : null;
         }
-
-        $timestamp = strtotime($value);
-        return $timestamp ? date('Y-m-d', $timestamp) : null;
+        $unix_timestamp = ((int) $value - 25569) * 86400;
+        return gmdate('Y-m-d', $unix_timestamp);
     }
 
-    /**
-     * Konversi serial number waktu Excel (pecahan hari, mis. 0.5 = 12:00)
-     * atau teks jam biasa (HH:MM / HH:MM:SS) ke format H:i:s.
-     */
     public function excel_value_to_time($value)
     {
-        $value = trim((string) $value);
-        if ($value === '') {
+        if ($value === '' || $value === null) {
             return null;
         }
-
-        if (is_numeric($value)) {
-            $fraction = (float) $value - floor((float) $value);
-            $total_seconds = (int) round($fraction * 86400);
-            return gmdate('H:i:s', $total_seconds);
+        if (!is_numeric($value)) {
+            return $value;
         }
-
-        if (preg_match('/^\d{1,2}:\d{2}(:\d{2})?$/', $value)) {
-            return strlen($value) === 5 ? $value . ':00' : $value;
-        }
-
-        return null;
+        $fraction = (float) $value - floor((float) $value);
+        $seconds = round($fraction * 86400);
+        return gmdate('H:i:s', $seconds);
     }
 }

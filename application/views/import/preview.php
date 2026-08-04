@@ -11,13 +11,35 @@
         <div class="alert alert-danger"><?php echo $this->session->flashdata('error'); ?></div>
     <?php endif; ?>
 
+    <div class="alert alert-info">
+        Format: <strong>.<?php echo htmlspecialchars($ext); ?></strong><?php echo $sheet_name ? ', Sheet: <strong>' . htmlspecialchars($sheet_name) . '</strong>' : ''; ?><br>
+        Cakupan:
+        <?php if ($period_filter['mode'] === 'all'): ?>
+            <strong>Semua data di file</strong> (boleh lintas periode/bulan)
+        <?php elseif ($period_filter['mode'] === 'periode'): ?>
+            hanya baris periode <strong><?php echo htmlspecialchars($period_filter['periode']); ?></strong>
+            <?php echo !empty($period_filter['replace_periode']) ? ' &mdash; <strong>data lama periode ini akan ditimpa</strong>' : ' &mdash; ditambahkan ke data yang sudah ada'; ?>
+        <?php else: ?>
+            hanya baris tanggal <strong><?php echo htmlspecialchars($period_filter['tanggal_mulai']); ?></strong> s/d <strong><?php echo htmlspecialchars($period_filter['tanggal_selesai']); ?></strong>
+        <?php endif; ?>
+    </div>
+
+    <?php if (!empty($periode_summary) && (int) $periode_summary['jumlah_batch'] > 0): ?>
+        <div class="alert alert-warning">
+            Periode <?php echo htmlspecialchars($period_filter['periode']); ?> sudah pernah diimport
+            <strong><?php echo (int) $periode_summary['jumlah_batch']; ?>x</strong> sebelumnya
+            (total <?php echo (int) $periode_summary['total_baris']; ?> baris tersimpan).
+            <?php echo empty($period_filter['replace_periode']) ? 'Data ini akan DITAMBAHKAN ke data lama (bisa dobel kalau filenya sama).' : 'Data lama akan DITIMPA sebelum data baru disimpan.'; ?>
+        </div>
+    <?php endif; ?>
+
     <?php echo form_open('import/process'); ?>
 
         <h3 style="font-size:14px; margin-top:0;">Pemetaan Kolom</h3>
         <table class="table-list">
             <thead>
                 <tr>
-                    <th>Kolom Excel</th>
+                    <th>Kolom</th>
                     <th>Header di File</th>
                     <th>Dipetakan ke Field</th>
                 </tr>

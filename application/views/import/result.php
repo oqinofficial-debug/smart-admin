@@ -7,9 +7,21 @@
         </div>
     <?php endif; ?>
 
+    <?php if (!empty($skipped_count)): ?>
+        <div class="alert alert-info">
+            <?php echo $skipped_count; ?> baris dilewati karena tanggalnya di luar
+            <?php if ($period_filter['mode'] === 'periode'): ?>
+                periode <strong><?php echo htmlspecialchars($period_filter['periode']); ?></strong>
+            <?php else: ?>
+                rentang tanggal <strong><?php echo htmlspecialchars($period_filter['tanggal_mulai']); ?></strong> s/d <strong><?php echo htmlspecialchars($period_filter['tanggal_selesai']); ?></strong>
+            <?php endif; ?>
+            yang dipilih (bukan error, cuma tidak termasuk cakupan yang diminta).
+        </div>
+    <?php endif; ?>
+
     <?php if (!empty($errors)): ?>
         <div class="alert alert-danger">
-            <?php echo count($errors); ?> baris gagal diimport. Perbaiki data di file Excel lalu upload ulang
+            <?php echo count($errors); ?> baris gagal diimport. Perbaiki data di file lalu upload ulang
             khusus baris yang gagal.
         </div>
 
@@ -31,7 +43,7 @@
         </table>
     <?php endif; ?>
 
-    <?php if ($success_count === 0 && empty($errors)): ?>
+    <?php if ($success_count === 0 && empty($errors) && empty($skipped_count)): ?>
         <div class="alert alert-warning">Tidak ada baris data yang diproses.</div>
     <?php endif; ?>
 
