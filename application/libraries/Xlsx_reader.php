@@ -14,6 +14,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  *     ribu baris) ini jauh lebih hemat memori dan lebih cepat, karena tidak
  *     perlu membangun seluruh DOM di memori sekaligus.
  */
+require_once APPPATH . 'libraries/File_reader_interface.php';
+
 class Xlsx_reader implements File_reader_interface
 {
     public function list_sheets($filepath)

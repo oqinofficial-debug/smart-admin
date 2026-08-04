@@ -22,6 +22,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  *    menyarankan untuk membuka file itu di Excel lalu "Save As" ke .xlsx,
  *    yang jauh lebih mudah & cepat dibaca (lihat Xlsx_reader).
  */
+require_once APPPATH . 'libraries/File_reader_interface.php';
+
 class Xls_reader implements File_reader_interface
 {
     /** @var string isi mentah stream "Workbook"/"Book", di-cache per file */

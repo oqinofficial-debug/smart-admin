@@ -16,6 +16,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * Streaming: baca baris demi baris pakai fgetcsv(), bukan load seluruh file
  * ke memori sekaligus -- penting untuk file besar.
  */
+require_once APPPATH . 'libraries/File_reader_interface.php';
+
 class Csv_reader implements File_reader_interface
 {
     public function list_sheets($filepath)
