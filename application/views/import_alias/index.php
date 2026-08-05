@@ -17,6 +17,52 @@
     <a href="<?php echo base_url('import'); ?>">&larr; Kembali ke Import Data</a>
 </div>
 
+<div class="card">
+    <h2 style="font-size:15px;">Nama Sheet yang Dikenali Otomatis</h2>
+    <p class="text-muted">
+        Kalau file yang diupload punya lebih dari 1 sheet, dan nama salah satu sheet-nya
+        cocok persis (tidak peduli huruf besar/kecil) dengan salah satu nama di bawah,
+        sheet itu akan langsung dipakai tanpa perlu pilih manual. Kalau tidak ada yang
+        cocok -- atau malah cocok lebih dari satu sheet sekaligus -- Anda tetap akan
+        diminta pilih sheet secara manual seperti biasa.
+    </p>
+
+    <table class="table-list" style="margin-top:8px;">
+        <thead>
+            <tr>
+                <th>Nama Sheet</th>
+                <th style="width:80px;">Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php if (empty($sheet_aliases)): ?>
+                <tr><td colspan="2" class="text-muted">Belum ada, semua file multi-sheet akan selalu minta pilih manual.</td></tr>
+            <?php else: ?>
+                <?php foreach ($sheet_aliases as $sa): ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($sa['alias_text']); ?></td>
+                        <td>
+                            <a href="<?php echo base_url('import/alias/sheet/delete/' . $sa['id']); ?>"
+                               onclick="return confirm('Hapus nama sheet ini dari daftar default?');">Hapus</a>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </tbody>
+    </table>
+
+    <?php echo form_open('import/alias/sheet/add'); ?>
+        <div style="display:flex; gap:8px; align-items:flex-end;">
+            <div class="form-group" style="flex:1; margin-bottom:0;">
+                <label>Tambah nama sheet baru</label>
+                <input type="text" name="alias_text" class="form-control" maxlength="100"
+                       placeholder="mis. Data Produksi" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Tambah</button>
+        </div>
+    <?php echo form_close(); ?>
+</div>
+
 <?php foreach ($kolom as $k): ?>
     <div class="card">
         <h2 style="font-size:15px;">

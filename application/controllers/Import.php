@@ -108,7 +108,17 @@ class Import extends MY_Controller
         $this->session->set_userdata('import_period_filter', $period_filter);
 
         if (count($sheets) > 1) {
-            // format punya banyak sheet (xlsx/xls) -> minta user pilih dulu
+            // cek dulu apakah nama salah satu sheet cocok dengan daftar nama
+            // sheet default yang dikelola di /import/alias -- kalau persis 1
+            // yang cocok, langsung pakai itu tanpa minta user pilih manual
+            $matched_sheet = $this->Import_alias_model->find_matching_sheet($sheets);
+            if ($matched_sheet !== null) {
+                $this->session->set_userdata('import_sheet', $matched_sheet['name']);
+                $this->_render_column_mapping_preview($temp_path, $ext, $matched_sheet['name']);
+                return;
+            }
+
+            // tidak ada yang cocok otomatis -> minta user pilih manual
             $data['title']  = 'Pilih Sheet - ' . APP_NAME;
             $data['menus']  = $this->menus;
             $data['sheets'] = $sheets;

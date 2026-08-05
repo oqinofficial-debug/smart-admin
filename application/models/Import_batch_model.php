@@ -60,7 +60,7 @@ class Import_batch_model extends CI_Model
      */
     public function get_recent($limit = 20)
     {
-        return $this->db->select('b.*, u.nama_lengkap AS nama_user')
+        return $this->db->select('b.*, u.fullname AS nama_user')
                          ->from('trx_import_batch b')
                          ->join('mst_user u', 'u.id = b.user_id', 'left')
                          ->order_by('b.created_at', 'DESC')

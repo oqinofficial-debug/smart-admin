@@ -24,10 +24,11 @@ class Import_alias extends MY_Controller
     {
         $this->require_access('import', 'edit');
 
-        $data['title']  = 'Alias Kolom Import - ' . APP_NAME;
-        $data['menus']  = $this->menus;
-        $data['kolom']  = $this->Import_alias_model->get_all_with_alias();
-        $data['access'] = cek_akses('import');
+        $data['title']         = 'Alias Kolom Import - ' . APP_NAME;
+        $data['menus']         = $this->menus;
+        $data['kolom']         = $this->Import_alias_model->get_all_with_alias();
+        $data['sheet_aliases'] = $this->Import_alias_model->get_sheet_aliases();
+        $data['access']        = cek_akses('import');
 
         $this->load->view('templates/header', $data);
         $this->load->view('templates/sidebar', $data);
@@ -97,6 +98,41 @@ class Import_alias extends MY_Controller
         if ($alias) {
             $this->Import_alias_model->delete_alias($id);
             $this->session->set_flashdata('success', 'Alias dihapus.');
+        }
+
+        redirect('import/alias');
+    }
+
+    /**
+     * Tambah nama sheet yang dikenali otomatis (lihat
+     * Import_alias_model::find_matching_sheet()).
+     */
+    public function add_sheet_alias()
+    {
+        $this->require_access('import', 'edit');
+
+        $alias_text = trim((string) $this->input->post('alias_text'));
+
+        if ($alias_text === '') {
+            $this->session->set_flashdata('error', 'Nama sheet tidak boleh kosong.');
+        } elseif ($this->Import_alias_model->sheet_alias_exists($alias_text)) {
+            $this->session->set_flashdata('error', 'Nama sheet "' . htmlspecialchars($alias_text) . '" sudah terdaftar.');
+        } else {
+            $this->Import_alias_model->add_sheet_alias($alias_text);
+            $this->session->set_flashdata('success', 'Nama sheet "' . htmlspecialchars($alias_text) . '" ditambahkan ke daftar sheet default.');
+        }
+
+        redirect('import/alias');
+    }
+
+    public function delete_sheet_alias($id)
+    {
+        $this->require_access('import', 'edit');
+
+        $alias = $this->Import_alias_model->get_sheet_alias($id);
+        if ($alias) {
+            $this->Import_alias_model->delete_sheet_alias($id);
+            $this->session->set_flashdata('success', 'Nama sheet dihapus dari daftar default.');
         }
 
         redirect('import/alias');

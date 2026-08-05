@@ -63,10 +63,13 @@ $route['dashboard']     = 'dashboard/index';
 // $route['user']        = 'user/index';
 
 // Import Data Laporan Produksi (Excel) + manajemen alias kolom
-$route['import']                    = 'import/index';
-$route['import/preview']            = 'import/preview';
-$route['import/process']            = 'import/process';
-$route['import/alias']              = 'import_alias/index';
-$route['import/alias/edit/(:num)']  = 'import_alias/edit/$1';
-$route['import/alias/add']          = 'import_alias/add_alias';
+$route['import']                     = 'import/index';
+$route['import/preview']             = 'import/preview';
+$route['import/select-sheet']        = 'import/select_sheet_confirm';
+$route['import/process']             = 'import/process';
+$route['import/alias']               = 'import_alias/index';
+$route['import/alias/edit/(:num)']   = 'import_alias/edit/$1';
+$route['import/alias/add']           = 'import_alias/add_alias';
 $route['import/alias/delete/(:num)'] = 'import_alias/delete_alias/$1';
+$route['import/alias/sheet/add']           = 'import_alias/add_sheet_alias';
+$route['import/alias/sheet/delete/(:num)'] = 'import_alias/delete_sheet_alias/$1';

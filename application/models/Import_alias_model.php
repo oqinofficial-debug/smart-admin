@@ -125,4 +125,76 @@ class Import_alias_model extends CI_Model
     {
         return $this->db->where('id', $id)->get('mst_import_alias')->row_array();
     }
+
+    /**
+     * Daftar nama sheet yang dikenali otomatis sebagai sheet data laporan
+     * produksi (mis. "Data Produksi", "Sheet1"), supaya file multi-sheet
+     * tidak selalu minta user pilih manual tiap kali import.
+     */
+    public function get_sheet_aliases()
+    {
+        return $this->db->order_by('alias_text', 'ASC')->get('mst_import_sheet_alias')->result_array();
+    }
+
+    public function get_sheet_alias($id)
+    {
+        return $this->db->where('id', $id)->get('mst_import_sheet_alias')->row_array();
+    }
+
+    public function sheet_alias_exists($alias_text, $exclude_id = null)
+    {
+        $this->db->where('LOWER(alias_text)', strtolower(trim($alias_text)));
+        if ($exclude_id) {
+            $this->db->where('id !=', $exclude_id);
+        }
+        return (bool) $this->db->get('mst_import_sheet_alias')->row_array();
+    }
+
+    public function add_sheet_alias($alias_text)
+    {
+        $this->db->insert('mst_import_sheet_alias', array(
+            'alias_text' => trim($alias_text),
+        ));
+        return $this->db->insert_id();
+    }
+
+    public function delete_sheet_alias($id)
+    {
+        $this->db->where('id', $id)->delete('mst_import_sheet_alias');
+    }
+
+    /**
+     * Cari sheet di $sheets (hasil reader->list_sheets(), tiap item
+     * ['name' => ..., 'path' => ...]) yang namanya cocok (case-insensitive,
+     * abaikan spasi di ujung) dengan salah satu alias sheet yang sudah
+     * dikonfigurasi.
+     *
+     * Hanya auto-pilih kalau PERSIS 1 sheet yang cocok -- kalau tidak ada
+     * yang cocok, atau malah cocok lebih dari 1 (ambigu), kembalikan null
+     * supaya controller tetap minta user pilih manual (fallback aman).
+     *
+     * @param array $sheets
+     * @return array|null
+     */
+    public function find_matching_sheet(array $sheets)
+    {
+        $aliases = $this->get_sheet_aliases();
+        if (empty($aliases) || empty($sheets)) {
+            return null;
+        }
+
+        $alias_texts = array();
+        foreach ($aliases as $a) {
+            $alias_texts[] = strtolower(trim($a['alias_text']));
+        }
+
+        $matches = array();
+        foreach ($sheets as $s) {
+            if (in_array(strtolower(trim($s['name'])), $alias_texts, true)) {
+                $matches[] = $s;
+            }
+        }
+
+        return (count($matches) === 1) ? $matches[0] : null;
+    }
 }
