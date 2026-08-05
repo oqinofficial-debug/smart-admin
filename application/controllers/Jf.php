@@ -20,6 +20,7 @@ class Jf extends MY_Controller
         $this->load->model('Jf_model');
         $this->load->model('MasterData_model'); // buat ambil daftar kelompok produk aktif
         $this->load->library('form_validation');
+        $this->load->library('value_converter'); // validasi format periode YYYY-MM
     }
 
     public function index()
@@ -104,6 +105,33 @@ class Jf extends MY_Controller
         $this->load->view('templates/header', $data);
         $this->load->view('templates/sidebar', $data);
         $this->load->view('jf/form', $data);
+        $this->load->view('templates/footer');
+    }
+
+    /**
+     * Halaman "list JF aktif per periode": JF berstatus AKTIF yang
+     * kemunculannya terdeteksi (via trx_jf_periode) pada bulan tertentu.
+     * Periode diambil dari query string ?periode=YYYY-MM, default bulan
+     * berjalan kalau kosong/tidak valid.
+     */
+    public function periode()
+    {
+        $this->require_access('jf', 'view');
+
+        $periode = trim((string) $this->input->get('periode'));
+        if ($periode === '' || !$this->value_converter->is_valid_periode($periode)) {
+            $periode = date('Y-m');
+        }
+
+        $data['title']   = 'JF Aktif per Periode - ' . APP_NAME;
+        $data['menus']   = $this->menus;
+        $data['periode'] = $periode;
+        $data['jfs']     = $this->Jf_model->get_active_by_periode($periode);
+        $data['access']  = cek_akses('jf');
+
+        $this->load->view('templates/header', $data);
+        $this->load->view('templates/sidebar', $data);
+        $this->load->view('jf/periode', $data);
         $this->load->view('templates/footer');
     }
 

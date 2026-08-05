@@ -11,6 +11,7 @@
     <?php if (!empty($access['can_input'])): ?>
         <a href="<?php echo base_url('jf/add'); ?>" class="btn btn-primary">+ Tambah JF</a>
     <?php endif; ?>
+    <a href="<?php echo base_url('jf/periode'); ?>" class="btn btn-secondary" style="margin-left:8px;">JF Aktif per Periode</a>
 
     <table class="table-list" style="margin-top:12px;">
         <thead>
