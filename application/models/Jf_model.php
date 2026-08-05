@@ -35,6 +35,19 @@ class Jf_model extends CI_Model
         return $this->db->where('id', $id)->get('mst_jf')->row_array();
     }
 
+    /**
+     * Cek apakah kode JF sudah dipakai (untuk validasi unik di form),
+     * $exclude_id dipakai saat edit supaya JF itu sendiri tidak kehitung.
+     */
+    public function get_by_jf($jf, $exclude_id = null)
+    {
+        $this->db->where('jf', $jf);
+        if ($exclude_id) {
+            $this->db->where('id !=', $exclude_id);
+        }
+        return $this->db->get('mst_jf')->row_array();
+    }
+
     public function create(array $data)
     {
         $this->db->insert('mst_jf', $data);
@@ -57,6 +70,24 @@ class Jf_model extends CI_Model
     {
         $this->db->where('id', $id)->update('mst_jf', array('status_jf' => 'FINAL'));
         return $this->db->affected_rows();
+    }
+
+    /**
+     * Hard delete master JF. Ditolak DB (FK RESTRICT) kalau JF ini masih
+     * dipakai di trx_laporan_produksi -- baris trx_jf_periode ikut terhapus
+     * otomatis (ON DELETE CASCADE) karena itu cuma snapshot turunan.
+     */
+    public function delete($id)
+    {
+        try {
+            $this->db->where('id', $id)->delete('mst_jf');
+            return array('success' => true, 'message' => 'JF dihapus.');
+        } catch (Exception $e) {
+            return array(
+                'success' => false,
+                'message' => 'Tidak bisa dihapus, JF ini masih dipakai di data laporan produksi.',
+            );
+        }
     }
 
     // ---------------------------------------------------------------

@@ -5,21 +5,29 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * MasterData_model
  *
  * Model GENERIK untuk master data berstruktur sama: kode + nama + is_active.
- * Menangani 5 tabel: mst_shift, mst_mesin, mst_aktivitas, mst_proses,
- * mst_pekerjaan_borong — dipilih lewat parameter $type.
+ * Menangani: mst_shift, mst_mesin, mst_aktivitas, mst_proses,
+ * mst_pekerjaan_borong, mst_kelompok_produk — dipilih lewat parameter $type.
  *
  * Kalau nanti ada master baru dengan struktur sama, tinggal tambah satu
  * baris di $config, tidak perlu bikin model baru.
+ *
+ * CATATAN: entri 'jf' SENGAJA TIDAK ADA di sini lagi. mst_jf sudah
+ * di-redesain (kolom jf, product, qty, bapob, chip, customer, po,
+ * kelompok_produk_id, status_jf -- bukan lagi kode/nama/is_active), jadi
+ * tidak cocok dengan CRUD generik ini. Master JF sekarang punya
+ * Jf_model.php + controller Jf.php sendiri. Menambahkan 'jf' kembali ke
+ * $config ini akan membuat /masterdata/index/jf error (kolom nama/kode
+ * tidak ada di mst_jf).
  */
 class MasterData_model extends CI_Model
 {
     private $config = array(
-        'shift'     => array('table' => 'mst_shift',            'label' => 'Shift'),
-        'mesin'     => array('table' => 'mst_mesin',             'label' => 'Mesin'),
-        'aktivitas' => array('table' => 'mst_aktivitas',         'label' => 'Aktivitas'),
-        'proses'    => array('table' => 'mst_proses',            'label' => 'Proses'),
-        'borong'    => array('table' => 'mst_pekerjaan_borong',  'label' => 'Pekerjaan Borong'),
-        'jf'        => array('table' => 'mst_jf',                'label' => 'JF (Job Order)'),
+        'shift'            => array('table' => 'mst_shift',            'label' => 'Shift'),
+        'mesin'            => array('table' => 'mst_mesin',             'label' => 'Mesin'),
+        'aktivitas'        => array('table' => 'mst_aktivitas',         'label' => 'Aktivitas'),
+        'proses'           => array('table' => 'mst_proses',            'label' => 'Proses'),
+        'borong'           => array('table' => 'mst_pekerjaan_borong',  'label' => 'Pekerjaan Borong'),
+        'kelompok_produk'  => array('table' => 'mst_kelompok_produk',   'label' => 'Kelompok Produk'),
     );
 
     public function get_types()
