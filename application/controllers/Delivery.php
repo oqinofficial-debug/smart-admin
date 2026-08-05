@@ -1,0 +1,137 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+/**
+ * Delivery
+ *
+ * CRUD catatan kiriman per JF (trx_delivery_record). Field: No. JF
+ * (referensi ke mst_jf), Tanggal Kirim, Aktual Kirim, No. SP, Jenis SP.
+ *
+ * Ini bukan proses finalisasi JF -- finalisasi tetap manual & global lewat
+ * menu JF (Jf::final()). Data di sini sengaja dibuat sederhana dulu
+ * (belum ada qty per kiriman) sesuai kebutuhan awal.
+ *
+ * Menu code: 'delivery'. Perlu baris di mst_menu + mst_menu_access,
+ * lihat migrations/2026_08_05_delivery_record.sql.
+ */
+class Delivery extends MY_Controller
+{
+    public function __construct()
+    {
+        parent::__construct();
+        $this->load->model('Delivery_model');
+        $this->load->model('Jf_model'); // buat ambil daftar JF untuk dropdown
+        $this->load->library('form_validation');
+    }
+
+    public function index()
+    {
+        $this->require_access('delivery', 'view');
+
+        $data['title']     = 'Delivery Record - ' . APP_NAME;
+        $data['menus']     = $this->menus;
+        $data['deliveries'] = $this->Delivery_model->get_all();
+        $data['access']    = cek_akses('delivery');
+
+        $this->load->view('templates/header', $data);
+        $this->load->view('templates/sidebar', $data);
+        $this->load->view('delivery/index', $data);
+        $this->load->view('templates/footer');
+    }
+
+    public function add()
+    {
+        $this->require_access('delivery', 'input');
+
+        if ($this->input->method() === 'post') {
+            $this->_validate();
+
+            if ($this->form_validation->run() === TRUE) {
+                $data = $this->_collect_post();
+                $data['inputer_id'] = $this->user['id'];
+
+                $this->Delivery_model->create($data);
+                $this->session->set_flashdata('success', 'Delivery record ditambahkan.');
+                redirect('delivery');
+                return;
+            }
+        }
+
+        $data['title']         = 'Tambah Delivery Record - ' . APP_NAME;
+        $data['menus']         = $this->menus;
+        $data['delivery_row']  = null;
+        $data['jf_list']       = $this->Jf_model->get_all();
+
+        $this->load->view('templates/header', $data);
+        $this->load->view('templates/sidebar', $data);
+        $this->load->view('delivery/form', $data);
+        $this->load->view('templates/footer');
+    }
+
+    public function edit($id)
+    {
+        $this->require_access('delivery', 'edit');
+
+        $delivery_row = $this->Delivery_model->get($id);
+        if (!$delivery_row) {
+            show_404();
+        }
+
+        if ($this->input->method() === 'post') {
+            $this->_validate();
+
+            if ($this->form_validation->run() === TRUE) {
+                $this->Delivery_model->update($id, $this->_collect_post());
+                $this->session->set_flashdata('success', 'Delivery record diperbarui.');
+                redirect('delivery');
+                return;
+            }
+        }
+
+        $data['title']         = 'Edit Delivery Record - ' . APP_NAME;
+        $data['menus']         = $this->menus;
+        $data['delivery_row']  = $delivery_row;
+        $data['jf_list']       = $this->Jf_model->get_all();
+
+        $this->load->view('templates/header', $data);
+        $this->load->view('templates/sidebar', $data);
+        $this->load->view('delivery/form', $data);
+        $this->load->view('templates/footer');
+    }
+
+    public function delete($id)
+    {
+        $this->require_access('delivery', 'delete');
+
+        $delivery_row = $this->Delivery_model->get($id);
+        if (!$delivery_row) {
+            show_404();
+        }
+
+        $this->Delivery_model->delete($id);
+        $this->session->set_flashdata('success', 'Delivery record dihapus.');
+        redirect('delivery');
+    }
+
+    private function _validate()
+    {
+        $this->form_validation->set_rules('jf_id', 'No. JF', 'required|trim|integer');
+        $this->form_validation->set_rules('tanggal_kirim', 'Tanggal Kirim', 'required|trim');
+        $this->form_validation->set_rules('aktual_kirim', 'Aktual Kirim', 'trim');
+        $this->form_validation->set_rules('no_sp', 'No. SP', 'required|trim|max_length[100]');
+        $this->form_validation->set_rules('jenis_sp', 'Jenis SP', 'trim|max_length[50]');
+    }
+
+    private function _collect_post()
+    {
+        $aktual_kirim = $this->input->post('aktual_kirim', true);
+
+        return array(
+            'jf_id'         => (int) $this->input->post('jf_id', true),
+            'tanggal_kirim' => $this->input->post('tanggal_kirim', true),
+            'aktual_kirim'  => ($aktual_kirim === '' || $aktual_kirim === null) ? null : $aktual_kirim,
+            'no_sp'         => $this->input->post('no_sp', true),
+            'jenis_sp'      => $this->input->post('jenis_sp', true) ?: null,
+        );
+    }
+}
