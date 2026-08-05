@@ -17,6 +17,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  *   - insert_batch_transactional() sekarang benar-benar pakai
  *     $this->db->insert_batch() per potongan (chunk), bukan loop insert().
  *   - Tambah delete_periode_import_rows() untuk fitur "timpa data periode ini".
+ *   - Lookup JF sekarang ke kolom mst_jf.jf (bukan lagi mst_jf.kode),
+ *     menyesuaikan redesain master JF.
+ *   - insert_batch_transactional() sekarang juga sinkronisasi trx_jf_periode
+ *     (snapshot "JF ini muncul di periode ini") dalam transaksi yang sama,
+ *     lewat Jf_model::sync_periode().
  */
 class Import_model extends CI_Model
 {
@@ -27,7 +32,7 @@ class Import_model extends CI_Model
         'department'       => array('mst_department', 'department_code'),
         'karyawan'         => array('mst_karyawan', 'nik'),
         'shift'            => array('mst_shift', 'kode'),
-        'jf'               => array('mst_jf', 'kode'),
+        'jf'               => array('mst_jf', 'jf'),
         'mesin'            => array('mst_mesin', 'kode'),
         'aktivitas'        => array('mst_aktivitas', 'kode'),
         'proses'           => array('mst_proses', 'kode'),
@@ -37,6 +42,7 @@ class Import_model extends CI_Model
     public function __construct()
     {
         parent::__construct();
+        $this->load->model('Jf_model');
     }
 
     // ---------------------------------------------------------------
@@ -46,7 +52,7 @@ class Import_model extends CI_Model
     public function find_department_id($kode) { return $this->_lookup('department', 'mst_department', 'department_code', 'id', $kode); }
     public function find_karyawan_id($nik) { return $this->_lookup('karyawan', 'mst_karyawan', 'nik', 'id', $nik); }
     public function find_shift_id($kode) { return $this->_lookup('shift', 'mst_shift', 'kode', 'id', $kode); }
-    public function find_jf_id($kode) { return $this->_lookup('jf', 'mst_jf', 'kode', 'id', $kode); }
+    public function find_jf_id($kode) { return $this->_lookup('jf', 'mst_jf', 'jf', 'id', $kode); }
     public function find_mesin_id($kode) { return $this->_lookup('mesin', 'mst_mesin', 'kode', 'id', $kode); }
     public function find_aktivitas_id($kode) { return $this->_lookup('aktivitas', 'mst_aktivitas', 'kode', 'id', $kode); }
     public function find_proses_id($kode) { return $this->_lookup('proses', 'mst_proses', 'kode', 'id', $kode); }
@@ -166,6 +172,11 @@ class Import_model extends CI_Model
      * ribuan baris: 1 statement untuk ratusan baris, bukan ratusan
      * round-trip terpisah ke database.
      *
+     * Sekaligus mengumpulkan pasangan (jf_id, periode) dari baris yang
+     * diinsert, lalu sinkronisasi ke trx_jf_periode di transaksi yang
+     * sama -- supaya kalau insert di-rollback, snapshot JF-per-periode
+     * ikut batal (tidak "nyangkut" tanpa data laporannya).
+     *
      * @param  array      $rows       array of associative array siap insert
      * @param  int        $chunk_size jumlah baris per statement insert_batch
      * @param  array|null $pre_delete opsional, untuk mode "timpa periode ini":
@@ -189,10 +200,23 @@ class Import_model extends CI_Model
         }
 
         $inserted = 0;
+        $jf_periode_pairs = array(); // dikumpulkan sambil jalan, untuk sync ke trx_jf_periode
+
         foreach (array_chunk($rows, $chunk_size) as $chunk) {
             $this->db->insert_batch('trx_laporan_produksi', $chunk);
             $inserted += count($chunk);
+
+            foreach ($chunk as $row) {
+                if (!empty($row['jf_id']) && !empty($row['tanggal'])) {
+                    $jf_periode_pairs[] = array(
+                        'jf_id'   => $row['jf_id'],
+                        'periode' => substr($row['tanggal'], 0, 7), // YYYY-MM dari tanggal
+                    );
+                }
+            }
         }
+
+        $this->Jf_model->sync_periode($jf_periode_pairs);
 
         if ($this->db->trans_status() === FALSE) {
             $this->db->trans_rollback();
