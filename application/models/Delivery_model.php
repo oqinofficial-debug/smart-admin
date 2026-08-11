@@ -72,4 +72,81 @@ class Delivery_model extends CI_Model
         $this->db->where('id', $id)->delete('trx_delivery_record');
         return $this->db->affected_rows();
     }
+
+    // ---------------------------------------------------------------
+    // Pencantolan stok FG (trx_delivery_pemakaian_fg) -- Bagian 3.4 rancangan
+    // ---------------------------------------------------------------
+
+    public function get_pemakaian_fg($delivery_id)
+    {
+        return $this->db->select("f.*, j.jf, p.nama AS proses_nama, m.periode AS monitoring_periode")
+            ->from('trx_delivery_pemakaian_fg f')
+            ->join('trx_monitoring_produksi m', 'm.id = f.monitoring_id')
+            ->join('mst_jf j', 'j.id = m.jf_id')
+            ->join('mst_proses p', 'p.id = m.proses_id')
+            ->where('f.delivery_id', $delivery_id)
+            ->order_by('f.created_at', 'DESC')
+            ->get()
+            ->result_array();
+    }
+
+    /**
+     * Cari baris monitoring dengan status_output = FINISH_GOOD_STOK untuk
+     * satu JF, lengkap sisa stok FG (realisasi_good_qty dikurangi total
+     * sudah dipakai kiriman manapun -- bukan hanya kiriman ini).
+     */
+    public function search_stok_fg($jf_id)
+    {
+        return $this->db->select("m.id AS monitoring_id, p.nama AS proses_nama, d.nama AS department_nama,
+                            m.periode, m.realisasi_good_qty,
+                            m.realisasi_good_qty - COALESCE(pakai.total_pakai, 0) AS sisa_qty")
+            ->from('trx_monitoring_produksi m')
+            ->join('mst_proses p', 'p.id = m.proses_id')
+            ->join('mst_department d', 'd.id = m.department_id')
+            ->join(
+                "(SELECT monitoring_id, SUM(qty_pakai) AS total_pakai
+                  FROM trx_delivery_pemakaian_fg
+                  GROUP BY monitoring_id) pakai",
+                'pakai.monitoring_id = m.id',
+                'left'
+            )
+            ->where('m.jf_id', $jf_id)
+            ->where('m.status_output', 'FINISH_GOOD_STOK')
+            ->order_by('m.periode', 'DESC')
+            ->get()
+            ->result_array();
+    }
+
+    public function get_sisa_stok_fg($monitoring_id)
+    {
+        $m = $this->db->select('realisasi_good_qty')->where('id', $monitoring_id)
+            ->get('trx_monitoring_produksi')->row_array();
+        if (!$m) {
+            return null;
+        }
+
+        $pakai = $this->db->select('COALESCE(SUM(qty_pakai), 0) AS total')
+            ->where('monitoring_id', $monitoring_id)
+            ->get('trx_delivery_pemakaian_fg')
+            ->row_array();
+
+        return (float) $m['realisasi_good_qty'] - (float) $pakai['total'];
+    }
+
+    public function create_pemakaian_fg($delivery_id, $monitoring_id, $qty_pakai, $inputer_id)
+    {
+        $this->db->insert('trx_delivery_pemakaian_fg', array(
+            'delivery_id'   => $delivery_id,
+            'monitoring_id' => $monitoring_id,
+            'qty_pakai'     => $qty_pakai,
+            'inputer_id'    => $inputer_id,
+        ));
+        return $this->db->insert_id();
+    }
+
+    public function delete_pemakaian_fg($id)
+    {
+        $this->db->where('id', $id)->delete('trx_delivery_pemakaian_fg');
+        return $this->db->affected_rows();
+    }
 }

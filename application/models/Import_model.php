@@ -43,6 +43,7 @@ class Import_model extends CI_Model
     {
         parent::__construct();
         $this->load->model('Jf_model');
+        $this->load->model('Monitoring_model');
     }
 
     // ---------------------------------------------------------------
@@ -201,6 +202,7 @@ class Import_model extends CI_Model
 
         $inserted = 0;
         $jf_periode_pairs = array(); // dikumpulkan sambil jalan, untuk sync ke trx_jf_periode
+        $monitoring_tuples = array(); // dikumpulkan sambil jalan, untuk refresh agg_* trx_monitoring_produksi
 
         foreach (array_chunk($rows, $chunk_size) as $chunk) {
             $this->db->insert_batch('trx_laporan_produksi', $chunk);
@@ -213,10 +215,19 @@ class Import_model extends CI_Model
                         'periode' => substr($row['tanggal'], 0, 7), // YYYY-MM dari tanggal
                     );
                 }
+                if (!empty($row['jf_id']) && !empty($row['tanggal']) && !empty($row['department_id']) && !empty($row['proses_id'])) {
+                    $monitoring_tuples[] = array(
+                        'jf_id'         => $row['jf_id'],
+                        'periode'       => substr($row['tanggal'], 0, 7),
+                        'department_id' => $row['department_id'],
+                        'proses_id'     => $row['proses_id'],
+                    );
+                }
             }
         }
 
         $this->Jf_model->sync_periode($jf_periode_pairs);
+        $this->Monitoring_model->refresh_agg($monitoring_tuples);
 
         if ($this->db->trans_status() === FALSE) {
             $this->db->trans_rollback();
