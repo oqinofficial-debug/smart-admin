@@ -1,0 +1,270 @@
+<div class="card">
+    <h2>Detail Monitoring — <?php echo htmlspecialchars($jf ? $jf['jf'] : '-'); ?> (<?php echo htmlspecialchars($periode); ?>)</h2>
+
+    <p>
+        <a href="<?php echo base_url('monitoring-produksi?periode=' . $periode); ?>">&laquo; Kembali ke daftar</a>
+    </p>
+
+    <div id="alert-box"></div>
+
+    <?php foreach ($rows as $row): ?>
+        <div class="card" style="margin-bottom:16px;border:1px solid #ddd;" data-monitoring-id="<?php echo $row['id']; ?>">
+            <h3>
+                <?php echo htmlspecialchars($row['department_nama']); ?> —
+                <?php echo htmlspecialchars($row['proses_nama']); ?>
+                <?php if (!$row['is_match']): ?>
+                    <span class="badge badge-inactive">Realisasi ≠ Agregat</span>
+                <?php endif; ?>
+            </h3>
+
+            <table class="table-list">
+                <thead>
+                    <tr>
+                        <th>Kolom</th>
+                        <th>Hasil Import (agg)</th>
+                        <th>Realisasi (bisa diedit)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach (array(
+                        'input_qty'    => 'Input Qty',
+                        'qc_sampling'  => 'QC Sampling',
+                        'waste'        => 'Waste',
+                        'dead'         => 'Dead',
+                        'error'        => 'Error',
+                        'good_qty'     => 'Good Qty',
+                    ) as $col => $label): ?>
+                        <tr>
+                            <td><?php echo $label; ?></td>
+                            <td><?php echo htmlspecialchars($row['agg_' . $col]); ?></td>
+                            <td>
+                                <input type="number" step="any"
+                                       class="realisasi-input" data-col="<?php echo $col; ?>"
+                                       value="<?php echo htmlspecialchars($row['realisasi_' . $col]); ?>"
+                                       <?php echo empty($access['can_edit']) ? 'disabled' : ''; ?>>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+
+            <?php if (!empty($access['can_edit'])): ?>
+                <button type="button" class="btn btn-primary btn-simpan-realisasi">Simpan Realisasi</button>
+            <?php endif; ?>
+
+            <div style="margin-top:12px;">
+                <label>Status Output:</label>
+                <select class="status-output-select" <?php echo empty($access['can_edit']) ? 'disabled' : ''; ?>>
+                    <option value="" <?php echo empty($row['status_output']) ? 'selected' : ''; ?>>- Belum ditentukan -</option>
+                    <option value="PROSES_SELANJUTNYA" <?php echo ($row['status_output'] === 'PROSES_SELANJUTNYA') ? 'selected' : ''; ?>>Proses Selanjutnya</option>
+                    <option value="WIP_STOK" <?php echo ($row['status_output'] === 'WIP_STOK') ? 'selected' : ''; ?>>WIP Stok</option>
+                    <option value="FINISH_GOOD_STOK" <?php echo ($row['status_output'] === 'FINISH_GOOD_STOK') ? 'selected' : ''; ?>>Finish Good Stok</option>
+                </select>
+            </div>
+
+            <h4 style="margin-top:16px;">Cantolan Bahan (RAW/WIP)</h4>
+            <table class="table-list pemakaian-list">
+                <thead>
+                    <tr>
+                        <th>Jenis</th>
+                        <th>Material / Sumber</th>
+                        <th>Qty Pakai</th>
+                        <th>Satuan</th>
+                        <th>Keterangan</th>
+                        <?php if (!empty($access['can_delete'])): ?><th>Aksi</th><?php endif; ?>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php $pemakaian = $this->Pemakaian_material_model->get_by_monitoring($row['id']); ?>
+                    <?php if (empty($pemakaian)): ?>
+                        <tr><td colspan="6">Belum ada cantolan bahan.</td></tr>
+                    <?php else: ?>
+                        <?php foreach ($pemakaian as $p): ?>
+                            <tr data-pemakaian-id="<?php echo $p['id']; ?>">
+                                <td><?php echo htmlspecialchars($p['jenis_material']); ?></td>
+                                <td>
+                                    <?php if ($p['jenis_material'] === 'RAW'): ?>
+                                        <?php echo htmlspecialchars($p['raw_kode'] . ' - ' . $p['raw_nama']); ?>
+                                    <?php else: ?>
+                                        <?php echo htmlspecialchars($p['sumber_jf'] . ' / ' . $p['sumber_proses_nama'] . ' / ' . $p['sumber_department_nama'] . ' (' . $p['sumber_periode'] . ')'); ?>
+                                    <?php endif; ?>
+                                </td>
+                                <td><?php echo htmlspecialchars($p['qty_pakai']); ?></td>
+                                <td><?php echo htmlspecialchars($p['satuan']); ?></td>
+                                <td><?php echo htmlspecialchars($p['keterangan']); ?></td>
+                                <?php if (!empty($access['can_delete'])): ?>
+                                    <td><button type="button" class="btn btn-danger btn-hapus-pemakaian">Hapus</button></td>
+                                <?php endif; ?>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+
+            <?php if (!empty($access['can_input'])): ?>
+                <div class="form-cantolan-bahan" style="margin-top:8px;">
+                    <label>Jenis:</label>
+                    <select class="cantolan-jenis">
+                        <option value="RAW">RAW</option>
+                        <option value="WIP">WIP</option>
+                    </select>
+                    <input type="text" class="cantolan-search" placeholder="Cari material/sumber..." autocomplete="off">
+                    <input type="hidden" class="cantolan-ref-id">
+                    <div class="cantolan-search-results" style="display:none;"></div>
+                    <input type="number" step="any" class="cantolan-qty" placeholder="Qty pakai">
+                    <input type="text" class="cantolan-satuan" placeholder="Satuan">
+                    <input type="text" class="cantolan-keterangan" placeholder="Keterangan (opsional)">
+                    <button type="button" class="btn btn-primary btn-tambah-cantolan">Tambah</button>
+                </div>
+            <?php endif; ?>
+        </div>
+    <?php endforeach; ?>
+</div>
+
+<script>
+(function () {
+    var baseUrl = '<?php echo base_url(); ?>';
+
+    function showAlert(type, msg) {
+        var box = document.getElementById('alert-box');
+        box.innerHTML = '<div class="alert alert-' + type + '">' + msg + '</div>';
+        setTimeout(function () { box.innerHTML = ''; }, 4000);
+    }
+
+    function post(url, data) {
+        var body = new URLSearchParams(data);
+        return fetch(baseUrl + url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: body
+        }).then(function (r) { return r.json(); });
+    }
+
+    // Simpan realisasi
+    document.querySelectorAll('.btn-simpan-realisasi').forEach(function (btn) {
+        btn.addEventListener('click', function (force) {
+            var card = btn.closest('[data-monitoring-id]');
+            var monitoringId = card.getAttribute('data-monitoring-id');
+            var data = { monitoring_id: monitoringId };
+            card.querySelectorAll('.realisasi-input').forEach(function (inp) {
+                data['realisasi_' + inp.getAttribute('data-col')] = inp.value;
+            });
+            if (force === true) { data.force = '1'; }
+
+            post('monitoring-produksi/realisasi_update', data).then(function (res) {
+                if (res.success) {
+                    showAlert('success', 'Realisasi tersimpan.');
+                } else if (res.warning_keras) {
+                    if (confirm(res.message + '\n\nLanjutkan simpan?')) {
+                        btn.click.call(btn, true);
+                        // re-trigger with force
+                        var d2 = Object.assign({}, data, { force: '1' });
+                        post('monitoring-produksi/realisasi_update', d2).then(function (res2) {
+                            showAlert(res2.success ? 'success' : 'danger', res2.success ? 'Realisasi tersimpan.' : res2.message);
+                        });
+                    }
+                } else {
+                    showAlert('danger', res.message || 'Gagal menyimpan realisasi.');
+                }
+            });
+        });
+    });
+
+    // Status output
+    document.querySelectorAll('.status-output-select').forEach(function (sel) {
+        sel.addEventListener('change', function () {
+            var card = sel.closest('[data-monitoring-id]');
+            var monitoringId = card.getAttribute('data-monitoring-id');
+            post('monitoring-produksi/status_output_set', { monitoring_id: monitoringId, status: sel.value })
+                .then(function (res) {
+                    showAlert(res.success ? 'success' : 'danger', res.success ? 'Status output diperbarui.' : (res.message || 'Gagal.'));
+                });
+        });
+    });
+
+    // Hapus cantolan
+    document.querySelectorAll('.btn-hapus-pemakaian').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            if (!confirm('Hapus cantolan bahan ini?')) { return; }
+            var tr = btn.closest('[data-pemakaian-id]');
+            var id = tr.getAttribute('data-pemakaian-id');
+            post('monitoring-produksi/pemakaian_delete/' + id, {}).then(function (res) {
+                if (res.success) { tr.remove(); } else { showAlert('danger', res.message || 'Gagal menghapus.'); }
+            });
+        });
+    });
+
+    // Autocomplete + tambah cantolan bahan
+    document.querySelectorAll('.form-cantolan-bahan').forEach(function (form) {
+        var card = form.closest('[data-monitoring-id]');
+        var monitoringId = card.getAttribute('data-monitoring-id');
+        var jenisSel = form.querySelector('.cantolan-jenis');
+        var searchInp = form.querySelector('.cantolan-search');
+        var refIdInp = form.querySelector('.cantolan-ref-id');
+        var resultsBox = form.querySelector('.cantolan-search-results');
+        var timer = null;
+
+        searchInp.addEventListener('input', function () {
+            refIdInp.value = '';
+            clearTimeout(timer);
+            var q = searchInp.value;
+            timer = setTimeout(function () {
+                var endpoint = (jenisSel.value === 'RAW') ? 'monitoring-produksi/search_raw' : 'monitoring-produksi/search_wip';
+                fetch(baseUrl + endpoint + '?q=' + encodeURIComponent(q))
+                    .then(function (r) { return r.json(); })
+                    .then(function (list) {
+                        resultsBox.innerHTML = '';
+                        if (!list.length) { resultsBox.style.display = 'none'; return; }
+                        list.forEach(function (item) {
+                            var div = document.createElement('div');
+                            var id, label;
+                            if (jenisSel.value === 'RAW') {
+                                id = item.id; label = item.kode_material + ' - ' + item.nama_material;
+                            } else {
+                                id = item.monitoring_id;
+                                label = item.jf + ' / ' + item.proses_nama + ' / ' + item.department_nama +
+                                    ' (' + item.periode + ') — sisa ' + item.sisa_qty;
+                            }
+                            div.textContent = label;
+                            div.style.cursor = 'pointer';
+                            div.addEventListener('click', function () {
+                                refIdInp.value = id;
+                                searchInp.value = label;
+                                resultsBox.style.display = 'none';
+                            });
+                            resultsBox.appendChild(div);
+                        });
+                        resultsBox.style.display = 'block';
+                    });
+            }, 250);
+        });
+
+        form.querySelector('.btn-tambah-cantolan').addEventListener('click', function () {
+            if (!refIdInp.value) {
+                showAlert('danger', 'Pilih material/sumber dari daftar autocomplete dulu.');
+                return;
+            }
+            var data = {
+                monitoring_id: monitoringId,
+                jenis_material: jenisSel.value,
+                qty_pakai: form.querySelector('.cantolan-qty').value,
+                satuan: form.querySelector('.cantolan-satuan').value,
+                keterangan: form.querySelector('.cantolan-keterangan').value
+            };
+            if (jenisSel.value === 'RAW') {
+                data.material_raw_id = refIdInp.value;
+            } else {
+                data.sumber_monitoring_id = refIdInp.value;
+            }
+            post('monitoring-produksi/pemakaian_add', data).then(function (res) {
+                if (res.success) {
+                    showAlert(res.warning ? 'danger' : 'success', res.warning || 'Cantolan bahan ditambahkan. Muat ulang halaman untuk lihat daftar.');
+                    setTimeout(function () { location.reload(); }, 1200);
+                } else {
+                    showAlert('danger', res.message || 'Gagal menambah cantolan.');
+                }
+            });
+        });
+    });
+})();
+</script>
