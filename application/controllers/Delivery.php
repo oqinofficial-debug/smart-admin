@@ -113,6 +113,73 @@ class Delivery extends MY_Controller
         redirect('delivery');
     }
 
+    // ---------------------------------------------------------------
+    // AJAX -- cantolan stok FG (poin 9 rancangan: mengurangi stok FG
+    // hasil monitoring untuk memenuhi satu delivery record tertentu)
+    // ---------------------------------------------------------------
+
+    /** Autocomplete sumber stok FG untuk satu JF. GET: jf_id */
+    public function fg_search()
+    {
+        $this->require_access('delivery', 'input');
+        $jf_id = (int) $this->input->get('jf_id', true);
+        $this->_json($this->Delivery_model->search_stok_fg($jf_id));
+    }
+
+    public function fg_list($delivery_id)
+    {
+        $this->require_access('delivery', 'view');
+        $this->_json($this->Delivery_model->get_pemakaian_fg($delivery_id));
+    }
+
+    /**
+     * Tambah cantolan FG. POST: delivery_id, monitoring_id, qty_pakai.
+     * Validasi sisa stok FG bersifat WARNING (soft, konsisten dengan
+     * pemakaian bahan di modul monitoring) -- tetap disimpan.
+     */
+    public function fg_add()
+    {
+        $this->require_access('delivery', 'input');
+
+        $delivery_id   = (int) $this->input->post('delivery_id', true);
+        $monitoring_id = (int) $this->input->post('monitoring_id', true);
+        $qty_pakai     = $this->input->post('qty_pakai', true);
+
+        if (!$this->Delivery_model->get($delivery_id) || $qty_pakai === '' || $qty_pakai === null) {
+            $this->_json(array('success' => false, 'message' => 'Data cantolan FG tidak lengkap.'), 400);
+            return;
+        }
+
+        $sisa = $this->Delivery_model->get_sisa_stok_fg($monitoring_id);
+        if ($sisa === null) {
+            $this->_json(array('success' => false, 'message' => 'Sumber stok FG tidak ditemukan.'), 400);
+            return;
+        }
+
+        $warning = null;
+        if ((float) $qty_pakai > $sisa) {
+            $warning = 'Qty pakai (' . $qty_pakai . ') melebihi sisa stok FG (' . $sisa . '). Data tetap disimpan -- mohon cek kembali.';
+        }
+
+        $id = $this->Delivery_model->create_pemakaian_fg($delivery_id, $monitoring_id, $qty_pakai, $this->user['id']);
+        $this->_json(array('success' => true, 'id' => $id, 'warning' => $warning));
+    }
+
+    public function fg_delete($id)
+    {
+        $this->require_access('delivery', 'delete');
+        $this->Delivery_model->delete_pemakaian_fg($id);
+        $this->_json(array('success' => true));
+    }
+
+    private function _json($data, $http_code = 200)
+    {
+        $this->output
+            ->set_content_type('application/json')
+            ->set_status_header($http_code)
+            ->set_output(json_encode($data));
+    }
+
     private function _validate()
     {
         $this->form_validation->set_rules('jf_id', 'No. JF', 'required|trim|integer');
