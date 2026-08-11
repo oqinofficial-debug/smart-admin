@@ -589,7 +589,7 @@ class Import extends MY_Controller
         $resolved['jam_selesai'] = !empty($val['jam_selesai']) ? $this->value_converter->to_time($val['jam_selesai']) : null;
 
         // angka
-        $numeric_fields = array('durasi', 'target_jam', 'input_qty', 'input_pcs', 'input_sheet', 'qc_sampling', 'waste', 'dead', 'error_qty', 'good_pcs');
+        $numeric_fields = array('durasi', 'target_jam', 'input_qty', 'input_pcs', 'input_sheet', 'qc_sampling', 'waste', 'dead', 'error', 'good_pcs');
         foreach ($numeric_fields as $field_key) {
             if (!empty($val[$field_key])) {
                 $normalized = str_replace(',', '.', $val[$field_key]);
