@@ -139,13 +139,13 @@ class Monitoring_model extends CI_Model
     public function get_active_jf_by_periode($periode, array $department_ids = null)
     {
         $this->db->select('j.id AS jf_id, j.jf, j.product, j.customer, j.status_jf,
-                            m.department_id, d.nama AS department_nama')
+                            m.department_id, d.department_name AS department_nama')
             ->from('trx_monitoring_produksi m')
             ->join('mst_jf j', 'j.id = m.jf_id')
             ->join('mst_department d', 'd.id = m.department_id')
             ->where('m.periode', $periode)
             ->where('j.status_jf', 'AKTIF')
-            ->group_by('j.id, j.jf, j.product, j.customer, j.status_jf, m.department_id, d.nama')
+            ->group_by('j.id, j.jf, j.product, j.customer, j.status_jf, m.department_id, d.department_name')
             ->order_by('j.jf', 'ASC');
 
         if ($department_ids !== null) {
@@ -161,13 +161,13 @@ class Monitoring_model extends CI_Model
 
     public function get_detail($jf_id, $periode, array $department_ids = null)
     {
-        $this->db->select('m.*, p.nama AS proses_nama, p.kode AS proses_kode, d.nama AS department_nama')
+        $this->db->select('m.*, p.nama AS proses_nama, p.kode AS proses_kode, d.department_name AS department_nama')
             ->from('trx_monitoring_produksi m')
             ->join('mst_proses p', 'p.id = m.proses_id')
             ->join('mst_department d', 'd.id = m.department_id')
             ->where('m.jf_id', $jf_id)
             ->where('m.periode', $periode)
-            ->order_by('d.nama', 'ASC')
+            ->order_by('d.department_name', 'ASC')
             ->order_by('p.nama', 'ASC');
 
         if ($department_ids !== null) {

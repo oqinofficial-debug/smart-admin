@@ -97,7 +97,7 @@ class Delivery_model extends CI_Model
      */
     public function search_stok_fg($jf_id)
     {
-        return $this->db->select("m.id AS monitoring_id, p.nama AS proses_nama, d.nama AS department_nama,
+        return $this->db->select("m.id AS monitoring_id, p.nama AS proses_nama, d.department_name AS department_nama,
                             m.periode, m.realisasi_good_qty,
                             m.realisasi_good_qty - COALESCE(pakai.total_pakai, 0) AS sisa_qty")
             ->from('trx_monitoring_produksi m')

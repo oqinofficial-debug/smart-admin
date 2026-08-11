@@ -24,7 +24,7 @@ class Pemakaian_material_model extends CI_Model
     {
         $this->db->select("pm.*, mr.kode_material AS raw_kode, mr.nama_material AS raw_nama,
                             sj.jf AS sumber_jf, sm.periode AS sumber_periode,
-                            sp.nama AS sumber_proses_nama, sd.nama AS sumber_department_nama")
+                            sp.nama AS sumber_proses_nama, sd.department_name AS sumber_department_nama")
             ->from('trx_pemakaian_material pm')
             ->join('mst_material_raw mr', 'mr.id = pm.material_raw_id', 'left')
             ->join('trx_monitoring_produksi sm', 'sm.id = pm.sumber_monitoring_id', 'left')
@@ -48,7 +48,7 @@ class Pemakaian_material_model extends CI_Model
      */
     public function search_sumber_wip($keyword = '')
     {
-        $this->db->select("sm.id AS monitoring_id, j.jf, p.nama AS proses_nama, d.nama AS department_nama,
+        $this->db->select("sm.id AS monitoring_id, j.jf, p.nama AS proses_nama, d.department_name AS department_nama,
                             sm.periode, sm.status_output, sm.realisasi_good_qty,
                             sm.realisasi_good_qty - COALESCE(pakai.total_pakai, 0) AS sisa_qty")
             ->from('trx_monitoring_produksi sm')
