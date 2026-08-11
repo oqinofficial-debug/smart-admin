@@ -73,3 +73,19 @@ $route['import/alias/add']           = 'import_alias/add_alias';
 $route['import/alias/delete/(:num)'] = 'import_alias/delete_alias/$1';
 $route['import/alias/sheet/add']           = 'import_alias/add_sheet_alias';
 $route['import/alias/sheet/delete/(:num)'] = 'import_alias/delete_sheet_alias/$1';
+
+// Production Monitoring Report
+$route['monitoring-produksi']                       = 'monitoring_produksi/index';
+$route['monitoring-produksi/detail/(:num)/(:any)']   = 'monitoring_produksi/detail/$1/$2';
+$route['monitoring-produksi/search-wip']             = 'monitoring_produksi/search_wip';
+$route['monitoring-produksi/search-raw']             = 'monitoring_produksi/search_raw';
+$route['monitoring-produksi/pemakaian/add']          = 'monitoring_produksi/pemakaian_add';
+$route['monitoring-produksi/pemakaian/delete/(:num)'] = 'monitoring_produksi/pemakaian_delete/$1';
+$route['monitoring-produksi/realisasi/update']       = 'monitoring_produksi/realisasi_update';
+$route['monitoring-produksi/status-output/set']      = 'monitoring_produksi/status_output_set';
+
+// Delivery -- cantolan stok FG
+$route['delivery/fg/search']            = 'delivery/fg_search';
+$route['delivery/fg/list/(:num)']       = 'delivery/fg_list/$1';
+$route['delivery/fg/add']               = 'delivery/fg_add';
+$route['delivery/fg/delete/(:num)']     = 'delivery/fg_delete/$1';
