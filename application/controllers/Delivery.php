@@ -61,6 +61,7 @@ class Delivery extends MY_Controller
         $data['menus']         = $this->menus;
         $data['delivery_row']  = null;
         $data['jf_list']       = $this->Jf_model->get_all();
+        $data['access']        = cek_akses('delivery');
 
         $this->load->view('templates/header', $data);
         $this->load->view('templates/sidebar', $data);
@@ -92,6 +93,7 @@ class Delivery extends MY_Controller
         $data['menus']         = $this->menus;
         $data['delivery_row']  = $delivery_row;
         $data['jf_list']       = $this->Jf_model->get_all();
+        $data['access']        = cek_akses('delivery');
 
         $this->load->view('templates/header', $data);
         $this->load->view('templates/sidebar', $data);
