@@ -2,12 +2,12 @@
 -- PostgreSQL database dump
 --
 
-\restrict A0X8av1JhUwvsf43xEddj3jhakx01a7dBVxSOBUpn9Y7FLXdzmdfwoBWGVmhP7f
+\restrict idoJXsuI4cWOn2WKT45tFDhnzxid9MCsrDyqZa5LJwJeX6UsvBAgaj45ztGGzpy
 
 -- Dumped from database version 17.10
 -- Dumped by pg_dump version 17.10
 
--- Started on 2026-08-12 20:12:24
+-- Started on 2026-08-12 20:30:49
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -1019,8 +1019,8 @@ CREATE TABLE public.trx_pemakaian_material (
     keterangan text,
     inputer_id integer,
     created_at timestamp without time zone DEFAULT now() NOT NULL,
-    CONSTRAINT chk_pemakaian_jenis_material CHECK (((jenis_material)::text = ANY ((ARRAY['RAW'::character varying, 'WIP'::character varying])::text[]))),
-    CONSTRAINT chk_pemakaian_material_sumber CHECK (((((jenis_material)::text = 'RAW'::text) AND (material_raw_id IS NOT NULL) AND (sumber_monitoring_id IS NULL)) OR (((jenis_material)::text = 'WIP'::text) AND (sumber_monitoring_id IS NOT NULL) AND (material_raw_id IS NULL))))
+    CONSTRAINT chk_pemakaian_jenis_material CHECK (((jenis_material)::text = ANY (ARRAY[('RAW'::character varying)::text, ('WIP'::character varying)::text, ('FG'::character varying)::text]))),
+    CONSTRAINT chk_pemakaian_material_sumber CHECK (((((jenis_material)::text = 'RAW'::text) AND (material_raw_id IS NOT NULL) AND (sumber_monitoring_id IS NULL)) OR (((jenis_material)::text = ANY (ARRAY['WIP'::text, 'FG'::text])) AND (sumber_monitoring_id IS NOT NULL) AND (material_raw_id IS NULL))))
 );
 
 
@@ -2668,11 +2668,11 @@ ALTER TABLE ONLY public.trx_wip_pemakaian
     ADD CONSTRAINT trx_wip_pemakaian_monitoring_id_pakai_fkey FOREIGN KEY (monitoring_id_pakai) REFERENCES public.trx_monitoring_produksi(id);
 
 
--- Completed on 2026-08-12 20:12:24
+-- Completed on 2026-08-12 20:30:49
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict A0X8av1JhUwvsf43xEddj3jhakx01a7dBVxSOBUpn9Y7FLXdzmdfwoBWGVmhP7f
+\unrestrict idoJXsuI4cWOn2WKT45tFDhnzxid9MCsrDyqZa5LJwJeX6UsvBAgaj45ztGGzpy
 
