@@ -88,6 +88,14 @@ class Monitoring_produksi extends MY_Controller
         $this->_json($this->Pemakaian_material_model->search_sumber_wip($keyword));
     }
 
+    /** Autocomplete sumber FG (stok trx_monitoring_produksi status_output=FINISH_GOOD_STOK). GET: q */
+    public function search_fg()
+    {
+        $this->require_access('monitoring_produksi', 'input');
+        $keyword = $this->input->get('q', true) ?: '';
+        $this->_json($this->Pemakaian_material_model->search_sumber_fg($keyword));
+    }
+
     /** Autocomplete master RAW. GET: q */
     public function search_raw()
     {
@@ -104,10 +112,12 @@ class Monitoring_produksi extends MY_Controller
     }
 
     /**
-     * Tambah cantolan bahan (RAW atau WIP). POST:
-     * monitoring_id, jenis_material (RAW|WIP), material_raw_id (jika RAW),
-     * sumber_monitoring_id (jika WIP), qty_pakai, satuan, keterangan.
-     * Validasi sisa sumber WIP bersifat WARNING (poin 7 rancangan) --
+     * Tambah cantolan bahan (RAW, WIP, atau FG). POST:
+     * monitoring_id, jenis_material (RAW|WIP|FG), material_raw_id (jika RAW),
+     * sumber_monitoring_id (jika WIP/FG), qty_pakai, satuan, keterangan.
+     * FG = ambil dari stok trx_monitoring_produksi berstatus
+     * FINISH_GOOD_STOK sebagai bahan proses lain (bukan kirim customer).
+     * Validasi sisa sumber WIP/FG bersifat WARNING (poin 7 rancangan) --
      * tetap disimpan, tapi response membawa flag `warning` kalau qty_pakai
      * melebihi sisa, supaya UI bisa tampilkan konfirmasi non-blocking.
      */
@@ -126,7 +136,7 @@ class Monitoring_produksi extends MY_Controller
             $this->_json(array('success' => false, 'message' => 'Baris monitoring tidak ditemukan atau bukan department Anda.'), 403);
             return;
         }
-        if (!in_array($jenis, array('RAW', 'WIP'), true) || $qty_pakai === '' || $qty_pakai === null || $satuan === '') {
+        if (!in_array($jenis, array('RAW', 'WIP', 'FG'), true) || $qty_pakai === '' || $qty_pakai === null || $satuan === '') {
             $this->_json(array('success' => false, 'message' => 'Data pemakaian bahan tidak lengkap.'), 400);
             return;
         }
@@ -142,7 +152,7 @@ class Monitoring_produksi extends MY_Controller
             $id = $this->Pemakaian_material_model->create_raw(
                 $monitoring_id, $material_raw_id, $qty_pakai, $satuan, $keterangan, $this->user['id']
             );
-        } else {
+        } elseif ($jenis === 'WIP') {
             $sumber_id = (int) $this->input->post('sumber_monitoring_id', true);
             $sisa = $this->Pemakaian_material_model->get_sisa_sumber_wip($sumber_id);
             if ($sisa === null) {
@@ -153,6 +163,19 @@ class Monitoring_produksi extends MY_Controller
                 $warning = 'Qty pakai (' . $qty_pakai . ') melebihi sisa sumber WIP (' . $sisa . '). Data tetap disimpan -- mohon cek kembali.';
             }
             $id = $this->Pemakaian_material_model->create_wip(
+                $monitoring_id, $sumber_id, $qty_pakai, $satuan, $keterangan, $this->user['id']
+            );
+        } else { // FG
+            $sumber_id = (int) $this->input->post('sumber_monitoring_id', true);
+            $sisa = $this->Pemakaian_material_model->get_sisa_sumber_fg($sumber_id);
+            if ($sisa === null) {
+                $this->_json(array('success' => false, 'message' => 'Sumber FG tidak ditemukan atau bukan stok Finish Good.'), 400);
+                return;
+            }
+            if ((float) $qty_pakai > $sisa) {
+                $warning = 'Qty pakai (' . $qty_pakai . ') melebihi sisa stok FG (' . $sisa . ', sudah memperhitungkan pemakaian di modul Delivery). Data tetap disimpan -- mohon cek kembali.';
+            }
+            $id = $this->Pemakaian_material_model->create_fg(
                 $monitoring_id, $sumber_id, $qty_pakai, $satuan, $keterangan, $this->user['id']
             );
         }

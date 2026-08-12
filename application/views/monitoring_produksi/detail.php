@@ -62,7 +62,7 @@
                 </select>
             </div>
 
-            <h4 style="margin-top:16px;">Cantolan Bahan (RAW/WIP)</h4>
+            <h4 style="margin-top:16px;">Cantolan Bahan (RAW/WIP/FG)</h4>
             <table class="table-list pemakaian-list">
                 <thead>
                     <tr>
@@ -86,6 +86,7 @@
                                     <?php if ($p['jenis_material'] === 'RAW'): ?>
                                         <?php echo htmlspecialchars($p['raw_kode'] . ' - ' . $p['raw_nama']); ?>
                                     <?php else: ?>
+                                        <?php // WIP maupun FG sama-sama merujuk baris trx_monitoring_produksi lain via sumber_monitoring_id ?>
                                         <?php echo htmlspecialchars($p['sumber_jf'] . ' / ' . $p['sumber_proses_nama'] . ' / ' . $p['sumber_department_nama'] . ' (' . $p['sumber_periode'] . ')'); ?>
                                     <?php endif; ?>
                                 </td>
@@ -107,6 +108,7 @@
                     <select class="cantolan-jenis">
                         <option value="RAW">RAW</option>
                         <option value="WIP">WIP</option>
+                        <option value="FG">FG (stok Finish Good proses lain)</option>
                     </select>
                     <input type="text" class="cantolan-search" placeholder="Cari material/sumber..." autocomplete="off">
                     <input type="hidden" class="cantolan-ref-id">
@@ -209,7 +211,9 @@
             clearTimeout(timer);
             var q = searchInp.value;
             timer = setTimeout(function () {
-                var endpoint = (jenisSel.value === 'RAW') ? 'monitoring-produksi/search_raw' : 'monitoring-produksi/search_wip';
+                var endpoint = 'monitoring-produksi/search_wip';
+                if (jenisSel.value === 'RAW') { endpoint = 'monitoring-produksi/search_raw'; }
+                if (jenisSel.value === 'FG') { endpoint = 'monitoring-produksi/search_fg'; }
                 fetch(baseUrl + endpoint + '?q=' + encodeURIComponent(q))
                     .then(function (r) { return r.json(); })
                     .then(function (list) {

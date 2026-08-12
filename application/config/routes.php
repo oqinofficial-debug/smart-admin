@@ -79,6 +79,7 @@ $route['monitoring-produksi']                       = 'monitoring_produksi/index
 $route['monitoring-produksi/detail/(:num)/(:any)']   = 'monitoring_produksi/detail/$1/$2';
 $route['monitoring-produksi/search-wip']             = 'monitoring_produksi/search_wip';
 $route['monitoring-produksi/search-raw']             = 'monitoring_produksi/search_raw';
+$route['monitoring-produksi/search-fg']              = 'monitoring_produksi/search_fg';
 $route['monitoring-produksi/pemakaian/add']          = 'monitoring_produksi/pemakaian_add';
 $route['monitoring-produksi/pemakaian/delete/(:num)'] = 'monitoring_produksi/pemakaian_delete/$1';
 $route['monitoring-produksi/realisasi/update']       = 'monitoring_produksi/realisasi_update';

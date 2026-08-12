@@ -95,6 +95,98 @@ class Pemakaian_material_model extends CI_Model
         return (float) $m['realisasi_good_qty'] - (float) $pakai['total'];
     }
 
+    /**
+     * Cari baris trx_monitoring_produksi yang bisa jadi SUMBER FG --
+     * status_output = FINISH_GOOD_STOK, lintas JF/department apapun.
+     * Sisa qty dihitung GABUNGAN dari dua tempat pemakaian yang sama-sama
+     * menyerap stok FG ini: trx_pemakaian_material (jenis_material='FG',
+     * dipakai Monitoring Produksi sendiri sbg bahan proses lain) DAN
+     * trx_delivery_pemakaian_fg (dipakai modul Delivery utk kirim ke
+     * customer). Supaya stok FG yang sama tidak double-terpakai tanpa
+     * saling tahu antara dua modul tersebut.
+     *
+     * @param string $keyword cari di kode JF / nama proses, boleh kosong
+     */
+    public function search_sumber_fg($keyword = '')
+    {
+        $this->db->select("sm.id AS monitoring_id, j.jf, p.nama AS proses_nama, d.department_name AS department_nama,
+                            sm.periode, sm.status_output, sm.realisasi_good_qty,
+                            sm.realisasi_good_qty - COALESCE(pm_pakai.total_pakai, 0) - COALESCE(dl_pakai.total_pakai, 0) AS sisa_qty")
+            ->from('trx_monitoring_produksi sm')
+            ->join('mst_jf j', 'j.id = sm.jf_id')
+            ->join('mst_proses p', 'p.id = sm.proses_id')
+            ->join('mst_department d', 'd.id = sm.department_id')
+            ->join(
+                "(SELECT sumber_monitoring_id, SUM(qty_pakai) AS total_pakai
+                  FROM trx_pemakaian_material
+                  WHERE jenis_material = 'FG'
+                  GROUP BY sumber_monitoring_id) pm_pakai",
+                'pm_pakai.sumber_monitoring_id = sm.id',
+                'left'
+            )
+            ->join(
+                "(SELECT monitoring_id, SUM(qty_pakai) AS total_pakai
+                  FROM trx_delivery_pemakaian_fg
+                  GROUP BY monitoring_id) dl_pakai",
+                'dl_pakai.monitoring_id = sm.id',
+                'left'
+            )
+            ->where('sm.status_output', 'FINISH_GOOD_STOK');
+
+        if ($keyword !== '') {
+            $this->db->group_start()
+                ->like('j.jf', $keyword)
+                ->or_like('p.nama', $keyword)
+                ->group_end();
+        }
+
+        $this->db->order_by('sm.updated_at', 'DESC')->limit(50);
+
+        return $this->db->get()->result_array();
+    }
+
+    /**
+     * Sisa qty satu sumber FG tertentu -- gabungan pemakaian dari
+     * trx_pemakaian_material (FG) dan trx_delivery_pemakaian_fg, lihat
+     * catatan di search_sumber_fg(). Dipakai untuk validasi warning saat
+     * submit (soft, sama seperti get_sisa_sumber_wip()).
+     */
+    public function get_sisa_sumber_fg($monitoring_id)
+    {
+        $m = $this->db->select('realisasi_good_qty, status_output')->where('id', $monitoring_id)
+            ->get('trx_monitoring_produksi')->row_array();
+        if (!$m || $m['status_output'] !== 'FINISH_GOOD_STOK') {
+            return null;
+        }
+
+        $pm_pakai = $this->db->select('COALESCE(SUM(qty_pakai), 0) AS total')
+            ->where('sumber_monitoring_id', $monitoring_id)
+            ->where('jenis_material', 'FG')
+            ->get('trx_pemakaian_material')
+            ->row_array();
+
+        $dl_pakai = $this->db->select('COALESCE(SUM(qty_pakai), 0) AS total')
+            ->where('monitoring_id', $monitoring_id)
+            ->get('trx_delivery_pemakaian_fg')
+            ->row_array();
+
+        return (float) $m['realisasi_good_qty'] - (float) $pm_pakai['total'] - (float) $dl_pakai['total'];
+    }
+
+    public function create_fg($monitoring_id, $sumber_monitoring_id, $qty_pakai, $satuan, $keterangan, $inputer_id)
+    {
+        $this->db->insert('trx_pemakaian_material', array(
+            'monitoring_id'         => $monitoring_id,
+            'jenis_material'        => 'FG',
+            'sumber_monitoring_id'  => $sumber_monitoring_id,
+            'qty_pakai'             => $qty_pakai,
+            'satuan'                => $satuan,
+            'keterangan'            => $keterangan,
+            'inputer_id'            => $inputer_id,
+        ));
+        return $this->db->insert_id();
+    }
+
     public function create_raw($monitoring_id, $material_raw_id, $qty_pakai, $satuan, $keterangan, $inputer_id)
     {
         $this->db->insert('trx_pemakaian_material', array(
