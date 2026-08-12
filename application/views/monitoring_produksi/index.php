@@ -20,27 +20,39 @@
             <tr>
                 <th>No. JF</th>
                 <th>Produk</th>
-                <th>Customer</th>
-                <th>Status JF</th>
-                <th>Department</th>
+                <th>Qty</th>
+                <?php foreach ($departments as $dept): ?>
+                    <th title="<?php echo htmlspecialchars($dept['department_name']); ?>">
+                        <?php echo htmlspecialchars($dept['department_code']); ?>
+                    </th>
+                <?php endforeach; ?>
+                <th>Kirim Bulan Ini</th>
+                <th>Total Kirim s/d Periode Ini</th>
                 <th>Aksi</th>
             </tr>
         </thead>
         <tbody>
-            <?php if (empty($jf_list)): ?>
-                <tr><td colspan="6">Belum ada data monitoring untuk periode ini.</td></tr>
+            <?php if (empty($jf_matrix)): ?>
+                <tr><td colspan="<?php echo 6 + count($departments); ?>">Belum ada data monitoring untuk periode ini.</td></tr>
             <?php else: ?>
-                <?php foreach ($jf_list as $row): ?>
+                <?php foreach ($jf_matrix as $row): ?>
                     <tr>
                         <td><?php echo htmlspecialchars($row['jf']); ?></td>
                         <td><?php echo htmlspecialchars($row['product']); ?></td>
-                        <td><?php echo htmlspecialchars($row['customer']); ?></td>
-                        <td>
-                            <span class="badge <?php echo ($row['status_jf'] === 'AKTIF') ? 'badge-active' : 'badge-inactive'; ?>">
-                                <?php echo htmlspecialchars($row['status_jf']); ?>
-                            </span>
+                        <td><?php echo htmlspecialchars($row['qty']); ?></td>
+                        <?php foreach ($departments as $dept): ?>
+                            <td style="text-align:center;">
+                                <?php if (in_array((int) $dept['id'], $row['department_ids_jalan'], true)): ?>
+                                    <span class="badge badge-active" title="Jatah jalan di <?php echo htmlspecialchars($dept['department_name']); ?> periode ini">&#10003;</span>
+                                <?php else: ?>
+                                    &ndash;
+                                <?php endif; ?>
+                            </td>
+                        <?php endforeach; ?>
+                        <td style="text-align:right;">
+                            <?php echo ($row['delivery_bulan_ini'] > 0) ? htmlspecialchars($row['delivery_bulan_ini']) : '-'; ?>
                         </td>
-                        <td><?php echo htmlspecialchars($row['department_nama']); ?></td>
+                        <td style="text-align:right;"><?php echo htmlspecialchars($row['total_kirim_s_d_periode']); ?></td>
                         <td>
                             <a href="<?php echo base_url('monitoring-produksi/detail/' . $row['jf_id'] . '/' . $periode); ?>">
                                 Detail

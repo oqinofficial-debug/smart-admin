@@ -130,29 +130,124 @@ class Monitoring_model extends CI_Model
     // ---------------------------------------------------------------
 
     /**
-     * Daftar JF aktif yang punya baris monitoring pada periode tsb,
-     * dibatasi ke department_ids user (null = tidak dibatasi, lihat
-     * Import_model::get_user_allowed_departments() untuk pola yang sama).
-     * Dikelompokkan per JF (agregat department_id yang muncul disertakan
-     * sebagai info, bukan untuk filter lanjutan).
+     * Matrix "JF per periode": SATU baris per JF yang punya aktivitas
+     * monitoring pada periode tsb, lengkap dengan:
+     *  - department_ids_jalan: department mana saja yang "jatah jalan"
+     *    (ada baris trx_monitoring_produksi) di periode ini untuk JF itu.
+     *  - delivery_bulan_ini: total aktual_kirim (trx_delivery_record)
+     *    yang tanggal_kirim-nya jatuh di periode ini.
+     *  - total_kirim_s_d_periode: total aktual_kirim KUMULATIF dari
+     *    seluruh periode sebelumnya + periode ini (bukan hanya bulan
+     *    ini), dipakai untuk lihat progress kirim total per JF sejauh
+     *    periode yang sedang dilihat.
+     *
+     * Dibatasi ke department_ids user (null = tidak dibatasi, lihat
+     * Import_model::get_user_allowed_departments()) -- membatasi baris
+     * JF apa yang tampil (JF hanya muncul kalau ada aktivitas di
+     * department yang boleh dilihat user) SEKALIGUS department mana yang
+     * ditandai jalan (department di luar akses user tidak ditandai,
+     * meski JF itu sendiri kebetulan juga jalan di sana).
+     *
+     * SENGAJA tidak difilter status_jf='AKTIF': status_jf itu global/current
+     * (satu kolom untuk seluruh riwayat JF, lihat Jf_model::close()), bukan
+     * per-periode. Daftar per periode ini historis -- begitu difilter
+     * status_jf, JF yang baru saja dijadikan FINAL akan hilang dari SEMUA
+     * periode lampaunya juga, padahal datanya (dan is_match-nya) masih utuh
+     * di trx_monitoring_produksi. status_jf tetap disertakan di hasil
+     * supaya UI bisa tampilkan badge info, hanya tidak dipakai sbg filter.
+     * (Beda dengan Jf_model::get_active_by_periode(), yang memang secara
+     * sengaja hanya untuk JF yang MASIH aktif saat ini -- fitur terpisah.)
+     *
+     * @return array [['jf_id','jf','product','qty','status_jf',
+     *                  'department_ids_jalan'=>[..], 'delivery_bulan_ini',
+     *                  'total_kirim_s_d_periode'], ...]
      */
-    public function get_active_jf_by_periode($periode, array $department_ids = null)
+    public function get_jf_matrix_by_periode($periode, array $department_ids = null)
     {
-        $this->db->select('j.id AS jf_id, j.jf, j.product, j.customer, j.status_jf,
-                            m.department_id, d.department_name AS department_nama')
+        $this->db->select('j.id AS jf_id, j.jf, j.product, j.qty, j.status_jf, m.department_id')
             ->from('trx_monitoring_produksi m')
             ->join('mst_jf j', 'j.id = m.jf_id')
-            ->join('mst_department d', 'd.id = m.department_id')
             ->where('m.periode', $periode)
-            ->where('j.status_jf', 'AKTIF')
-            ->group_by('j.id, j.jf, j.product, j.customer, j.status_jf, m.department_id, d.department_name')
+            ->group_by('j.id, j.jf, j.product, j.qty, j.status_jf, m.department_id')
             ->order_by('j.jf', 'ASC');
 
         if ($department_ids !== null) {
             $this->db->where_in('m.department_id', $department_ids);
         }
 
-        return $this->db->get()->result_array();
+        $raw = $this->db->get()->result_array();
+        if (empty($raw)) {
+            return array();
+        }
+
+        // Rakit jadi satu baris per JF, kumpulkan department_id yang jalan.
+        $matrix = array();
+        $order  = array();
+        foreach ($raw as $r) {
+            $jid = $r['jf_id'];
+            if (!isset($matrix[$jid])) {
+                $matrix[$jid] = array(
+                    'jf_id'                 => $jid,
+                    'jf'                    => $r['jf'],
+                    'product'               => $r['product'],
+                    'qty'                   => $r['qty'],
+                    'status_jf'             => $r['status_jf'],
+                    'department_ids_jalan'  => array(),
+                );
+                $order[] = $jid;
+            }
+            $matrix[$jid]['department_ids_jalan'][] = (int) $r['department_id'];
+        }
+
+        $jf_ids = $order;
+
+        // Delivery bulan ini (tanggal_kirim jatuh persis di periode ini)
+        $bulan_ini = array();
+        foreach ($this->db->select("jf_id, COALESCE(SUM(aktual_kirim), 0) AS total")
+            ->from('trx_delivery_record')
+            ->where_in('jf_id', $jf_ids)
+            ->where("TO_CHAR(tanggal_kirim, 'YYYY-MM') = " . $this->db->escape($periode), null, false)
+            ->group_by('jf_id')
+            ->get()->result_array() as $d) {
+            $bulan_ini[$d['jf_id']] = (float) $d['total'];
+        }
+
+        // Total kirim kumulatif: seluruh periode sebelumnya + periode ini
+        $kumulatif = array();
+        foreach ($this->db->select("jf_id, COALESCE(SUM(aktual_kirim), 0) AS total")
+            ->from('trx_delivery_record')
+            ->where_in('jf_id', $jf_ids)
+            ->where("TO_CHAR(tanggal_kirim, 'YYYY-MM') <= " . $this->db->escape($periode), null, false)
+            ->group_by('jf_id')
+            ->get()->result_array() as $d) {
+            $kumulatif[$d['jf_id']] = (float) $d['total'];
+        }
+
+        $result = array();
+        foreach ($order as $jid) {
+            $row = $matrix[$jid];
+            $row['delivery_bulan_ini']       = isset($bulan_ini[$jid]) ? $bulan_ini[$jid] : 0.0;
+            $row['total_kirim_s_d_periode']  = isset($kumulatif[$jid]) ? $kumulatif[$jid] : 0.0;
+            $result[] = $row;
+        }
+        return $result;
+    }
+
+    /**
+     * Master department untuk header kolom matrix, dibatasi ke
+     * department_ids user (null = semua). Hanya yang is_active.
+     */
+    public function get_department_columns(array $department_ids = null)
+    {
+        $this->db->where('is_active', true)->order_by('department_code', 'ASC');
+        if ($department_ids !== null) {
+            $this->db->where_in('id', $department_ids);
+        }
+        $rows = $this->db->get('mst_department')->result_array();
+        foreach ($rows as &$r) {
+            $r['is_active'] = normalize_bool($r['is_active']);
+        }
+        return $rows;
     }
 
     // ---------------------------------------------------------------

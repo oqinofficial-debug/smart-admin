@@ -38,11 +38,12 @@ class Monitoring_produksi extends MY_Controller
         $periode = $this->input->get('periode', true) ?: date('Y-m');
         $dept_ids = $this->Import_model->get_user_allowed_departments($this->user['id']);
 
-        $data['title']    = 'Production Monitoring Report - ' . APP_NAME;
-        $data['menus']    = $this->menus;
-        $data['access']   = cek_akses('monitoring_produksi');
-        $data['periode']  = $periode;
-        $data['jf_list']  = $this->Monitoring_model->get_active_jf_by_periode($periode, $dept_ids);
+        $data['title']       = 'Production Monitoring Report - ' . APP_NAME;
+        $data['menus']       = $this->menus;
+        $data['access']      = cek_akses('monitoring_produksi');
+        $data['periode']     = $periode;
+        $data['jf_matrix']   = $this->Monitoring_model->get_jf_matrix_by_periode($periode, $dept_ids);
+        $data['departments'] = $this->Monitoring_model->get_department_columns($dept_ids);
 
         $this->load->view('templates/header', $data);
         $this->load->view('templates/sidebar', $data);
