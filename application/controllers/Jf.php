@@ -153,6 +153,48 @@ class Jf extends MY_Controller
         redirect('jf');
     }
 
+    /**
+     * Tambah massal via copy-paste (mis. dari Excel: jf<TAB>product<TAB>
+     * qty<TAB>bapob<TAB>chip<TAB>customer<TAB>po<TAB>kelompok_produk<TAB>status_jf).
+     * Baris dengan kode JF yang SUDAH ADA akan DI-REPLACE, bukan ditolak.
+     */
+    public function bulk()
+    {
+        $this->require_access('jf', 'input');
+
+        $result = null;
+
+        if ($this->input->method() === 'post') {
+            $raw = (string) $this->input->post('data');
+
+            if (trim($raw) === '') {
+                $this->session->set_flashdata('error', 'Data tempelan masih kosong.');
+            } else {
+                $result = $this->Jf_model->bulk_upsert(parse_bulk_paste($raw));
+
+                if ($result['inserted'] === 0 && $result['updated'] === 0) {
+                    $this->session->set_flashdata('error', 'Tidak ada baris yang berhasil diproses. Periksa detail error di bawah.');
+                } else {
+                    $msg = $result['inserted'] . ' JF baru ditambahkan, ' . $result['updated'] . ' data di-replace.';
+                    if (!empty($result['errors'])) {
+                        $msg .= ' ' . count($result['errors']) . ' baris gagal, lihat detail di bawah.';
+                    }
+                    $this->session->set_flashdata('success', $msg);
+                }
+            }
+        }
+
+        $data['title']  = 'Tambah Massal JF - ' . APP_NAME;
+        $data['menus']  = $this->menus;
+        $data['result'] = $result;
+        $data['raw']    = $this->input->post('data');
+
+        $this->load->view('templates/header', $data);
+        $this->load->view('templates/sidebar', $data);
+        $this->load->view('jf/bulk', $data);
+        $this->load->view('templates/footer');
+    }
+
     public function delete($id)
     {
         $this->require_access('jf', 'delete');

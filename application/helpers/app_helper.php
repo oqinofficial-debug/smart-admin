@@ -67,6 +67,58 @@ if (!function_exists('role_badge_class')) {
     }
 }
 
+if (!function_exists('parse_bulk_paste')) {
+    /**
+     * Parse teks hasil copy-paste (biasanya dari Excel/Sheets) jadi array
+     * baris, tiap baris berupa array kolom mentah (belum divalidasi).
+     * Delimiter kolom dideteksi otomatis dari SELURUH teks (bukan per
+     * baris) supaya konsisten walau ada baris yang cuma 1 kolom:
+     *   - TAB kalau ada (bawaan copy-paste dari Excel/Google Sheets)
+     *   - kalau tidak ada TAB, coba ';'
+     *   - kalau tidak ada juga, pakai ','
+     * Baris kosong (setelah trim) dilewati. Dipakai fitur "Tambah Massal"
+     * di MasterData, Karyawan, dan Jf.
+     */
+    function parse_bulk_paste($text)
+    {
+        $text = str_replace(array("\r\n", "\r"), "\n", (string) $text);
+        $lines = explode("\n", $text);
+
+        if (strpos($text, "\t") !== false) {
+            $delim = "\t";
+        } elseif (strpos($text, ';') !== false) {
+            $delim = ';';
+        } else {
+            $delim = ',';
+        }
+
+        $rows = array();
+        foreach ($lines as $line) {
+            if (trim($line) === '') {
+                continue;
+            }
+            $rows[] = array_map('trim', explode($delim, $line));
+        }
+        return $rows;
+    }
+}
+
+if (!function_exists('parse_flexible_bool')) {
+    /**
+     * Konversi teks bebas (kolom "Aktif" hasil copy-paste) jadi boolean.
+     * Kosong -> $default. Dikenali TRUE: 1, y, ya, yes, true, aktif, active
+     * (case-insensitive). Selain itu (termasuk 0/tidak/nonaktif/no) -> FALSE.
+     */
+    function parse_flexible_bool($raw, $default = true)
+    {
+        $raw = strtolower(trim((string) $raw));
+        if ($raw === '') {
+            return $default;
+        }
+        return in_array($raw, array('1', 'y', 'ya', 'yes', 'true', 'aktif', 'active'), true);
+    }
+}
+
 if (!function_exists('normalize_bool')) {
     /**
      * Normalisasi boolean dari PostgreSQL ('t'/'f' string) ke boolean PHP asli.

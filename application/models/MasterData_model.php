@@ -35,6 +35,27 @@ class MasterData_model extends CI_Model
         return $this->config;
     }
 
+    /**
+     * Contoh 2 baris data untuk halaman "Tambah Massal", disesuaikan per
+     * $type supaya instruksinya relevan (bukan selalu contoh Shift walau
+     * lagi input Mesin/Aktivitas/dst).
+     *
+     * @return array tiap elemen: array(kode, nama, aktif)
+     */
+    public function get_bulk_example($type)
+    {
+        $examples = array(
+            'shift'           => array(array('SH1', 'Shift Pagi', '1'), array('SH2', 'Shift Siang', '1')),
+            'mesin'           => array(array('MSN01', 'Mesin Cetak 1', '1'), array('MSN02', 'Mesin Cetak 2', '1')),
+            'aktivitas'       => array(array('AKT01', 'Pengecekan QC', '1'), array('AKT02', 'Pengepakan', '1')),
+            'proses'          => array(array('PR01', 'Pencetakan', '1'), array('PR02', 'Finishing', '1')),
+            'borong'          => array(array('BR01', 'Jahit Borongan', '1'), array('BR02', 'Packing Borongan', '1')),
+            'kelompok_produk' => array(array('KP01', 'Kelompok Produk A', '1'), array('KP02', 'Kelompok Produk B', '1')),
+        );
+
+        return isset($examples[$type]) ? $examples[$type] : array(array('KODE1', 'Nama Data 1', '1'), array('KODE2', 'Nama Data 2', '1'));
+    }
+
     public function get_label($type)
     {
         return isset($this->config[$type]) ? $this->config[$type]['label'] : null;
@@ -94,6 +115,64 @@ class MasterData_model extends CI_Model
             'nama'      => $data['nama'],
             'is_active' => (bool) $data['is_active'],
         ));
+    }
+
+    /**
+     * Tambah massal via copy-paste (mis. dari Excel). Tiap elemen $rows
+     * adalah array kolom mentah hasil parse_bulk_paste(): [kode, nama, aktif?].
+     *
+     * Kalau kode SUDAH ADA di tabel ini, baris yang bersangkutan DI-REPLACE
+     * (nama + status aktif ditimpa) -- beda dari add() biasa yang menolak
+     * kode duplikat. Kalau belum ada, jadi baris baru.
+     *
+     * @return array array('inserted'=>int, 'updated'=>int,
+     *               'errors'=>array(array('line'=>int, 'message'=>string)))
+     */
+    public function bulk_upsert($type, array $rows)
+    {
+        $table    = $this->_table($type);
+        $inserted = 0;
+        $updated  = 0;
+        $errors   = array();
+
+        foreach ($rows as $i => $cols) {
+            $line = $i + 1;
+            $kode = isset($cols[0]) ? trim($cols[0]) : '';
+            $nama = isset($cols[1]) ? trim($cols[1]) : '';
+
+            if ($kode === '' || $nama === '') {
+                $errors[] = array('line' => $line, 'message' => 'Kode dan Nama wajib diisi.');
+                continue;
+            }
+            if (mb_strlen($kode) > 50 || mb_strlen($nama) > 200) {
+                $errors[] = array('line' => $line, 'message' => 'Kode/Nama melebihi panjang maksimum.');
+                continue;
+            }
+
+            $is_active = parse_flexible_bool(isset($cols[2]) ? $cols[2] : '', true);
+            $existing  = $this->db->where('kode', $kode)->get($table)->row_array();
+
+            try {
+                if ($existing) {
+                    $this->db->where('id', $existing['id'])->update($table, array(
+                        'nama'      => $nama,
+                        'is_active' => $is_active,
+                    ));
+                    $updated++;
+                } else {
+                    $this->db->insert($table, array(
+                        'kode'      => $kode,
+                        'nama'      => $nama,
+                        'is_active' => $is_active,
+                    ));
+                    $inserted++;
+                }
+            } catch (Exception $e) {
+                $errors[] = array('line' => $line, 'message' => 'Gagal simpan: ' . $e->getMessage());
+            }
+        }
+
+        return array('inserted' => $inserted, 'updated' => $updated, 'errors' => $errors);
     }
 
     /** Hard delete. Ditolak kalau DB menolak karena FK RESTRICT dari trx_laporan_produksi. */

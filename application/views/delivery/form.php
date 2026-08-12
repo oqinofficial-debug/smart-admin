@@ -31,10 +31,10 @@
         </div>
 
         <div class="form-group">
-            <label>Aktual Kirim</label>
-            <input type="date" name="aktual_kirim" class="form-control"
+            <label>Aktual Kirim (Qty)</label>
+            <input type="number" step="any" name="aktual_kirim" class="form-control"
                    value="<?php echo set_value('aktual_kirim', $delivery_row['aktual_kirim'] ?? ''); ?>">
-            <small class="text-muted">Kosongkan kalau belum benar-benar terkirim.</small>
+            <small class="text-muted">Qty barang yang benar-benar terkirim. Kosongkan kalau belum benar-benar terkirim.</small>
         </div>
 
         <div class="form-group">

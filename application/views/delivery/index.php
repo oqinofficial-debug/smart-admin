@@ -10,6 +10,9 @@
 
     <?php if (!empty($access['can_input'])): ?>
         <a href="<?php echo base_url('delivery/add'); ?>" class="btn btn-primary">+ Tambah Delivery Record</a>
+        <a href="<?php echo base_url('delivery/bulk'); ?>" class="btn" style="background:#e9ecef; color:#2c3e50; margin-left:6px;">
+            Tambah Massal (Copy-Paste)
+        </a>
     <?php endif; ?>
 
     <table class="table-list" style="margin-top:12px;">
@@ -17,7 +20,7 @@
             <tr>
                 <th>No. JF</th>
                 <th>Tanggal Kirim</th>
-                <th>Aktual Kirim</th>
+                <th>Aktual Kirim (Qty)</th>
                 <th>No. SP</th>
                 <th>Jenis SP</th>
                 <th>Status JF</th>

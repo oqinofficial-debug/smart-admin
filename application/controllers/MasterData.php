@@ -116,6 +116,51 @@ class MasterData extends MY_Controller
         $this->load->view('templates/footer');
     }
 
+    /**
+     * Tambah massal via copy-paste (mis. dari Excel: kode<TAB>nama<TAB>aktif).
+     * Baris dengan kode yang SUDAH ADA akan DI-REPLACE, bukan ditolak.
+     */
+    public function bulk($type)
+    {
+        $this->require_access('master_data', 'input');
+        $this->_check_type($type);
+
+        $result = null;
+
+        if ($this->input->method() === 'post') {
+            $raw = (string) $this->input->post('data');
+
+            if (trim($raw) === '') {
+                $this->session->set_flashdata('error', 'Data tempelan masih kosong.');
+            } else {
+                $result = $this->MasterData_model->bulk_upsert($type, parse_bulk_paste($raw));
+
+                if ($result['inserted'] === 0 && $result['updated'] === 0) {
+                    $this->session->set_flashdata('error', 'Tidak ada baris yang berhasil diproses. Periksa detail error di bawah.');
+                } else {
+                    $msg = $result['inserted'] . ' data baru ditambahkan, ' . $result['updated'] . ' data di-replace.';
+                    if (!empty($result['errors'])) {
+                        $msg .= ' ' . count($result['errors']) . ' baris gagal, lihat detail di bawah.';
+                    }
+                    $this->session->set_flashdata('success', $msg);
+                }
+            }
+        }
+
+        $data['title']  = 'Tambah Massal ' . $this->MasterData_model->get_label($type) . ' - ' . APP_NAME;
+        $data['menus']  = $this->menus;
+        $data['type']   = $type;
+        $data['label']  = $this->MasterData_model->get_label($type);
+        $data['result'] = $result;
+        $data['raw']    = $this->input->post('data');
+        $data['examples'] = $this->MasterData_model->get_bulk_example($type);
+
+        $this->load->view('templates/header', $data);
+        $this->load->view('templates/sidebar', $data);
+        $this->load->view('master_data/bulk', $data);
+        $this->load->view('templates/footer');
+    }
+
     public function delete($type, $id)
     {
         $this->require_access('master_data', 'delete');

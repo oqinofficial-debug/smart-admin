@@ -5,11 +5,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * Delivery_model
  *
  * CRUD catatan kiriman per JF (trx_delivery_record): No. JF, Tanggal Kirim,
- * Aktual Kirim, No. SP, Jenis SP. Ini murni data pencatatan -- BUKAN
- * mekanisme final JF otomatis (final JF tetap manual & global, lihat
- * Jf_model::set_final()). Data di sini nantinya jadi salah satu bahan
- * pertimbangan (akumulasi qty terkirim vs qty JF) untuk mendeteksi anomali,
- * tapi perhitungan itu belum ada di sini.
+ * Aktual Kirim (qty barang yang benar-benar terkirim), No. SP, Jenis SP.
+ * Ini murni data pencatatan -- BUKAN mekanisme final JF otomatis (final JF
+ * tetap manual & global, lihat Jf_model::set_final()). Data di sini
+ * nantinya jadi salah satu bahan pertimbangan (akumulasi qty terkirim vs
+ * qty JF) untuk mendeteksi anomali, tapi perhitungan itu belum ada di sini.
  */
 class Delivery_model extends CI_Model
 {
@@ -71,6 +71,106 @@ class Delivery_model extends CI_Model
     {
         $this->db->where('id', $id)->delete('trx_delivery_record');
         return $this->db->affected_rows();
+    }
+
+    /**
+     * Tambah massal via copy-paste (mis. dari Excel). Tiap elemen $rows
+     * adalah array kolom mentah hasil parse_bulk_paste():
+     * [no_jf, tanggal_kirim, aktual_kirim(qty)?, no_sp, jenis_sp?]
+     *
+     * Beda dari master data lain (Master Data/Karyawan/JF) yang punya satu
+     * kolom kode unik, delivery record tidak punya kolom kode tunggal --
+     * jadi kecocokan baris "sudah ada" dicek dari PASANGAN (No. JF + No. SP).
+     * Kalau pasangan itu SUDAH ADA, baris DI-REPLACE (tanggal kirim, aktual
+     * kirim/qty, jenis SP ditimpa). Kalau belum ada, jadi baris baru.
+     *
+     * No. JF harus sudah terdaftar di Master JF (tidak dibuatkan otomatis)
+     * -- kalau tidak ketemu, baris itu gagal.
+     *
+     * @param int $inputer_id dipakai untuk baris baru saja (kolom inputer_id
+     *            tidak ditimpa ulang saat replace, supaya jejak siapa yang
+     *            input pertama kali tetap ada).
+     * @return array array('inserted'=>int, 'updated'=>int,
+     *               'errors'=>array(array('line'=>int, 'message'=>string)))
+     */
+    public function bulk_upsert(array $rows, $inputer_id)
+    {
+        $this->load->library('value_converter');
+
+        $inserted = 0;
+        $updated  = 0;
+        $errors   = array();
+
+        foreach ($rows as $i => $cols) {
+            $line         = $i + 1;
+            $jf_kode      = isset($cols[0]) ? trim($cols[0]) : '';
+            $tanggal_raw  = isset($cols[1]) ? trim($cols[1]) : '';
+            $aktual_raw   = isset($cols[2]) ? trim($cols[2]) : '';
+            $no_sp        = isset($cols[3]) ? trim($cols[3]) : '';
+            $jenis_sp     = isset($cols[4]) ? trim($cols[4]) : '';
+
+            if ($jf_kode === '' || $no_sp === '') {
+                $errors[] = array('line' => $line, 'message' => 'No. JF dan No. SP wajib diisi.');
+                continue;
+            }
+            if (mb_strlen($no_sp) > 100) {
+                $errors[] = array('line' => $line, 'message' => 'No. SP melebihi 100 karakter.');
+                continue;
+            }
+
+            $jf_row = $this->db->where('jf', $jf_kode)->get('mst_jf')->row_array();
+            if (!$jf_row) {
+                $errors[] = array('line' => $line, 'message' => 'No. JF "' . $jf_kode . '" tidak ditemukan di Master JF.');
+                continue;
+            }
+
+            if ($tanggal_raw === '') {
+                $errors[] = array('line' => $line, 'message' => 'Tanggal Kirim wajib diisi.');
+                continue;
+            }
+            $tanggal_kirim = $this->value_converter->to_date($tanggal_raw);
+            if ($tanggal_kirim === null) {
+                $errors[] = array('line' => $line, 'message' => 'Tanggal Kirim tidak valid (dapat: "' . $tanggal_raw . '").');
+                continue;
+            }
+
+            $aktual_kirim = null;
+            if ($aktual_raw !== '') {
+                if (!is_numeric(str_replace(',', '.', $aktual_raw))) {
+                    $errors[] = array('line' => $line, 'message' => 'Aktual Kirim (Qty) harus angka (dapat: "' . $aktual_raw . '").');
+                    continue;
+                }
+                $aktual_kirim = (float) str_replace(',', '.', $aktual_raw);
+            }
+
+            $data = array(
+                'jf_id'         => $jf_row['id'],
+                'tanggal_kirim' => $tanggal_kirim,
+                'aktual_kirim'  => $aktual_kirim,
+                'no_sp'         => $no_sp,
+                'jenis_sp'      => $jenis_sp !== '' ? $jenis_sp : null,
+            );
+
+            $existing = $this->db->where('jf_id', $jf_row['id'])
+                                  ->where('no_sp', $no_sp)
+                                  ->get('trx_delivery_record')
+                                  ->row_array();
+
+            try {
+                if ($existing) {
+                    $this->db->where('id', $existing['id'])->update('trx_delivery_record', $data);
+                    $updated++;
+                } else {
+                    $data['inputer_id'] = $inputer_id;
+                    $this->db->insert('trx_delivery_record', $data);
+                    $inserted++;
+                }
+            } catch (Exception $e) {
+                $errors[] = array('line' => $line, 'message' => 'Gagal simpan: ' . $e->getMessage());
+            }
+        }
+
+        return array('inserted' => $inserted, 'updated' => $updated, 'errors' => $errors);
     }
 
     // ---------------------------------------------------------------

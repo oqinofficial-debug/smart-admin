@@ -10,6 +10,9 @@
 
     <?php if (!empty($access['can_input'])): ?>
         <a href="<?php echo base_url('karyawan/add'); ?>" class="btn btn-primary">+ Tambah Karyawan</a>
+        <a href="<?php echo base_url('karyawan/bulk'); ?>" class="btn" style="background:#e9ecef; color:#2c3e50; margin-left:6px;">
+            Tambah Massal (Copy-Paste)
+        </a>
     <?php endif; ?>
 
     <table class="table-list" style="margin-top:12px;">

@@ -90,6 +90,110 @@ class Jf_model extends CI_Model
         }
     }
 
+    /**
+     * Tambah massal via copy-paste (mis. dari Excel). Tiap elemen $rows
+     * adalah array kolom mentah hasil parse_bulk_paste():
+     * [jf, product?, qty?, bapob?, chip?, customer?, po?, kelompok_produk(nama)?, status_jf?]
+     *
+     * Kalau kode JF SUDAH ADA, baris yang bersangkutan DI-REPLACE (semua
+     * kolom yang diisi ditimpa) -- beda dari add() biasa yang menolak kode
+     * JF duplikat. Kalau belum ada, jadi baris baru (status_jf default
+     * AKTIF kalau kolom status kosong).
+     *
+     * Kolom "Kelompok Produk" diisi NAMA (bukan id), dicocokkan ke
+     * mst_kelompok_produk; kalau namanya tidak ditemukan baris itu gagal
+     * (bukan di-null-kan diam-diam, supaya salah ketik ketahuan).
+     * Kolom status_jf pada baris REPLACE dibiarkan kalau kosong (tidak
+     * menimpa status FINAL yang sudah ditandai lewat tombol "Jadikan Final"),
+     * kecuali diisi eksplisit AKTIF/FINAL di teks tempelan.
+     *
+     * @return array array('inserted'=>int, 'updated'=>int,
+     *               'errors'=>array(array('line'=>int, 'message'=>string)))
+     */
+    public function bulk_upsert(array $rows)
+    {
+        $inserted = 0;
+        $updated  = 0;
+        $errors   = array();
+
+        foreach ($rows as $i => $cols) {
+            $line       = $i + 1;
+            $jf         = isset($cols[0]) ? trim($cols[0]) : '';
+            $product    = isset($cols[1]) ? trim($cols[1]) : '';
+            $qty_raw    = isset($cols[2]) ? trim($cols[2]) : '';
+            $bapob      = isset($cols[3]) ? trim($cols[3]) : '';
+            $chip       = isset($cols[4]) ? trim($cols[4]) : '';
+            $customer   = isset($cols[5]) ? trim($cols[5]) : '';
+            $po         = isset($cols[6]) ? trim($cols[6]) : '';
+            $kp_nama    = isset($cols[7]) ? trim($cols[7]) : '';
+            $status_raw = isset($cols[8]) ? strtoupper(trim($cols[8])) : '';
+
+            if ($jf === '') {
+                $errors[] = array('line' => $line, 'message' => 'Kode JF wajib diisi.');
+                continue;
+            }
+            if (mb_strlen($jf) > 50) {
+                $errors[] = array('line' => $line, 'message' => 'Kode JF melebihi 50 karakter.');
+                continue;
+            }
+            if ($qty_raw !== '' && !is_numeric(str_replace(',', '.', $qty_raw))) {
+                $errors[] = array('line' => $line, 'message' => 'Qty harus angka (dapat: "' . $qty_raw . '").');
+                continue;
+            }
+            if ($status_raw !== '' && !in_array($status_raw, array('AKTIF', 'FINAL'), true)) {
+                $errors[] = array('line' => $line, 'message' => 'Status JF harus AKTIF atau FINAL (dapat: "' . $status_raw . '").');
+                continue;
+            }
+
+            $kelompok_produk_id = null;
+            if ($kp_nama !== '') {
+                $kp = $this->db->get_where('mst_kelompok_produk', array('nama' => $kp_nama))->row_array();
+                if (!$kp) {
+                    $kp = $this->db->query(
+                        'SELECT id FROM mst_kelompok_produk WHERE LOWER(nama) = LOWER(?) LIMIT 1',
+                        array($kp_nama)
+                    )->row_array();
+                }
+                if (!$kp) {
+                    $errors[] = array('line' => $line, 'message' => 'Kelompok Produk "' . $kp_nama . '" tidak ditemukan.');
+                    continue;
+                }
+                $kelompok_produk_id = $kp['id'];
+            }
+
+            $data = array(
+                'product'            => $product !== '' ? $product : null,
+                'qty'                => $qty_raw === '' ? null : (float) str_replace(',', '.', $qty_raw),
+                'bapob'              => $bapob !== '' ? $bapob : null,
+                'chip'               => $chip !== '' ? $chip : null,
+                'customer'           => $customer !== '' ? $customer : null,
+                'po'                 => $po !== '' ? $po : null,
+                'kelompok_produk_id' => $kelompok_produk_id,
+            );
+
+            $existing = $this->get_by_jf($jf);
+
+            try {
+                if ($existing) {
+                    if ($status_raw !== '') {
+                        $data['status_jf'] = $status_raw;
+                    }
+                    $this->db->where('id', $existing['id'])->update('mst_jf', $data);
+                    $updated++;
+                } else {
+                    $data['jf']        = $jf;
+                    $data['status_jf'] = $status_raw !== '' ? $status_raw : 'AKTIF';
+                    $this->db->insert('mst_jf', $data);
+                    $inserted++;
+                }
+            } catch (Exception $e) {
+                $errors[] = array('line' => $line, 'message' => 'Gagal simpan: ' . $e->getMessage());
+            }
+        }
+
+        return array('inserted' => $inserted, 'updated' => $updated, 'errors' => $errors);
+    }
+
     // ---------------------------------------------------------------
     // Snapshot JF per periode (trx_jf_periode)
     // ---------------------------------------------------------------

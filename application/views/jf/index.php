@@ -10,6 +10,9 @@
 
     <?php if (!empty($access['can_input'])): ?>
         <a href="<?php echo base_url('jf/add'); ?>" class="btn btn-primary">+ Tambah JF</a>
+        <a href="<?php echo base_url('jf/bulk'); ?>" class="btn" style="background:#e9ecef; color:#2c3e50; margin-left:6px;">
+            Tambah Massal (Copy-Paste)
+        </a>
     <?php endif; ?>
     <a href="<?php echo base_url('jf/periode'); ?>" class="btn btn-secondary" style="margin-left:8px;">JF Aktif per Periode</a>
 

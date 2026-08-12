@@ -101,6 +101,48 @@ class Karyawan extends MY_Controller
         $this->load->view('templates/footer');
     }
 
+    /**
+     * Tambah massal via copy-paste (mis. dari Excel:
+     * nik<TAB>nama<TAB>status_kepegawaian<TAB>aktif). Baris dengan NIK
+     * yang SUDAH ADA akan DI-REPLACE, bukan ditolak.
+     */
+    public function bulk()
+    {
+        $this->require_access('karyawan', 'input');
+
+        $result = null;
+
+        if ($this->input->method() === 'post') {
+            $raw = (string) $this->input->post('data');
+
+            if (trim($raw) === '') {
+                $this->session->set_flashdata('error', 'Data tempelan masih kosong.');
+            } else {
+                $result = $this->Karyawan_model->bulk_upsert(parse_bulk_paste($raw));
+
+                if ($result['inserted'] === 0 && $result['updated'] === 0) {
+                    $this->session->set_flashdata('error', 'Tidak ada baris yang berhasil diproses. Periksa detail error di bawah.');
+                } else {
+                    $msg = $result['inserted'] . ' karyawan baru ditambahkan, ' . $result['updated'] . ' data di-replace.';
+                    if (!empty($result['errors'])) {
+                        $msg .= ' ' . count($result['errors']) . ' baris gagal, lihat detail di bawah.';
+                    }
+                    $this->session->set_flashdata('success', $msg);
+                }
+            }
+        }
+
+        $data['title']  = 'Tambah Massal Karyawan - ' . APP_NAME;
+        $data['menus']  = $this->menus;
+        $data['result'] = $result;
+        $data['raw']    = $this->input->post('data');
+
+        $this->load->view('templates/header', $data);
+        $this->load->view('templates/sidebar', $data);
+        $this->load->view('karyawan/bulk', $data);
+        $this->load->view('templates/footer');
+    }
+
     public function delete($id)
     {
         $this->require_access('karyawan', 'delete');
