@@ -2,12 +2,12 @@
 -- PostgreSQL database dump
 --
 
-\restrict idoJXsuI4cWOn2WKT45tFDhnzxid9MCsrDyqZa5LJwJeX6UsvBAgaj45ztGGzpy
+\restrict 6Dxzd7wi5HhGmvLwPk2Jm0QuMErgU9IXhcsQRa27uHFpxDcoOCrL8wUAs6xcExQ
 
 -- Dumped from database version 17.10
 -- Dumped by pg_dump version 17.10
 
--- Started on 2026-08-12 20:30:49
+-- Started on 2026-08-13 06:13:58
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -2668,11 +2668,11 @@ ALTER TABLE ONLY public.trx_wip_pemakaian
     ADD CONSTRAINT trx_wip_pemakaian_monitoring_id_pakai_fkey FOREIGN KEY (monitoring_id_pakai) REFERENCES public.trx_monitoring_produksi(id);
 
 
--- Completed on 2026-08-12 20:30:49
+-- Completed on 2026-08-13 06:13:59
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict idoJXsuI4cWOn2WKT45tFDhnzxid9MCsrDyqZa5LJwJeX6UsvBAgaj45ztGGzpy
+\unrestrict 6Dxzd7wi5HhGmvLwPk2Jm0QuMErgU9IXhcsQRa27uHFpxDcoOCrL8wUAs6xcExQ
 

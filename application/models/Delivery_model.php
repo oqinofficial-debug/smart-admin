@@ -374,20 +374,37 @@ class Delivery_model extends CI_Model
      * Cari baris monitoring dengan status_output = WIP_STOK untuk satu JF,
      * lengkap sisa stok WIP (realisasi_good_qty dikurangi total sudah
      * dipakai proses berikutnya manapun).
+     *
+     * Sisa qty dihitung GABUNGAN dari dua tempat pemakaian yang sama-sama
+     * menyerap stok WIP ini: trx_wip_pemakaian (alokasi FIFO modul
+     * Delivery ini) DAN trx_pemakaian_material (jenis_material='WIP',
+     * cantolan manual di modul Monitoring Produksi). Sebelumnya hanya
+     * trx_wip_pemakaian yang dihitung di sini sehingga stok yang sudah
+     * dicantolkan lewat Monitoring Produksi tidak ikut mengurangi sisa --
+     * berisiko WIP yang sama dialokasikan dobel. Pola ini sama dengan
+     * get_sisa_stok_fg() / search_sumber_fg() milik modul FG.
      */
     public function search_stok_wip($jf_id)
     {
         return $this->db->select("m.id AS monitoring_id, p.nama AS proses_nama, d.department_name AS department_nama,
                             m.periode, m.realisasi_good_qty,
-                            m.realisasi_good_qty - COALESCE(pakai.total_pakai, 0) AS sisa_qty")
+                            m.realisasi_good_qty - COALESCE(dl_pakai.total_pakai, 0) - COALESCE(pm_pakai.total_pakai, 0) AS sisa_qty")
             ->from('trx_monitoring_produksi m')
             ->join('mst_proses p', 'p.id = m.proses_id')
             ->join('mst_department d', 'd.id = m.department_id')
             ->join(
                 "(SELECT monitoring_id_asal, SUM(qty_pakai) AS total_pakai
                   FROM trx_wip_pemakaian
-                  GROUP BY monitoring_id_asal) pakai",
-                'pakai.monitoring_id_asal = m.id',
+                  GROUP BY monitoring_id_asal) dl_pakai",
+                'dl_pakai.monitoring_id_asal = m.id',
+                'left'
+            )
+            ->join(
+                "(SELECT sumber_monitoring_id, SUM(qty_pakai) AS total_pakai
+                  FROM trx_pemakaian_material
+                  WHERE jenis_material = 'WIP'
+                  GROUP BY sumber_monitoring_id) pm_pakai",
+                'pm_pakai.sumber_monitoring_id = m.id',
                 'left'
             )
             ->where('m.jf_id', $jf_id)
@@ -491,6 +508,12 @@ class Delivery_model extends CI_Model
         return $count;
     }
 
+    /**
+     * Sisa stok WIP satu baris monitoring tertentu -- gabungan pemakaian
+     * dari trx_wip_pemakaian dan trx_pemakaian_material (WIP), lihat
+     * catatan di search_stok_wip(). Dipakai untuk validasi sebelum
+     * create_pemakaian_wip() manual (bukan lewat preview/apply FIFO).
+     */
     public function get_sisa_stok_wip($monitoring_id)
     {
         $m = $this->db->select('realisasi_good_qty')->where('id', $monitoring_id)
@@ -499,12 +522,18 @@ class Delivery_model extends CI_Model
             return null;
         }
 
-        $pakai = $this->db->select('COALESCE(SUM(qty_pakai), 0) AS total')
+        $dl_pakai = $this->db->select('COALESCE(SUM(qty_pakai), 0) AS total')
             ->where('monitoring_id_asal', $monitoring_id)
             ->get('trx_wip_pemakaian')
             ->row_array();
 
-        return (float) $m['realisasi_good_qty'] - (float) $pakai['total'];
+        $pm_pakai = $this->db->select('COALESCE(SUM(qty_pakai), 0) AS total')
+            ->where('sumber_monitoring_id', $monitoring_id)
+            ->where('jenis_material', 'WIP')
+            ->get('trx_pemakaian_material')
+            ->row_array();
+
+        return (float) $m['realisasi_good_qty'] - (float) $dl_pakai['total'] - (float) $pm_pakai['total'];
     }
 
     public function create_pemakaian_wip($monitoring_id_asal, $monitoring_id_pakai, $qty_pakai, $inputer_id)

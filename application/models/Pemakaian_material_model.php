@@ -44,13 +44,23 @@ class Pemakaian_material_model extends CI_Model
      * tertentu"), lengkap dengan sisa qty setelah dikurangi pemakaian
      * yang sudah dicantolkan ke sana.
      *
+     * Sisa qty dihitung GABUNGAN dari dua tempat pemakaian yang sama-sama
+     * menyerap stok WIP ini: trx_pemakaian_material (jenis_material='WIP',
+     * dipakai modul Monitoring Produksi sendiri sbg bahan proses lain) DAN
+     * trx_wip_pemakaian (dipakai modul Delivery utk alokasi FIFO WIP
+     * gudang/antar-proses). Sebelumnya kedua tabel ini dihitung terpisah
+     * (masing-masing tidak tahu pemakaian di tabel yang lain) sehingga
+     * sisa stok WIP bisa tampak lebih besar dari kenyataan di salah satu
+     * modul dan berisiko WIP yang sama terpakai dobel. Pola ini sama
+     * dengan search_sumber_fg()/get_sisa_sumber_fg() di bawah.
+     *
      * @param string $keyword cari di kode JF / nama proses, boleh kosong
      */
     public function search_sumber_wip($keyword = '')
     {
         $this->db->select("sm.id AS monitoring_id, j.jf, p.nama AS proses_nama, d.department_name AS department_nama,
                             sm.periode, sm.status_output, sm.realisasi_good_qty,
-                            sm.realisasi_good_qty - COALESCE(pakai.total_pakai, 0) AS sisa_qty")
+                            sm.realisasi_good_qty - COALESCE(pm_pakai.total_pakai, 0) - COALESCE(dl_pakai.total_pakai, 0) AS sisa_qty")
             ->from('trx_monitoring_produksi sm')
             ->join('mst_jf j', 'j.id = sm.jf_id')
             ->join('mst_proses p', 'p.id = sm.proses_id')
@@ -59,8 +69,15 @@ class Pemakaian_material_model extends CI_Model
                 "(SELECT sumber_monitoring_id, SUM(qty_pakai) AS total_pakai
                   FROM trx_pemakaian_material
                   WHERE jenis_material = 'WIP'
-                  GROUP BY sumber_monitoring_id) pakai",
-                'pakai.sumber_monitoring_id = sm.id',
+                  GROUP BY sumber_monitoring_id) pm_pakai",
+                'pm_pakai.sumber_monitoring_id = sm.id',
+                'left'
+            )
+            ->join(
+                "(SELECT monitoring_id_asal, SUM(qty_pakai) AS total_pakai
+                  FROM trx_wip_pemakaian
+                  GROUP BY monitoring_id_asal) dl_pakai",
+                'dl_pakai.monitoring_id_asal = sm.id',
                 'left'
             )
             ->where_in('sm.status_output', array('WIP_STOK', 'PROSES_SELANJUTNYA'));
@@ -77,7 +94,12 @@ class Pemakaian_material_model extends CI_Model
         return $this->db->get()->result_array();
     }
 
-    /** Sisa qty satu sumber WIP tertentu, dipakai untuk validasi warning saat submit. */
+    /**
+     * Sisa qty satu sumber WIP tertentu -- gabungan pemakaian dari
+     * trx_pemakaian_material (WIP) dan trx_wip_pemakaian, lihat catatan
+     * di search_sumber_wip(). Dipakai untuk validasi warning saat submit
+     * (soft, sama seperti get_sisa_sumber_fg()).
+     */
     public function get_sisa_sumber_wip($monitoring_id)
     {
         $m = $this->db->select('realisasi_good_qty')->where('id', $monitoring_id)
@@ -86,13 +108,18 @@ class Pemakaian_material_model extends CI_Model
             return null;
         }
 
-        $pakai = $this->db->select('COALESCE(SUM(qty_pakai), 0) AS total')
+        $pm_pakai = $this->db->select('COALESCE(SUM(qty_pakai), 0) AS total')
             ->where('sumber_monitoring_id', $monitoring_id)
             ->where('jenis_material', 'WIP')
             ->get('trx_pemakaian_material')
             ->row_array();
 
-        return (float) $m['realisasi_good_qty'] - (float) $pakai['total'];
+        $dl_pakai = $this->db->select('COALESCE(SUM(qty_pakai), 0) AS total')
+            ->where('monitoring_id_asal', $monitoring_id)
+            ->get('trx_wip_pemakaian')
+            ->row_array();
+
+        return (float) $m['realisasi_good_qty'] - (float) $pm_pakai['total'] - (float) $dl_pakai['total'];
     }
 
     /**

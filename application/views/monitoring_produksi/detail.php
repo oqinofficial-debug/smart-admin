@@ -7,6 +7,108 @@
 
     <div id="alert-box"></div>
 
+    <?php if (!empty($summary)): ?>
+        <div class="card" style="margin-bottom:16px;border:1px solid #ddd;background:#fafafa;">
+            <h3>Ringkasan Produksi — Pemakaian Material s/d Kirim</h3>
+
+            <h4>Total Realisasi (semua proses)</h4>
+            <table class="table-list">
+                <thead>
+                    <tr>
+                        <th>Input Qty</th><th>QC Sampling</th><th>Waste</th>
+                        <th>Dead</th><th>Error</th><th>Good Qty</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><?php echo htmlspecialchars($summary['total_realisasi']['input_qty']); ?></td>
+                        <td><?php echo htmlspecialchars($summary['total_realisasi']['qc_sampling']); ?></td>
+                        <td><?php echo htmlspecialchars($summary['total_realisasi']['waste']); ?></td>
+                        <td><?php echo htmlspecialchars($summary['total_realisasi']['dead']); ?></td>
+                        <td><?php echo htmlspecialchars($summary['total_realisasi']['error']); ?></td>
+                        <td><?php echo htmlspecialchars($summary['total_realisasi']['good_qty']); ?></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4 style="margin-top:16px;">Pemakaian RAW</h4>
+            <table class="table-list">
+                <thead>
+                    <tr><th>Kode</th><th>Material</th><th>Total Qty Pakai</th><th>Satuan</th></tr>
+                </thead>
+                <tbody>
+                    <?php if (empty($summary['raw_usage'])): ?>
+                        <tr><td colspan="4">Belum ada pemakaian RAW.</td></tr>
+                    <?php else: ?>
+                        <?php foreach ($summary['raw_usage'] as $ru): ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($ru['kode_material']); ?></td>
+                                <td><?php echo htmlspecialchars($ru['nama_material']); ?></td>
+                                <td><?php echo htmlspecialchars($ru['total_qty']); ?></td>
+                                <td><?php echo htmlspecialchars($ru['satuan']); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+
+            <h4 style="margin-top:16px;">Alur WIP</h4>
+            <table class="table-list">
+                <thead>
+                    <tr>
+                        <th>Dihasilkan (status WIP Stok)</th>
+                        <th>Dipakai proses ini (dari sumber manapun)</th>
+                        <th>Sudah dipakai proses lain</th>
+                        <th>Sisa Stok WIP</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><?php echo htmlspecialchars($summary['wip']['dihasilkan']); ?></td>
+                        <td><?php echo htmlspecialchars($summary['wip']['masuk']); ?></td>
+                        <td><?php echo htmlspecialchars($summary['wip']['keluar']); ?></td>
+                        <td>
+                            <?php echo htmlspecialchars($summary['wip']['sisa']); ?>
+                            <?php if ($summary['wip']['sisa'] < 0): ?>
+                                <span class="badge badge-inactive">Minus — cek cantolan</span>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4 style="margin-top:16px;">Alur FG (Finish Good)</h4>
+            <table class="table-list">
+                <thead>
+                    <tr>
+                        <th>Dihasilkan (status FG Stok)</th>
+                        <th>Dipakai bahan proses lain</th>
+                        <th>Dikirim ke customer</th>
+                        <th>Sisa Stok FG</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><?php echo htmlspecialchars($summary['fg']['dihasilkan']); ?></td>
+                        <td><?php echo htmlspecialchars($summary['fg']['dipakai_proses_lain']); ?></td>
+                        <td><?php echo htmlspecialchars($summary['fg']['dikirim']); ?></td>
+                        <td>
+                            <?php echo htmlspecialchars($summary['fg']['sisa']); ?>
+                            <?php if ($summary['fg']['sisa'] < 0): ?>
+                                <span class="badge badge-inactive">Minus — cek cantolan/kirim</span>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <p style="margin-top:8px;font-size:0.85em;color:#666;">
+                Sisa Stok WIP/FG di sini sudah menggabungkan pemakaian dari modul Monitoring Produksi
+                (cantolan bahan proses lain) dan modul Delivery (alokasi WIP antar-proses / kirim ke customer),
+                supaya angkanya konsisten dengan yang dipakai saat validasi di kedua modul tersebut.
+            </p>
+        </div>
+    <?php endif; ?>
+
     <?php foreach ($rows as $row): ?>
         <div class="card" style="margin-bottom:16px;border:1px solid #ddd;" data-monitoring-id="<?php echo $row['id']; ?>">
             <h3>

@@ -186,6 +186,119 @@ class Monitoring_model extends CI_Model
         return $this->db->where('id', $id)->get('trx_monitoring_produksi')->row_array();
     }
 
+    // ---------------------------------------------------------------
+    // Summary produksi per JF per periode: pemakaian material s/d kirim
+    // ---------------------------------------------------------------
+
+    /**
+     * Ringkasan "pemakaian material sampai kirim" untuk satu JF + periode,
+     * dirakit dari baris-baris monitoring ($rows, hasil get_detail() --
+     * sudah terfilter department user) ditambah tabel pemakaian/delivery
+     * terkait.
+     *
+     * Dirakit dari $rows, bukan re-query jf_id+periode dari sini: supaya
+     * guard department yang sudah dijalankan Controller di get_detail()
+     * otomatis ikut membatasi baris apa saja yang masuk hitungan summary
+     * -- tidak ada celah user melihat angka dari department yang bukan
+     * haknya.
+     *
+     * @param array $rows hasil Monitoring_model::get_detail()
+     */
+    public function get_summary(array $rows)
+    {
+        if (empty($rows)) {
+            return null;
+        }
+
+        $ids = array_map(function ($r) { return $r['id']; }, $rows);
+
+        // 1. Total realisasi keseluruhan (jumlah semua baris proses di JF+periode ini)
+        $total = array(
+            'input_qty' => 0, 'qc_sampling' => 0, 'waste' => 0,
+            'dead' => 0, 'error' => 0, 'good_qty' => 0,
+        );
+        foreach ($rows as $r) {
+            foreach ($total as $c => $v) {
+                $total[$c] += (float) $r['realisasi_' . $c];
+            }
+        }
+
+        // 2. Pemakaian RAW -- digabung per material (+ satuan, kalau-kalau beda satuan dipakai)
+        $raw_usage = $this->db->select("mr.kode_material, mr.nama_material, pm.satuan,
+                                          SUM(pm.qty_pakai) AS total_qty")
+            ->from('trx_pemakaian_material pm')
+            ->join('mst_material_raw mr', 'mr.id = pm.material_raw_id')
+            ->where_in('pm.monitoring_id', $ids)
+            ->where('pm.jenis_material', 'RAW')
+            ->group_by('mr.kode_material, mr.nama_material, pm.satuan')
+            ->order_by('mr.nama_material', 'ASC')
+            ->get()->result_array();
+
+        // 3. WIP masuk -- WIP yang dicantolkan sbg bahan proses-proses JF+periode ini (dari sumber manapun)
+        $wip_masuk = (float) $this->db->select('COALESCE(SUM(qty_pakai), 0) AS total')
+            ->where_in('monitoring_id', $ids)
+            ->where('jenis_material', 'WIP')
+            ->get('trx_pemakaian_material')->row('total');
+
+        // 4. WIP keluar -- stok WIP hasil JF+periode ini yang sudah dipakai proses lain,
+        //    digabung dari dua tabel yang sama-sama menyerap stok WIP (lihat catatan
+        //    di Pemakaian_material_model::search_sumber_wip()).
+        $wip_keluar_pm = (float) $this->db->select('COALESCE(SUM(qty_pakai), 0) AS total')
+            ->where_in('sumber_monitoring_id', $ids)
+            ->where('jenis_material', 'WIP')
+            ->get('trx_pemakaian_material')->row('total');
+        $wip_keluar_dl = (float) $this->db->select('COALESCE(SUM(qty_pakai), 0) AS total')
+            ->where_in('monitoring_id_asal', $ids)
+            ->get('trx_wip_pemakaian')->row('total');
+        $wip_keluar = $wip_keluar_pm + $wip_keluar_dl;
+
+        // 5. WIP dihasilkan (baris berstatus WIP_STOK)
+        $wip_dihasilkan = 0;
+        foreach ($rows as $r) {
+            if ($r['status_output'] === 'WIP_STOK') {
+                $wip_dihasilkan += (float) $r['realisasi_good_qty'];
+            }
+        }
+
+        // 6. FG dihasilkan (baris berstatus FINISH_GOOD_STOK), dipakai proses lain, & dikirim
+        $fg_dihasilkan = 0;
+        $fg_ids = array();
+        foreach ($rows as $r) {
+            if ($r['status_output'] === 'FINISH_GOOD_STOK') {
+                $fg_dihasilkan += (float) $r['realisasi_good_qty'];
+                $fg_ids[] = $r['id'];
+            }
+        }
+        $fg_dipakai_proses_lain = (float) $this->db->select('COALESCE(SUM(qty_pakai), 0) AS total')
+            ->where_in('sumber_monitoring_id', $ids)
+            ->where('jenis_material', 'FG')
+            ->get('trx_pemakaian_material')->row('total');
+
+        $fg_dikirim = 0;
+        if (!empty($fg_ids)) {
+            $fg_dikirim = (float) $this->db->select('COALESCE(SUM(qty_pakai), 0) AS total')
+                ->where_in('monitoring_id', $fg_ids)
+                ->get('trx_delivery_pemakaian_fg')->row('total');
+        }
+
+        return array(
+            'total_realisasi' => $total,
+            'raw_usage'        => $raw_usage,
+            'wip' => array(
+                'masuk'      => $wip_masuk,
+                'dihasilkan' => $wip_dihasilkan,
+                'keluar'     => $wip_keluar,
+                'sisa'       => $wip_dihasilkan - $wip_keluar,
+            ),
+            'fg' => array(
+                'dihasilkan'          => $fg_dihasilkan,
+                'dipakai_proses_lain' => $fg_dipakai_proses_lain,
+                'dikirim'             => $fg_dikirim,
+                'sisa'                => $fg_dihasilkan - $fg_dipakai_proses_lain - $fg_dikirim,
+            ),
+        );
+    }
+
     /**
      * Total qty yang sudah dikerjakan karyawan status BORONG untuk baris
      * monitoring ini (dasar warning keras poin 8 rancangan). Dihitung

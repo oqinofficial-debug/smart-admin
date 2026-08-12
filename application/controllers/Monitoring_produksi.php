@@ -69,6 +69,7 @@ class Monitoring_produksi extends MY_Controller
         $data['jf']          = $jf;
         $data['periode']     = $periode;
         $data['rows']        = $rows;
+        $data['summary']     = $this->Monitoring_model->get_summary($rows);
 
         $this->load->view('templates/header', $data);
         $this->load->view('templates/sidebar', $data);
