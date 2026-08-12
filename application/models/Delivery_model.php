@@ -364,4 +364,163 @@ class Delivery_model extends CI_Model
         $this->db->where('id', $id)->delete('trx_delivery_pemakaian_fg');
         return $this->db->affected_rows();
     }
+
+    // ---------------------------------------------------------------
+    // Stok WIP gudang / antar-proses (trx_wip_pemakaian) -- pola sama
+    // dengan blok stok FG di atas, sumber tabel pemakaian berbeda.
+    // ---------------------------------------------------------------
+
+    /**
+     * Cari baris monitoring dengan status_output = WIP_STOK untuk satu JF,
+     * lengkap sisa stok WIP (realisasi_good_qty dikurangi total sudah
+     * dipakai proses berikutnya manapun).
+     */
+    public function search_stok_wip($jf_id)
+    {
+        return $this->db->select("m.id AS monitoring_id, p.nama AS proses_nama, d.department_name AS department_nama,
+                            m.periode, m.realisasi_good_qty,
+                            m.realisasi_good_qty - COALESCE(pakai.total_pakai, 0) AS sisa_qty")
+            ->from('trx_monitoring_produksi m')
+            ->join('mst_proses p', 'p.id = m.proses_id')
+            ->join('mst_department d', 'd.id = m.department_id')
+            ->join(
+                "(SELECT monitoring_id_asal, SUM(qty_pakai) AS total_pakai
+                  FROM trx_wip_pemakaian
+                  GROUP BY monitoring_id_asal) pakai",
+                'pakai.monitoring_id_asal = m.id',
+                'left'
+            )
+            ->where('m.jf_id', $jf_id)
+            ->where('m.status_output', 'WIP_STOK')
+            ->order_by('m.periode', 'DESC')
+            ->get()
+            ->result_array();
+    }
+
+    /**
+     * Sama seperti search_stok_wip() tapi diurut periode ASC (FIFO) dan
+     * hanya baris bersisa (>0).
+     */
+    public function search_stok_wip_fifo($jf_id)
+    {
+        $rows = $this->search_stok_wip($jf_id);
+        $rows = array_values(array_filter($rows, function ($r) {
+            return (float) $r['sisa_qty'] > 0;
+        }));
+        usort($rows, function ($a, $b) {
+            return strcmp($a['periode'], $b['periode']);
+        });
+        return $rows;
+    }
+
+    /**
+     * Hitung rencana alokasi FIFO stok WIP untuk qty tertentu milik satu
+     * JF, yang akan diserap oleh $monitoring_id_pakai (baris proses
+     * berikutnya). TIDAK menyimpan apa pun -- murni preview.
+     *
+     * @return array('allocations'=>[['monitoring_id','proses_nama',
+     *               'department_nama','periode','sisa_qty','alokasi_qty'], ...],
+     *               'shortfall'=>float, 'warning'=>string|null)
+     */
+    public function preview_wip_allocation($jf_id, $qty)
+    {
+        $sisa_qty_dibutuhkan = (float) $qty;
+        $rows = $this->search_stok_wip_fifo($jf_id);
+        $allocations = array();
+
+        foreach ($rows as $r) {
+            if ($sisa_qty_dibutuhkan <= 0) {
+                break;
+            }
+            $ambil = min($sisa_qty_dibutuhkan, (float) $r['sisa_qty']);
+            $allocations[] = array(
+                'monitoring_id'   => $r['monitoring_id'],
+                'proses_nama'     => $r['proses_nama'],
+                'department_nama' => $r['department_nama'],
+                'periode'         => $r['periode'],
+                'sisa_qty'        => (float) $r['sisa_qty'],
+                'alokasi_qty'     => $ambil,
+            );
+            $sisa_qty_dibutuhkan -= $ambil;
+        }
+
+        $warning = null;
+        if ($sisa_qty_dibutuhkan > 0) {
+            if (!empty($allocations)) {
+                $last = count($allocations) - 1;
+                $allocations[$last]['alokasi_qty'] += $sisa_qty_dibutuhkan;
+                $warning = 'Stok WIP tidak cukup. Kekurangan ' . $sisa_qty_dibutuhkan .
+                           ' dibebankan ke periode ' . $allocations[$last]['periode'] . ' (melebihi sisa stok).';
+            } else {
+                $warning = 'Tidak ada stok WIP (status WIP Stok) tersedia untuk JF ini.';
+            }
+        }
+
+        return array(
+            'allocations' => $allocations,
+            'shortfall'   => max(0, $sisa_qty_dibutuhkan),
+            'warning'     => $warning,
+        );
+    }
+
+    /** Hapus semua cantolan WIP milik satu baris monitoring pemakai (dipakai sebelum re-apply auto-alokasi). */
+    public function delete_pemakaian_wip_by_monitoring_pakai($monitoring_id_pakai)
+    {
+        $this->db->where('monitoring_id_pakai', $monitoring_id_pakai)->delete('trx_wip_pemakaian');
+        return $this->db->affected_rows();
+    }
+
+    /**
+     * Terapkan hasil preview_wip_allocation() ke trx_wip_pemakaian.
+     * Mengganti (replace) seluruh cantolan WIP milik baris monitoring
+     * pemakai ini supaya tombol "Terapkan" aman diklik ulang (idempotent).
+     *
+     * @param array $allocations [['monitoring_id'=>.., 'alokasi_qty'=>..], ...]
+     */
+    public function apply_wip_allocation($monitoring_id_pakai, array $allocations, $inputer_id)
+    {
+        $this->delete_pemakaian_wip_by_monitoring_pakai($monitoring_id_pakai);
+        $count = 0;
+        foreach ($allocations as $a) {
+            if ((float) $a['alokasi_qty'] <= 0) {
+                continue;
+            }
+            $this->create_pemakaian_wip($a['monitoring_id'], $monitoring_id_pakai, $a['alokasi_qty'], $inputer_id);
+            $count++;
+        }
+        return $count;
+    }
+
+    public function get_sisa_stok_wip($monitoring_id)
+    {
+        $m = $this->db->select('realisasi_good_qty')->where('id', $monitoring_id)
+            ->get('trx_monitoring_produksi')->row_array();
+        if (!$m) {
+            return null;
+        }
+
+        $pakai = $this->db->select('COALESCE(SUM(qty_pakai), 0) AS total')
+            ->where('monitoring_id_asal', $monitoring_id)
+            ->get('trx_wip_pemakaian')
+            ->row_array();
+
+        return (float) $m['realisasi_good_qty'] - (float) $pakai['total'];
+    }
+
+    public function create_pemakaian_wip($monitoring_id_asal, $monitoring_id_pakai, $qty_pakai, $inputer_id)
+    {
+        $this->db->insert('trx_wip_pemakaian', array(
+            'monitoring_id_asal'  => $monitoring_id_asal,
+            'monitoring_id_pakai' => $monitoring_id_pakai,
+            'qty_pakai'           => $qty_pakai,
+            'inputer_id'          => $inputer_id,
+        ));
+        return $this->db->insert_id();
+    }
+
+    public function delete_pemakaian_wip($id)
+    {
+        $this->db->where('id', $id)->delete('trx_wip_pemakaian');
+        return $this->db->affected_rows();
+    }
 }
