@@ -523,4 +523,118 @@ class Delivery_model extends CI_Model
         $this->db->where('id', $id)->delete('trx_wip_pemakaian');
         return $this->db->affected_rows();
     }
+
+    // ---------------------------------------------------------------
+    // Kelengkapan laporan per periode -- TIDAK pakai tabel master routing.
+    // "Departemen mana yang seharusnya lapor" diturunkan dari histori
+    // trx_monitoring_produksi milik JF yang sama (periode-periode
+    // sebelumnya), karena data ini sifatnya laporan aktual, bukan
+    // rancangan/definisi proses yang ditentukan di muka.
+    // ---------------------------------------------------------------
+
+    /**
+     * Departemen+proses yang PERNAH melapor untuk JF ini, sebelum $periode
+     * yang sedang dicek. Ini "ekspektasi" yang didapat dari histori,
+     * bukan master.
+     */
+    private function get_histori_departemen_proses_jf($jf_id, $periode_sebelum)
+    {
+        return $this->db->select('DISTINCT department_id, proses_id')
+            ->from('trx_monitoring_produksi')
+            ->where('jf_id', $jf_id)
+            ->where('periode <', $periode_sebelum)
+            ->get()
+            ->result_array();
+    }
+
+    /**
+     * Bandingkan histori (ekspektasi turunan) dengan realisasi periode ini.
+     *
+     * @param array|null $dept_ids  Hasil Import_model::get_user_allowed_departments().
+     *                    null = tidak dibatasi (lihat semua departemen).
+     *                    Array = hanya department_id di dalamnya yang
+     *                    dikembalikan -- jadi tiap user cuma lihat
+     *                    outstanding departemennya sendiri, guard sama
+     *                    seperti endpoint lain di controller ini.
+     *
+     * @return array(
+     *   'belum_input' => [...department_id/proses_id yang biasanya lapor
+     *                     tapi absen di periode ini -- perlu ditindaklanjuti],
+     *   'baru_muncul' => [...yang lapor di periode ini tapi belum pernah
+     *                     ada di histori -- informasi, bukan warning],
+     *   'catatan'     => string|null  -- null kalau histori tidak ada (JF
+     *                     baru / periode pertama), karena saat itu sistem
+     *                     memang belum bisa membedakan kedua kasus.
+     * )
+     */
+    public function cek_kelengkapan_periode($jf_id, $periode, $dept_ids = null)
+    {
+        $histori = $this->get_histori_departemen_proses_jf($jf_id, $periode);
+
+        if (empty($histori)) {
+            return array(
+                'belum_input' => array(),
+                'baru_muncul' => array(),
+                'catatan'     => 'Belum ada histori periode sebelumnya untuk JF ini -- sistem belum bisa membedakan "belum input" vs "memang tidak dilewati" sampai minimal 1 periode lampau tersedia.',
+            );
+        }
+
+        $actual = $this->db->select('DISTINCT department_id, proses_id')
+            ->from('trx_monitoring_produksi')
+            ->where('jf_id', $jf_id)
+            ->where('periode', $periode)
+            ->get()
+            ->result_array();
+
+        $key = function ($r) { return $r['department_id'] . '-' . $r['proses_id']; };
+        $histori_map = array();
+        foreach ($histori as $h) { $histori_map[$key($h)] = $h; }
+        $actual_map = array();
+        foreach ($actual as $a) { $actual_map[$key($a)] = $a; }
+
+        $belum_input = array();
+        foreach ($histori_map as $k => $h) {
+            if (!isset($actual_map[$k])) {
+                $belum_input[] = $h;
+            }
+        }
+        $baru_muncul = array();
+        foreach ($actual_map as $k => $a) {
+            if (!isset($histori_map[$k])) {
+                $baru_muncul[] = $a;
+            }
+        }
+
+        // Guard department: sama seperti endpoint lain, kalau user dibatasi
+        // (dept_ids bukan null), hanya kembalikan outstanding milik
+        // departemennya sendiri.
+        if ($dept_ids !== null) {
+            $filter = function ($rows) use ($dept_ids) {
+                return array_values(array_filter($rows, function ($r) use ($dept_ids) {
+                    return in_array((int) $r['department_id'], $dept_ids, true);
+                }));
+            };
+            $belum_input = $filter($belum_input);
+            $baru_muncul = $filter($baru_muncul);
+        }
+
+        // Lengkapi nama departemen/proses untuk ditampilkan.
+        $lengkapi = function ($rows) {
+            foreach ($rows as &$r) {
+                $d = $this->db->select('department_name')->where('id', $r['department_id'])
+                    ->get('mst_department')->row_array();
+                $p = $this->db->select('nama')->where('id', $r['proses_id'])
+                    ->get('mst_proses')->row_array();
+                $r['department_nama'] = $d ? $d['department_name'] : null;
+                $r['proses_nama'] = $p ? $p['nama'] : null;
+            }
+            return $rows;
+        };
+
+        return array(
+            'belum_input' => $lengkapi($belum_input),
+            'baru_muncul' => $lengkapi($baru_muncul),
+            'catatan'     => null,
+        );
+    }
 }
