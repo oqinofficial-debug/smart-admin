@@ -2,12 +2,12 @@
 -- PostgreSQL database dump
 --
 
-\restrict iS3UeUqzxpWjF1jopaj04HNIeyTPFGFph5apR4vPbNWKSaTmgaidVAOpP4P8uzw
+\restrict VIs7bpKKHfKHqo8Bk9EGX02ghK52cU8XBkfSmWzKi8STh1ixoz1mky9vTDF8Dah
 
 -- Dumped from database version 17.10
 -- Dumped by pg_dump version 17.10
 
--- Started on 2026-08-12 19:00:39
+-- Started on 2026-08-12 19:44:03
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -57,7 +57,7 @@ CREATE SEQUENCE public.mst_aktivitas_id_seq
 ALTER SEQUENCE public.mst_aktivitas_id_seq OWNER TO postgres;
 
 --
--- TOC entry 5180 (class 0 OID 0)
+-- TOC entry 5188 (class 0 OID 0)
 -- Dependencies: 235
 -- Name: mst_aktivitas_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -97,7 +97,7 @@ CREATE SEQUENCE public.mst_department_id_seq
 ALTER SEQUENCE public.mst_department_id_seq OWNER TO postgres;
 
 --
--- TOC entry 5181 (class 0 OID 0)
+-- TOC entry 5189 (class 0 OID 0)
 -- Dependencies: 225
 -- Name: mst_department_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -136,7 +136,7 @@ CREATE SEQUENCE public.mst_import_alias_id_seq
 ALTER SEQUENCE public.mst_import_alias_id_seq OWNER TO postgres;
 
 --
--- TOC entry 5182 (class 0 OID 0)
+-- TOC entry 5190 (class 0 OID 0)
 -- Dependencies: 244
 -- Name: mst_import_alias_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -178,7 +178,7 @@ CREATE SEQUENCE public.mst_import_kolom_id_seq
 ALTER SEQUENCE public.mst_import_kolom_id_seq OWNER TO postgres;
 
 --
--- TOC entry 5183 (class 0 OID 0)
+-- TOC entry 5191 (class 0 OID 0)
 -- Dependencies: 242
 -- Name: mst_import_kolom_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -287,7 +287,7 @@ CREATE SEQUENCE public.mst_karyawan_id_seq
 ALTER SEQUENCE public.mst_karyawan_id_seq OWNER TO postgres;
 
 --
--- TOC entry 5184 (class 0 OID 0)
+-- TOC entry 5192 (class 0 OID 0)
 -- Dependencies: 229
 -- Name: mst_karyawan_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -411,7 +411,7 @@ CREATE SEQUENCE public.mst_menu_access_id_seq
 ALTER SEQUENCE public.mst_menu_access_id_seq OWNER TO postgres;
 
 --
--- TOC entry 5185 (class 0 OID 0)
+-- TOC entry 5193 (class 0 OID 0)
 -- Dependencies: 221
 -- Name: mst_menu_access_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -436,7 +436,7 @@ CREATE SEQUENCE public.mst_menu_id_seq
 ALTER SEQUENCE public.mst_menu_id_seq OWNER TO postgres;
 
 --
--- TOC entry 5186 (class 0 OID 0)
+-- TOC entry 5194 (class 0 OID 0)
 -- Dependencies: 219
 -- Name: mst_menu_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -476,7 +476,7 @@ CREATE SEQUENCE public.mst_mesin_id_seq
 ALTER SEQUENCE public.mst_mesin_id_seq OWNER TO postgres;
 
 --
--- TOC entry 5187 (class 0 OID 0)
+-- TOC entry 5195 (class 0 OID 0)
 -- Dependencies: 233
 -- Name: mst_mesin_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -516,7 +516,7 @@ CREATE SEQUENCE public.mst_pekerjaan_borong_id_seq
 ALTER SEQUENCE public.mst_pekerjaan_borong_id_seq OWNER TO postgres;
 
 --
--- TOC entry 5188 (class 0 OID 0)
+-- TOC entry 5196 (class 0 OID 0)
 -- Dependencies: 239
 -- Name: mst_pekerjaan_borong_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -556,7 +556,7 @@ CREATE SEQUENCE public.mst_proses_id_seq
 ALTER SEQUENCE public.mst_proses_id_seq OWNER TO postgres;
 
 --
--- TOC entry 5189 (class 0 OID 0)
+-- TOC entry 5197 (class 0 OID 0)
 -- Dependencies: 237
 -- Name: mst_proses_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -596,7 +596,7 @@ CREATE SEQUENCE public.mst_shift_id_seq
 ALTER SEQUENCE public.mst_shift_id_seq OWNER TO postgres;
 
 --
--- TOC entry 5190 (class 0 OID 0)
+-- TOC entry 5198 (class 0 OID 0)
 -- Dependencies: 231
 -- Name: mst_shift_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -655,7 +655,7 @@ CREATE SEQUENCE public.mst_user_department_id_seq
 ALTER SEQUENCE public.mst_user_department_id_seq OWNER TO postgres;
 
 --
--- TOC entry 5191 (class 0 OID 0)
+-- TOC entry 5199 (class 0 OID 0)
 -- Dependencies: 227
 -- Name: mst_user_department_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -680,7 +680,7 @@ CREATE SEQUENCE public.mst_user_id_seq
 ALTER SEQUENCE public.mst_user_id_seq OWNER TO postgres;
 
 --
--- TOC entry 5192 (class 0 OID 0)
+-- TOC entry 5200 (class 0 OID 0)
 -- Dependencies: 217
 -- Name: mst_user_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -721,7 +721,7 @@ CREATE SEQUENCE public.mst_user_menu_access_id_seq
 ALTER SEQUENCE public.mst_user_menu_access_id_seq OWNER TO postgres;
 
 --
--- TOC entry 5193 (class 0 OID 0)
+-- TOC entry 5201 (class 0 OID 0)
 -- Dependencies: 223
 -- Name: mst_user_menu_access_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -747,7 +747,7 @@ CREATE TABLE public.trx_delivery_pemakaian_fg (
 ALTER TABLE public.trx_delivery_pemakaian_fg OWNER TO postgres;
 
 --
--- TOC entry 5194 (class 0 OID 0)
+-- TOC entry 5202 (class 0 OID 0)
 -- Dependencies: 266
 -- Name: TABLE trx_delivery_pemakaian_fg; Type: COMMENT; Schema: public; Owner: postgres
 --
@@ -936,7 +936,7 @@ CREATE SEQUENCE public.trx_laporan_produksi_id_seq
 ALTER SEQUENCE public.trx_laporan_produksi_id_seq OWNER TO postgres;
 
 --
--- TOC entry 5195 (class 0 OID 0)
+-- TOC entry 5203 (class 0 OID 0)
 -- Dependencies: 260
 -- Name: trx_laporan_produksi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -980,7 +980,7 @@ CREATE TABLE public.trx_monitoring_produksi (
 ALTER TABLE public.trx_monitoring_produksi OWNER TO postgres;
 
 --
--- TOC entry 5196 (class 0 OID 0)
+-- TOC entry 5204 (class 0 OID 0)
 -- Dependencies: 262
 -- Name: TABLE trx_monitoring_produksi; Type: COMMENT; Schema: public; Owner: postgres
 --
@@ -1027,7 +1027,7 @@ CREATE TABLE public.trx_pemakaian_material (
 ALTER TABLE public.trx_pemakaian_material OWNER TO postgres;
 
 --
--- TOC entry 5197 (class 0 OID 0)
+-- TOC entry 5205 (class 0 OID 0)
 -- Dependencies: 264
 -- Name: TABLE trx_pemakaian_material; Type: COMMENT; Schema: public; Owner: postgres
 --
@@ -1051,7 +1051,48 @@ ALTER TABLE public.trx_pemakaian_material ALTER COLUMN id ADD GENERATED ALWAYS A
 
 
 --
--- TOC entry 4787 (class 2604 OID 32884)
+-- TOC entry 267 (class 1259 OID 33428)
+-- Name: trx_wip_pemakaian; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.trx_wip_pemakaian (
+    id integer NOT NULL,
+    monitoring_id_asal integer NOT NULL,
+    monitoring_id_pakai integer NOT NULL,
+    qty_pakai numeric NOT NULL,
+    inputer_id integer,
+    created_at timestamp without time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE public.trx_wip_pemakaian OWNER TO postgres;
+
+--
+-- TOC entry 5206 (class 0 OID 0)
+-- Dependencies: 267
+-- Name: TABLE trx_wip_pemakaian; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON TABLE public.trx_wip_pemakaian IS 'Pivot antar dua baris trx_monitoring_produksi: monitoring_id_asal berstatus WIP_STOK, monitoring_id_pakai adalah proses berikutnya yang menyerapnya. Sisa stok WIP = realisasi_good_qty (baris asal) dikurangi SUM(qty_pakai) dari tabel ini.';
+
+
+--
+-- TOC entry 268 (class 1259 OID 33434)
+-- Name: trx_wip_pemakaian_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.trx_wip_pemakaian ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.trx_wip_pemakaian_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- TOC entry 4792 (class 2604 OID 32884)
 -- Name: mst_aktivitas id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -1059,7 +1100,7 @@ ALTER TABLE ONLY public.mst_aktivitas ALTER COLUMN id SET DEFAULT nextval('publi
 
 
 --
--- TOC entry 4777 (class 2604 OID 24695)
+-- TOC entry 4782 (class 2604 OID 24695)
 -- Name: mst_department id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -1067,7 +1108,7 @@ ALTER TABLE ONLY public.mst_department ALTER COLUMN id SET DEFAULT nextval('publ
 
 
 --
--- TOC entry 4797 (class 2604 OID 33006)
+-- TOC entry 4802 (class 2604 OID 33006)
 -- Name: mst_import_alias id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -1075,7 +1116,7 @@ ALTER TABLE ONLY public.mst_import_alias ALTER COLUMN id SET DEFAULT nextval('pu
 
 
 --
--- TOC entry 4793 (class 2604 OID 32997)
+-- TOC entry 4798 (class 2604 OID 32997)
 -- Name: mst_import_kolom id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -1083,7 +1124,7 @@ ALTER TABLE ONLY public.mst_import_kolom ALTER COLUMN id SET DEFAULT nextval('pu
 
 
 --
--- TOC entry 4781 (class 2604 OID 32853)
+-- TOC entry 4786 (class 2604 OID 32853)
 -- Name: mst_karyawan id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -1091,7 +1132,7 @@ ALTER TABLE ONLY public.mst_karyawan ALTER COLUMN id SET DEFAULT nextval('public
 
 
 --
--- TOC entry 4765 (class 2604 OID 16407)
+-- TOC entry 4770 (class 2604 OID 16407)
 -- Name: mst_menu id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -1099,7 +1140,7 @@ ALTER TABLE ONLY public.mst_menu ALTER COLUMN id SET DEFAULT nextval('public.mst
 
 
 --
--- TOC entry 4770 (class 2604 OID 16420)
+-- TOC entry 4775 (class 2604 OID 16420)
 -- Name: mst_menu_access id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -1107,7 +1148,7 @@ ALTER TABLE ONLY public.mst_menu_access ALTER COLUMN id SET DEFAULT nextval('pub
 
 
 --
--- TOC entry 4785 (class 2604 OID 32874)
+-- TOC entry 4790 (class 2604 OID 32874)
 -- Name: mst_mesin id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -1115,7 +1156,7 @@ ALTER TABLE ONLY public.mst_mesin ALTER COLUMN id SET DEFAULT nextval('public.ms
 
 
 --
--- TOC entry 4791 (class 2604 OID 32904)
+-- TOC entry 4796 (class 2604 OID 32904)
 -- Name: mst_pekerjaan_borong id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -1123,7 +1164,7 @@ ALTER TABLE ONLY public.mst_pekerjaan_borong ALTER COLUMN id SET DEFAULT nextval
 
 
 --
--- TOC entry 4789 (class 2604 OID 32894)
+-- TOC entry 4794 (class 2604 OID 32894)
 -- Name: mst_proses id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -1131,7 +1172,7 @@ ALTER TABLE ONLY public.mst_proses ALTER COLUMN id SET DEFAULT nextval('public.m
 
 
 --
--- TOC entry 4783 (class 2604 OID 32864)
+-- TOC entry 4788 (class 2604 OID 32864)
 -- Name: mst_shift id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -1139,7 +1180,7 @@ ALTER TABLE ONLY public.mst_shift ALTER COLUMN id SET DEFAULT nextval('public.ms
 
 
 --
--- TOC entry 4761 (class 2604 OID 16394)
+-- TOC entry 4766 (class 2604 OID 16394)
 -- Name: mst_user id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -1147,7 +1188,7 @@ ALTER TABLE ONLY public.mst_user ALTER COLUMN id SET DEFAULT nextval('public.mst
 
 
 --
--- TOC entry 4779 (class 2604 OID 24705)
+-- TOC entry 4784 (class 2604 OID 24705)
 -- Name: mst_user_department id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -1155,7 +1196,7 @@ ALTER TABLE ONLY public.mst_user_department ALTER COLUMN id SET DEFAULT nextval(
 
 
 --
--- TOC entry 4775 (class 2604 OID 16439)
+-- TOC entry 4780 (class 2604 OID 16439)
 -- Name: mst_user_menu_access id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -1163,7 +1204,7 @@ ALTER TABLE ONLY public.mst_user_menu_access ALTER COLUMN id SET DEFAULT nextval
 
 
 --
--- TOC entry 4814 (class 2604 OID 33238)
+-- TOC entry 4819 (class 2604 OID 33238)
 -- Name: trx_laporan_produksi id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -1171,7 +1212,7 @@ ALTER TABLE ONLY public.trx_laporan_produksi ALTER COLUMN id SET DEFAULT nextval
 
 
 --
--- TOC entry 5144 (class 0 OID 32881)
+-- TOC entry 5150 (class 0 OID 32881)
 -- Dependencies: 236
 -- Data for Name: mst_aktivitas; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1181,7 +1222,7 @@ COPY public.mst_aktivitas (id, kode, nama, is_active) FROM stdin;
 
 
 --
--- TOC entry 5134 (class 0 OID 24692)
+-- TOC entry 5140 (class 0 OID 24692)
 -- Dependencies: 226
 -- Data for Name: mst_department; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1192,7 +1233,7 @@ COPY public.mst_department (id, department_code, department_name, is_active) FRO
 
 
 --
--- TOC entry 5151 (class 0 OID 33002)
+-- TOC entry 5157 (class 0 OID 33002)
 -- Dependencies: 243
 -- Data for Name: mst_import_alias; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1202,7 +1243,7 @@ COPY public.mst_import_alias (id, kolom_id, alias_text) FROM stdin;
 
 
 --
--- TOC entry 5149 (class 0 OID 32990)
+-- TOC entry 5155 (class 0 OID 32990)
 -- Dependencies: 241
 -- Data for Name: mst_import_kolom; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1238,7 +1279,7 @@ COPY public.mst_import_kolom (id, field_key, field_label, is_required, is_active
 
 
 --
--- TOC entry 5156 (class 0 OID 33053)
+-- TOC entry 5162 (class 0 OID 33053)
 -- Dependencies: 248
 -- Data for Name: mst_import_sheet_alias; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1249,7 +1290,7 @@ COPY public.mst_import_sheet_alias (id, alias_text, created_at) FROM stdin;
 
 
 --
--- TOC entry 5160 (class 0 OID 33067)
+-- TOC entry 5166 (class 0 OID 33067)
 -- Dependencies: 252
 -- Data for Name: mst_jf; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1259,7 +1300,7 @@ COPY public.mst_jf (id, jf, product, qty, bapob, chip, customer, po, kelompok_pr
 
 
 --
--- TOC entry 5138 (class 0 OID 32850)
+-- TOC entry 5144 (class 0 OID 32850)
 -- Dependencies: 230
 -- Data for Name: mst_karyawan; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1269,7 +1310,7 @@ COPY public.mst_karyawan (id, nik, nama, status_kepegawaian, is_active) FROM std
 
 
 --
--- TOC entry 5158 (class 0 OID 33060)
+-- TOC entry 5164 (class 0 OID 33060)
 -- Dependencies: 250
 -- Data for Name: mst_kelompok_produk; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1280,7 +1321,7 @@ COPY public.mst_kelompok_produk (id, kode, nama, is_active) FROM stdin;
 
 
 --
--- TOC entry 5165 (class 0 OID 33124)
+-- TOC entry 5171 (class 0 OID 33124)
 -- Dependencies: 257
 -- Data for Name: mst_material_raw; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1290,7 +1331,7 @@ COPY public.mst_material_raw (id, kode_material, nama_material, is_active, creat
 
 
 --
--- TOC entry 5128 (class 0 OID 16404)
+-- TOC entry 5134 (class 0 OID 16404)
 -- Dependencies: 220
 -- Data for Name: mst_menu; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1311,7 +1352,7 @@ COPY public.mst_menu (id, parent_id, menu_code, menu_name, menu_url, menu_icon, 
 
 
 --
--- TOC entry 5130 (class 0 OID 16417)
+-- TOC entry 5136 (class 0 OID 16417)
 -- Dependencies: 222
 -- Data for Name: mst_menu_access; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1354,7 +1395,7 @@ COPY public.mst_menu_access (id, menu_id, level, can_view, can_input, can_edit, 
 
 
 --
--- TOC entry 5142 (class 0 OID 32871)
+-- TOC entry 5148 (class 0 OID 32871)
 -- Dependencies: 234
 -- Data for Name: mst_mesin; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1364,7 +1405,7 @@ COPY public.mst_mesin (id, kode, nama, is_active) FROM stdin;
 
 
 --
--- TOC entry 5148 (class 0 OID 32901)
+-- TOC entry 5154 (class 0 OID 32901)
 -- Dependencies: 240
 -- Data for Name: mst_pekerjaan_borong; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1374,7 +1415,7 @@ COPY public.mst_pekerjaan_borong (id, kode, nama, is_active) FROM stdin;
 
 
 --
--- TOC entry 5146 (class 0 OID 32891)
+-- TOC entry 5152 (class 0 OID 32891)
 -- Dependencies: 238
 -- Data for Name: mst_proses; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1384,7 +1425,7 @@ COPY public.mst_proses (id, kode, nama, is_active) FROM stdin;
 
 
 --
--- TOC entry 5140 (class 0 OID 32861)
+-- TOC entry 5146 (class 0 OID 32861)
 -- Dependencies: 232
 -- Data for Name: mst_shift; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1394,7 +1435,7 @@ COPY public.mst_shift (id, kode, nama, is_active) FROM stdin;
 
 
 --
--- TOC entry 5126 (class 0 OID 16391)
+-- TOC entry 5132 (class 0 OID 16391)
 -- Dependencies: 218
 -- Data for Name: mst_user; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1405,7 +1446,7 @@ COPY public.mst_user (id, username, password, fullname, is_active, last_login, c
 
 
 --
--- TOC entry 5136 (class 0 OID 24702)
+-- TOC entry 5142 (class 0 OID 24702)
 -- Dependencies: 228
 -- Data for Name: mst_user_department; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1415,7 +1456,7 @@ COPY public.mst_user_department (id, user_id, department_id, is_primary) FROM st
 
 
 --
--- TOC entry 5132 (class 0 OID 16436)
+-- TOC entry 5138 (class 0 OID 16436)
 -- Dependencies: 224
 -- Data for Name: mst_user_menu_access; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1436,7 +1477,7 @@ COPY public.mst_user_menu_access (id, user_id, menu_id, level) FROM stdin;
 
 
 --
--- TOC entry 5174 (class 0 OID 33391)
+-- TOC entry 5180 (class 0 OID 33391)
 -- Dependencies: 266
 -- Data for Name: trx_delivery_pemakaian_fg; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1446,7 +1487,7 @@ COPY public.trx_delivery_pemakaian_fg (id, delivery_id, monitoring_id, qty_pakai
 
 
 --
--- TOC entry 5163 (class 0 OID 33104)
+-- TOC entry 5169 (class 0 OID 33104)
 -- Dependencies: 255
 -- Data for Name: trx_delivery_record; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1456,7 +1497,7 @@ COPY public.trx_delivery_record (id, jf_id, tanggal_kirim, aktual_kirim, no_sp, 
 
 
 --
--- TOC entry 5154 (class 0 OID 33027)
+-- TOC entry 5160 (class 0 OID 33027)
 -- Dependencies: 246
 -- Data for Name: trx_import_batch; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1466,7 +1507,7 @@ COPY public.trx_import_batch (id, nama_file, format_file, sheet_name, mode, peri
 
 
 --
--- TOC entry 5162 (class 0 OID 33085)
+-- TOC entry 5168 (class 0 OID 33085)
 -- Dependencies: 254
 -- Data for Name: trx_jf_periode; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1476,7 +1517,7 @@ COPY public.trx_jf_periode (id, jf_id, periode, first_seen_at, last_seen_at) FRO
 
 
 --
--- TOC entry 5167 (class 0 OID 33229)
+-- TOC entry 5173 (class 0 OID 33229)
 -- Dependencies: 259
 -- Data for Name: trx_laporan_produksi; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1486,7 +1527,7 @@ COPY public.trx_laporan_produksi (id, tanggal, department_id, operator_id, spv_i
 
 
 --
--- TOC entry 5170 (class 0 OID 33308)
+-- TOC entry 5176 (class 0 OID 33308)
 -- Dependencies: 262
 -- Data for Name: trx_monitoring_produksi; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1496,7 +1537,7 @@ COPY public.trx_monitoring_produksi (id, jf_id, periode, department_id, proses_i
 
 
 --
--- TOC entry 5172 (class 0 OID 33357)
+-- TOC entry 5178 (class 0 OID 33357)
 -- Dependencies: 264
 -- Data for Name: trx_pemakaian_material; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1506,7 +1547,17 @@ COPY public.trx_pemakaian_material (id, monitoring_id, jenis_material, material_
 
 
 --
--- TOC entry 5198 (class 0 OID 0)
+-- TOC entry 5181 (class 0 OID 33428)
+-- Dependencies: 267
+-- Data for Name: trx_wip_pemakaian; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.trx_wip_pemakaian (id, monitoring_id_asal, monitoring_id_pakai, qty_pakai, inputer_id, created_at) FROM stdin;
+\.
+
+
+--
+-- TOC entry 5207 (class 0 OID 0)
 -- Dependencies: 235
 -- Name: mst_aktivitas_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1515,7 +1566,7 @@ SELECT pg_catalog.setval('public.mst_aktivitas_id_seq', 1, false);
 
 
 --
--- TOC entry 5199 (class 0 OID 0)
+-- TOC entry 5208 (class 0 OID 0)
 -- Dependencies: 225
 -- Name: mst_department_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1524,7 +1575,7 @@ SELECT pg_catalog.setval('public.mst_department_id_seq', 1, true);
 
 
 --
--- TOC entry 5200 (class 0 OID 0)
+-- TOC entry 5209 (class 0 OID 0)
 -- Dependencies: 244
 -- Name: mst_import_alias_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1533,7 +1584,7 @@ SELECT pg_catalog.setval('public.mst_import_alias_id_seq', 60, true);
 
 
 --
--- TOC entry 5201 (class 0 OID 0)
+-- TOC entry 5210 (class 0 OID 0)
 -- Dependencies: 242
 -- Name: mst_import_kolom_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1542,7 +1593,7 @@ SELECT pg_catalog.setval('public.mst_import_kolom_id_seq', 26, true);
 
 
 --
--- TOC entry 5202 (class 0 OID 0)
+-- TOC entry 5211 (class 0 OID 0)
 -- Dependencies: 247
 -- Name: mst_import_sheet_alias_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1551,7 +1602,7 @@ SELECT pg_catalog.setval('public.mst_import_sheet_alias_id_seq', 1, true);
 
 
 --
--- TOC entry 5203 (class 0 OID 0)
+-- TOC entry 5212 (class 0 OID 0)
 -- Dependencies: 251
 -- Name: mst_jf_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1560,7 +1611,7 @@ SELECT pg_catalog.setval('public.mst_jf_id_seq', 1, false);
 
 
 --
--- TOC entry 5204 (class 0 OID 0)
+-- TOC entry 5213 (class 0 OID 0)
 -- Dependencies: 229
 -- Name: mst_karyawan_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1569,7 +1620,7 @@ SELECT pg_catalog.setval('public.mst_karyawan_id_seq', 1, false);
 
 
 --
--- TOC entry 5205 (class 0 OID 0)
+-- TOC entry 5214 (class 0 OID 0)
 -- Dependencies: 249
 -- Name: mst_kelompok_produk_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1578,7 +1629,7 @@ SELECT pg_catalog.setval('public.mst_kelompok_produk_id_seq', 1, true);
 
 
 --
--- TOC entry 5206 (class 0 OID 0)
+-- TOC entry 5215 (class 0 OID 0)
 -- Dependencies: 258
 -- Name: mst_material_raw_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1587,7 +1638,7 @@ SELECT pg_catalog.setval('public.mst_material_raw_id_seq', 1, false);
 
 
 --
--- TOC entry 5207 (class 0 OID 0)
+-- TOC entry 5216 (class 0 OID 0)
 -- Dependencies: 221
 -- Name: mst_menu_access_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1596,7 +1647,7 @@ SELECT pg_catalog.setval('public.mst_menu_access_id_seq', 33, true);
 
 
 --
--- TOC entry 5208 (class 0 OID 0)
+-- TOC entry 5217 (class 0 OID 0)
 -- Dependencies: 219
 -- Name: mst_menu_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1605,7 +1656,7 @@ SELECT pg_catalog.setval('public.mst_menu_id_seq', 13, true);
 
 
 --
--- TOC entry 5209 (class 0 OID 0)
+-- TOC entry 5218 (class 0 OID 0)
 -- Dependencies: 233
 -- Name: mst_mesin_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1614,7 +1665,7 @@ SELECT pg_catalog.setval('public.mst_mesin_id_seq', 1, false);
 
 
 --
--- TOC entry 5210 (class 0 OID 0)
+-- TOC entry 5219 (class 0 OID 0)
 -- Dependencies: 239
 -- Name: mst_pekerjaan_borong_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1623,7 +1674,7 @@ SELECT pg_catalog.setval('public.mst_pekerjaan_borong_id_seq', 1, false);
 
 
 --
--- TOC entry 5211 (class 0 OID 0)
+-- TOC entry 5220 (class 0 OID 0)
 -- Dependencies: 237
 -- Name: mst_proses_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1632,7 +1683,7 @@ SELECT pg_catalog.setval('public.mst_proses_id_seq', 1, false);
 
 
 --
--- TOC entry 5212 (class 0 OID 0)
+-- TOC entry 5221 (class 0 OID 0)
 -- Dependencies: 231
 -- Name: mst_shift_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1641,7 +1692,7 @@ SELECT pg_catalog.setval('public.mst_shift_id_seq', 1, false);
 
 
 --
--- TOC entry 5213 (class 0 OID 0)
+-- TOC entry 5222 (class 0 OID 0)
 -- Dependencies: 227
 -- Name: mst_user_department_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1650,7 +1701,7 @@ SELECT pg_catalog.setval('public.mst_user_department_id_seq', 1, false);
 
 
 --
--- TOC entry 5214 (class 0 OID 0)
+-- TOC entry 5223 (class 0 OID 0)
 -- Dependencies: 217
 -- Name: mst_user_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1659,7 +1710,7 @@ SELECT pg_catalog.setval('public.mst_user_id_seq', 4, true);
 
 
 --
--- TOC entry 5215 (class 0 OID 0)
+-- TOC entry 5224 (class 0 OID 0)
 -- Dependencies: 223
 -- Name: mst_user_menu_access_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1668,7 +1719,7 @@ SELECT pg_catalog.setval('public.mst_user_menu_access_id_seq', 22, true);
 
 
 --
--- TOC entry 5216 (class 0 OID 0)
+-- TOC entry 5225 (class 0 OID 0)
 -- Dependencies: 265
 -- Name: trx_delivery_pemakaian_fg_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1677,7 +1728,7 @@ SELECT pg_catalog.setval('public.trx_delivery_pemakaian_fg_id_seq', 1, false);
 
 
 --
--- TOC entry 5217 (class 0 OID 0)
+-- TOC entry 5226 (class 0 OID 0)
 -- Dependencies: 256
 -- Name: trx_delivery_record_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1686,7 +1737,7 @@ SELECT pg_catalog.setval('public.trx_delivery_record_id_seq', 1, false);
 
 
 --
--- TOC entry 5218 (class 0 OID 0)
+-- TOC entry 5227 (class 0 OID 0)
 -- Dependencies: 245
 -- Name: trx_import_batch_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1695,7 +1746,7 @@ SELECT pg_catalog.setval('public.trx_import_batch_id_seq', 1, false);
 
 
 --
--- TOC entry 5219 (class 0 OID 0)
+-- TOC entry 5228 (class 0 OID 0)
 -- Dependencies: 253
 -- Name: trx_jf_periode_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1704,7 +1755,7 @@ SELECT pg_catalog.setval('public.trx_jf_periode_id_seq', 1, false);
 
 
 --
--- TOC entry 5220 (class 0 OID 0)
+-- TOC entry 5229 (class 0 OID 0)
 -- Dependencies: 260
 -- Name: trx_laporan_produksi_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1713,7 +1764,7 @@ SELECT pg_catalog.setval('public.trx_laporan_produksi_id_seq', 1, false);
 
 
 --
--- TOC entry 5221 (class 0 OID 0)
+-- TOC entry 5230 (class 0 OID 0)
 -- Dependencies: 261
 -- Name: trx_monitoring_produksi_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1722,7 +1773,7 @@ SELECT pg_catalog.setval('public.trx_monitoring_produksi_id_seq', 1, false);
 
 
 --
--- TOC entry 5222 (class 0 OID 0)
+-- TOC entry 5231 (class 0 OID 0)
 -- Dependencies: 263
 -- Name: trx_pemakaian_material_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1731,7 +1782,16 @@ SELECT pg_catalog.setval('public.trx_pemakaian_material_id_seq', 1, false);
 
 
 --
--- TOC entry 4882 (class 2606 OID 32887)
+-- TOC entry 5232 (class 0 OID 0)
+-- Dependencies: 268
+-- Name: trx_wip_pemakaian_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.trx_wip_pemakaian_id_seq', 1, false);
+
+
+--
+-- TOC entry 4888 (class 2606 OID 32887)
 -- Name: mst_aktivitas mst_aktivitas_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1740,7 +1800,7 @@ ALTER TABLE ONLY public.mst_aktivitas
 
 
 --
--- TOC entry 4859 (class 2606 OID 24698)
+-- TOC entry 4865 (class 2606 OID 24698)
 -- Name: mst_department mst_department_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1749,7 +1809,7 @@ ALTER TABLE ONLY public.mst_department
 
 
 --
--- TOC entry 4898 (class 2606 OID 33008)
+-- TOC entry 4904 (class 2606 OID 33008)
 -- Name: mst_import_alias mst_import_alias_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1758,7 +1818,7 @@ ALTER TABLE ONLY public.mst_import_alias
 
 
 --
--- TOC entry 4894 (class 2606 OID 32999)
+-- TOC entry 4900 (class 2606 OID 32999)
 -- Name: mst_import_kolom mst_import_kolom_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1767,7 +1827,7 @@ ALTER TABLE ONLY public.mst_import_kolom
 
 
 --
--- TOC entry 4904 (class 2606 OID 33058)
+-- TOC entry 4910 (class 2606 OID 33058)
 -- Name: mst_import_sheet_alias mst_import_sheet_alias_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1776,7 +1836,7 @@ ALTER TABLE ONLY public.mst_import_sheet_alias
 
 
 --
--- TOC entry 4908 (class 2606 OID 33076)
+-- TOC entry 4914 (class 2606 OID 33076)
 -- Name: mst_jf mst_jf_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1785,7 +1845,7 @@ ALTER TABLE ONLY public.mst_jf
 
 
 --
--- TOC entry 4870 (class 2606 OID 32857)
+-- TOC entry 4876 (class 2606 OID 32857)
 -- Name: mst_karyawan mst_karyawan_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1794,7 +1854,7 @@ ALTER TABLE ONLY public.mst_karyawan
 
 
 --
--- TOC entry 4906 (class 2606 OID 33065)
+-- TOC entry 4912 (class 2606 OID 33065)
 -- Name: mst_kelompok_produk mst_kelompok_produk_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1803,7 +1863,7 @@ ALTER TABLE ONLY public.mst_kelompok_produk
 
 
 --
--- TOC entry 4921 (class 2606 OID 33131)
+-- TOC entry 4927 (class 2606 OID 33131)
 -- Name: mst_material_raw mst_material_raw_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1812,7 +1872,7 @@ ALTER TABLE ONLY public.mst_material_raw
 
 
 --
--- TOC entry 4851 (class 2606 OID 16429)
+-- TOC entry 4857 (class 2606 OID 16429)
 -- Name: mst_menu_access mst_menu_access_menu_id_level_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1821,7 +1881,7 @@ ALTER TABLE ONLY public.mst_menu_access
 
 
 --
--- TOC entry 4853 (class 2606 OID 16427)
+-- TOC entry 4859 (class 2606 OID 16427)
 -- Name: mst_menu_access mst_menu_access_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1830,7 +1890,7 @@ ALTER TABLE ONLY public.mst_menu_access
 
 
 --
--- TOC entry 4847 (class 2606 OID 16415)
+-- TOC entry 4853 (class 2606 OID 16415)
 -- Name: mst_menu mst_menu_menu_code_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1839,7 +1899,7 @@ ALTER TABLE ONLY public.mst_menu
 
 
 --
--- TOC entry 4849 (class 2606 OID 16413)
+-- TOC entry 4855 (class 2606 OID 16413)
 -- Name: mst_menu mst_menu_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1848,7 +1908,7 @@ ALTER TABLE ONLY public.mst_menu
 
 
 --
--- TOC entry 4878 (class 2606 OID 32877)
+-- TOC entry 4884 (class 2606 OID 32877)
 -- Name: mst_mesin mst_mesin_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1857,7 +1917,7 @@ ALTER TABLE ONLY public.mst_mesin
 
 
 --
--- TOC entry 4890 (class 2606 OID 32907)
+-- TOC entry 4896 (class 2606 OID 32907)
 -- Name: mst_pekerjaan_borong mst_pekerjaan_borong_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1866,7 +1926,7 @@ ALTER TABLE ONLY public.mst_pekerjaan_borong
 
 
 --
--- TOC entry 4886 (class 2606 OID 32897)
+-- TOC entry 4892 (class 2606 OID 32897)
 -- Name: mst_proses mst_proses_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1875,7 +1935,7 @@ ALTER TABLE ONLY public.mst_proses
 
 
 --
--- TOC entry 4874 (class 2606 OID 32867)
+-- TOC entry 4880 (class 2606 OID 32867)
 -- Name: mst_shift mst_shift_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1884,7 +1944,7 @@ ALTER TABLE ONLY public.mst_shift
 
 
 --
--- TOC entry 4865 (class 2606 OID 24708)
+-- TOC entry 4871 (class 2606 OID 24708)
 -- Name: mst_user_department mst_user_department_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1893,7 +1953,7 @@ ALTER TABLE ONLY public.mst_user_department
 
 
 --
--- TOC entry 4855 (class 2606 OID 16445)
+-- TOC entry 4861 (class 2606 OID 16445)
 -- Name: mst_user_menu_access mst_user_menu_access_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1902,7 +1962,7 @@ ALTER TABLE ONLY public.mst_user_menu_access
 
 
 --
--- TOC entry 4857 (class 2606 OID 16447)
+-- TOC entry 4863 (class 2606 OID 16447)
 -- Name: mst_user_menu_access mst_user_menu_access_user_id_menu_id_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1911,7 +1971,7 @@ ALTER TABLE ONLY public.mst_user_menu_access
 
 
 --
--- TOC entry 4843 (class 2606 OID 16400)
+-- TOC entry 4849 (class 2606 OID 16400)
 -- Name: mst_user mst_user_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1920,7 +1980,7 @@ ALTER TABLE ONLY public.mst_user
 
 
 --
--- TOC entry 4845 (class 2606 OID 16402)
+-- TOC entry 4851 (class 2606 OID 16402)
 -- Name: mst_user mst_user_username_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1929,7 +1989,7 @@ ALTER TABLE ONLY public.mst_user
 
 
 --
--- TOC entry 4945 (class 2606 OID 33398)
+-- TOC entry 4951 (class 2606 OID 33398)
 -- Name: trx_delivery_pemakaian_fg trx_delivery_pemakaian_fg_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1938,7 +1998,7 @@ ALTER TABLE ONLY public.trx_delivery_pemakaian_fg
 
 
 --
--- TOC entry 4919 (class 2606 OID 33110)
+-- TOC entry 4925 (class 2606 OID 33110)
 -- Name: trx_delivery_record trx_delivery_record_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1947,7 +2007,7 @@ ALTER TABLE ONLY public.trx_delivery_record
 
 
 --
--- TOC entry 4902 (class 2606 OID 33038)
+-- TOC entry 4908 (class 2606 OID 33038)
 -- Name: trx_import_batch trx_import_batch_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1956,7 +2016,7 @@ ALTER TABLE ONLY public.trx_import_batch
 
 
 --
--- TOC entry 4912 (class 2606 OID 33091)
+-- TOC entry 4918 (class 2606 OID 33091)
 -- Name: trx_jf_periode trx_jf_periode_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1965,7 +2025,7 @@ ALTER TABLE ONLY public.trx_jf_periode
 
 
 --
--- TOC entry 4929 (class 2606 OID 33240)
+-- TOC entry 4935 (class 2606 OID 33240)
 -- Name: trx_laporan_produksi trx_laporan_produksi_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1974,7 +2034,7 @@ ALTER TABLE ONLY public.trx_laporan_produksi
 
 
 --
--- TOC entry 4934 (class 2606 OID 33330)
+-- TOC entry 4940 (class 2606 OID 33330)
 -- Name: trx_monitoring_produksi trx_monitoring_produksi_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1983,7 +2043,7 @@ ALTER TABLE ONLY public.trx_monitoring_produksi
 
 
 --
--- TOC entry 4941 (class 2606 OID 33366)
+-- TOC entry 4947 (class 2606 OID 33366)
 -- Name: trx_pemakaian_material trx_pemakaian_material_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1992,7 +2052,7 @@ ALTER TABLE ONLY public.trx_pemakaian_material
 
 
 --
--- TOC entry 4884 (class 2606 OID 32889)
+-- TOC entry 4890 (class 2606 OID 32889)
 -- Name: mst_aktivitas uq_aktivitas_kode; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2001,7 +2061,7 @@ ALTER TABLE ONLY public.mst_aktivitas
 
 
 --
--- TOC entry 4892 (class 2606 OID 32909)
+-- TOC entry 4898 (class 2606 OID 32909)
 -- Name: mst_pekerjaan_borong uq_borong_kode; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2010,7 +2070,7 @@ ALTER TABLE ONLY public.mst_pekerjaan_borong
 
 
 --
--- TOC entry 4861 (class 2606 OID 24700)
+-- TOC entry 4867 (class 2606 OID 24700)
 -- Name: mst_department uq_department_code; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2019,7 +2079,7 @@ ALTER TABLE ONLY public.mst_department
 
 
 --
--- TOC entry 4896 (class 2606 OID 33001)
+-- TOC entry 4902 (class 2606 OID 33001)
 -- Name: mst_import_kolom uq_import_kolom_field_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2028,7 +2088,7 @@ ALTER TABLE ONLY public.mst_import_kolom
 
 
 --
--- TOC entry 4872 (class 2606 OID 32859)
+-- TOC entry 4878 (class 2606 OID 32859)
 -- Name: mst_karyawan uq_karyawan_nik; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2037,7 +2097,7 @@ ALTER TABLE ONLY public.mst_karyawan
 
 
 --
--- TOC entry 4880 (class 2606 OID 32879)
+-- TOC entry 4886 (class 2606 OID 32879)
 -- Name: mst_mesin uq_mesin_kode; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2046,7 +2106,7 @@ ALTER TABLE ONLY public.mst_mesin
 
 
 --
--- TOC entry 4910 (class 2606 OID 33078)
+-- TOC entry 4916 (class 2606 OID 33078)
 -- Name: mst_jf uq_mst_jf_jf; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2055,7 +2115,7 @@ ALTER TABLE ONLY public.mst_jf
 
 
 --
--- TOC entry 4888 (class 2606 OID 32899)
+-- TOC entry 4894 (class 2606 OID 32899)
 -- Name: mst_proses uq_proses_kode; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2064,7 +2124,7 @@ ALTER TABLE ONLY public.mst_proses
 
 
 --
--- TOC entry 4876 (class 2606 OID 32869)
+-- TOC entry 4882 (class 2606 OID 32869)
 -- Name: mst_shift uq_shift_kode; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2073,7 +2133,7 @@ ALTER TABLE ONLY public.mst_shift
 
 
 --
--- TOC entry 4914 (class 2606 OID 33093)
+-- TOC entry 4920 (class 2606 OID 33093)
 -- Name: trx_jf_periode uq_trx_jf_periode; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2082,7 +2142,7 @@ ALTER TABLE ONLY public.trx_jf_periode
 
 
 --
--- TOC entry 4867 (class 2606 OID 24710)
+-- TOC entry 4873 (class 2606 OID 24710)
 -- Name: mst_user_department uq_user_department; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2091,7 +2151,7 @@ ALTER TABLE ONLY public.mst_user_department
 
 
 --
--- TOC entry 4936 (class 2606 OID 33332)
+-- TOC entry 4942 (class 2606 OID 33332)
 -- Name: trx_monitoring_produksi ux_monitoring_produksi_grain; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2100,7 +2160,7 @@ ALTER TABLE ONLY public.trx_monitoring_produksi
 
 
 --
--- TOC entry 4915 (class 1259 OID 33416)
+-- TOC entry 4921 (class 1259 OID 33416)
 -- Name: ix_delivery_aktual_kirim; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2108,7 +2168,7 @@ CREATE INDEX ix_delivery_aktual_kirim ON public.trx_delivery_record USING btree 
 
 
 --
--- TOC entry 4916 (class 1259 OID 33121)
+-- TOC entry 4922 (class 1259 OID 33121)
 -- Name: ix_delivery_jf; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2116,7 +2176,7 @@ CREATE INDEX ix_delivery_jf ON public.trx_delivery_record USING btree (jf_id);
 
 
 --
--- TOC entry 4942 (class 1259 OID 33414)
+-- TOC entry 4948 (class 1259 OID 33414)
 -- Name: ix_delivery_pemakaian_fg_delivery; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2124,7 +2184,7 @@ CREATE INDEX ix_delivery_pemakaian_fg_delivery ON public.trx_delivery_pemakaian_
 
 
 --
--- TOC entry 4943 (class 1259 OID 33415)
+-- TOC entry 4949 (class 1259 OID 33415)
 -- Name: ix_delivery_pemakaian_fg_monitoring; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2132,7 +2192,7 @@ CREATE INDEX ix_delivery_pemakaian_fg_monitoring ON public.trx_delivery_pemakaia
 
 
 --
--- TOC entry 4917 (class 1259 OID 33123)
+-- TOC entry 4923 (class 1259 OID 33123)
 -- Name: ix_delivery_tanggal_kirim; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2140,7 +2200,7 @@ CREATE INDEX ix_delivery_tanggal_kirim ON public.trx_delivery_record USING btree
 
 
 --
--- TOC entry 4900 (class 1259 OID 33044)
+-- TOC entry 4906 (class 1259 OID 33044)
 -- Name: ix_import_batch_periode; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2148,7 +2208,7 @@ CREATE INDEX ix_import_batch_periode ON public.trx_import_batch USING btree (per
 
 
 --
--- TOC entry 4923 (class 1259 OID 33241)
+-- TOC entry 4929 (class 1259 OID 33241)
 -- Name: ix_laporan_department; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2156,7 +2216,7 @@ CREATE INDEX ix_laporan_department ON public.trx_laporan_produksi USING btree (d
 
 
 --
--- TOC entry 4924 (class 1259 OID 33242)
+-- TOC entry 4930 (class 1259 OID 33242)
 -- Name: ix_laporan_import_batch; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2164,7 +2224,7 @@ CREATE INDEX ix_laporan_import_batch ON public.trx_laporan_produksi USING btree 
 
 
 --
--- TOC entry 4925 (class 1259 OID 33243)
+-- TOC entry 4931 (class 1259 OID 33243)
 -- Name: ix_laporan_operator; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2172,7 +2232,7 @@ CREATE INDEX ix_laporan_operator ON public.trx_laporan_produksi USING btree (ope
 
 
 --
--- TOC entry 4926 (class 1259 OID 33244)
+-- TOC entry 4932 (class 1259 OID 33244)
 -- Name: ix_laporan_periode; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2180,7 +2240,7 @@ CREATE INDEX ix_laporan_periode ON public.trx_laporan_produksi USING btree (peri
 
 
 --
--- TOC entry 4927 (class 1259 OID 33245)
+-- TOC entry 4933 (class 1259 OID 33245)
 -- Name: ix_laporan_tanggal; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2188,7 +2248,7 @@ CREATE INDEX ix_laporan_tanggal ON public.trx_laporan_produksi USING btree (tang
 
 
 --
--- TOC entry 4930 (class 1259 OID 33354)
+-- TOC entry 4936 (class 1259 OID 33354)
 -- Name: ix_monitoring_produksi_department; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2196,7 +2256,7 @@ CREATE INDEX ix_monitoring_produksi_department ON public.trx_monitoring_produksi
 
 
 --
--- TOC entry 4931 (class 1259 OID 33353)
+-- TOC entry 4937 (class 1259 OID 33353)
 -- Name: ix_monitoring_produksi_periode; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2204,7 +2264,7 @@ CREATE INDEX ix_monitoring_produksi_periode ON public.trx_monitoring_produksi US
 
 
 --
--- TOC entry 4932 (class 1259 OID 33355)
+-- TOC entry 4938 (class 1259 OID 33355)
 -- Name: ix_monitoring_produksi_status_output; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2212,7 +2272,7 @@ CREATE INDEX ix_monitoring_produksi_status_output ON public.trx_monitoring_produ
 
 
 --
--- TOC entry 4937 (class 1259 OID 33387)
+-- TOC entry 4943 (class 1259 OID 33387)
 -- Name: ix_pemakaian_material_monitoring; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2220,7 +2280,7 @@ CREATE INDEX ix_pemakaian_material_monitoring ON public.trx_pemakaian_material U
 
 
 --
--- TOC entry 4938 (class 1259 OID 33389)
+-- TOC entry 4944 (class 1259 OID 33389)
 -- Name: ix_pemakaian_material_raw; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2228,7 +2288,7 @@ CREATE INDEX ix_pemakaian_material_raw ON public.trx_pemakaian_material USING bt
 
 
 --
--- TOC entry 4939 (class 1259 OID 33388)
+-- TOC entry 4945 (class 1259 OID 33388)
 -- Name: ix_pemakaian_material_sumber; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2236,7 +2296,7 @@ CREATE INDEX ix_pemakaian_material_sumber ON public.trx_pemakaian_material USING
 
 
 --
--- TOC entry 4862 (class 1259 OID 24723)
+-- TOC entry 4868 (class 1259 OID 24723)
 -- Name: ix_user_department_department; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2244,7 +2304,7 @@ CREATE INDEX ix_user_department_department ON public.mst_user_department USING b
 
 
 --
--- TOC entry 4863 (class 1259 OID 24722)
+-- TOC entry 4869 (class 1259 OID 24722)
 -- Name: ix_user_department_user; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2252,7 +2312,7 @@ CREATE INDEX ix_user_department_user ON public.mst_user_department USING btree (
 
 
 --
--- TOC entry 4899 (class 1259 OID 33014)
+-- TOC entry 4905 (class 1259 OID 33014)
 -- Name: ux_import_alias_text; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2260,7 +2320,7 @@ CREATE UNIQUE INDEX ux_import_alias_text ON public.mst_import_alias USING btree 
 
 
 --
--- TOC entry 4922 (class 1259 OID 33132)
+-- TOC entry 4928 (class 1259 OID 33132)
 -- Name: ux_material_raw_kode; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2268,7 +2328,7 @@ CREATE UNIQUE INDEX ux_material_raw_kode ON public.mst_material_raw USING btree 
 
 
 --
--- TOC entry 4868 (class 1259 OID 24721)
+-- TOC entry 4874 (class 1259 OID 24721)
 -- Name: ux_user_department_primary; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2276,7 +2336,7 @@ CREATE UNIQUE INDEX ux_user_department_primary ON public.mst_user_department USI
 
 
 --
--- TOC entry 4951 (class 2606 OID 33009)
+-- TOC entry 4957 (class 2606 OID 33009)
 -- Name: mst_import_alias mst_import_alias_kolom_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2285,7 +2345,7 @@ ALTER TABLE ONLY public.mst_import_alias
 
 
 --
--- TOC entry 4953 (class 2606 OID 33079)
+-- TOC entry 4959 (class 2606 OID 33079)
 -- Name: mst_jf mst_jf_kelompok_produk_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2294,7 +2354,7 @@ ALTER TABLE ONLY public.mst_jf
 
 
 --
--- TOC entry 4946 (class 2606 OID 16430)
+-- TOC entry 4952 (class 2606 OID 16430)
 -- Name: mst_menu_access mst_menu_access_menu_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2303,7 +2363,7 @@ ALTER TABLE ONLY public.mst_menu_access
 
 
 --
--- TOC entry 4949 (class 2606 OID 24716)
+-- TOC entry 4955 (class 2606 OID 24716)
 -- Name: mst_user_department mst_user_department_department_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2312,7 +2372,7 @@ ALTER TABLE ONLY public.mst_user_department
 
 
 --
--- TOC entry 4950 (class 2606 OID 24711)
+-- TOC entry 4956 (class 2606 OID 24711)
 -- Name: mst_user_department mst_user_department_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2321,7 +2381,7 @@ ALTER TABLE ONLY public.mst_user_department
 
 
 --
--- TOC entry 4947 (class 2606 OID 16453)
+-- TOC entry 4953 (class 2606 OID 16453)
 -- Name: mst_user_menu_access mst_user_menu_access_menu_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2330,7 +2390,7 @@ ALTER TABLE ONLY public.mst_user_menu_access
 
 
 --
--- TOC entry 4948 (class 2606 OID 16448)
+-- TOC entry 4954 (class 2606 OID 16448)
 -- Name: mst_user_menu_access mst_user_menu_access_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2339,7 +2399,7 @@ ALTER TABLE ONLY public.mst_user_menu_access
 
 
 --
--- TOC entry 4977 (class 2606 OID 33399)
+-- TOC entry 4983 (class 2606 OID 33399)
 -- Name: trx_delivery_pemakaian_fg trx_delivery_pemakaian_fg_delivery_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2348,7 +2408,7 @@ ALTER TABLE ONLY public.trx_delivery_pemakaian_fg
 
 
 --
--- TOC entry 4978 (class 2606 OID 33409)
+-- TOC entry 4984 (class 2606 OID 33409)
 -- Name: trx_delivery_pemakaian_fg trx_delivery_pemakaian_fg_inputer_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2357,7 +2417,7 @@ ALTER TABLE ONLY public.trx_delivery_pemakaian_fg
 
 
 --
--- TOC entry 4979 (class 2606 OID 33404)
+-- TOC entry 4985 (class 2606 OID 33404)
 -- Name: trx_delivery_pemakaian_fg trx_delivery_pemakaian_fg_monitoring_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2366,7 +2426,7 @@ ALTER TABLE ONLY public.trx_delivery_pemakaian_fg
 
 
 --
--- TOC entry 4955 (class 2606 OID 33116)
+-- TOC entry 4961 (class 2606 OID 33116)
 -- Name: trx_delivery_record trx_delivery_record_inputer_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2375,7 +2435,7 @@ ALTER TABLE ONLY public.trx_delivery_record
 
 
 --
--- TOC entry 4956 (class 2606 OID 33111)
+-- TOC entry 4962 (class 2606 OID 33111)
 -- Name: trx_delivery_record trx_delivery_record_jf_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2384,7 +2444,7 @@ ALTER TABLE ONLY public.trx_delivery_record
 
 
 --
--- TOC entry 4952 (class 2606 OID 33039)
+-- TOC entry 4958 (class 2606 OID 33039)
 -- Name: trx_import_batch trx_import_batch_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2393,7 +2453,7 @@ ALTER TABLE ONLY public.trx_import_batch
 
 
 --
--- TOC entry 4954 (class 2606 OID 33094)
+-- TOC entry 4960 (class 2606 OID 33094)
 -- Name: trx_jf_periode trx_jf_periode_jf_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2402,7 +2462,7 @@ ALTER TABLE ONLY public.trx_jf_periode
 
 
 --
--- TOC entry 4957 (class 2606 OID 33246)
+-- TOC entry 4963 (class 2606 OID 33246)
 -- Name: trx_laporan_produksi trx_laporan_produksi_department_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2411,7 +2471,7 @@ ALTER TABLE ONLY public.trx_laporan_produksi
 
 
 --
--- TOC entry 4958 (class 2606 OID 33251)
+-- TOC entry 4964 (class 2606 OID 33251)
 -- Name: trx_laporan_produksi trx_laporan_produksi_import_batch_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2420,7 +2480,7 @@ ALTER TABLE ONLY public.trx_laporan_produksi
 
 
 --
--- TOC entry 4959 (class 2606 OID 33256)
+-- TOC entry 4965 (class 2606 OID 33256)
 -- Name: trx_laporan_produksi trx_laporan_produksi_inputer_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2429,7 +2489,7 @@ ALTER TABLE ONLY public.trx_laporan_produksi
 
 
 --
--- TOC entry 4960 (class 2606 OID 33261)
+-- TOC entry 4966 (class 2606 OID 33261)
 -- Name: trx_laporan_produksi trx_laporan_produksi_jf_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2438,7 +2498,7 @@ ALTER TABLE ONLY public.trx_laporan_produksi
 
 
 --
--- TOC entry 4961 (class 2606 OID 33266)
+-- TOC entry 4967 (class 2606 OID 33266)
 -- Name: trx_laporan_produksi trx_laporan_produksi_kode_aktivitas_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2447,7 +2507,7 @@ ALTER TABLE ONLY public.trx_laporan_produksi
 
 
 --
--- TOC entry 4962 (class 2606 OID 33271)
+-- TOC entry 4968 (class 2606 OID 33271)
 -- Name: trx_laporan_produksi trx_laporan_produksi_ll_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2456,7 +2516,7 @@ ALTER TABLE ONLY public.trx_laporan_produksi
 
 
 --
--- TOC entry 4963 (class 2606 OID 33276)
+-- TOC entry 4969 (class 2606 OID 33276)
 -- Name: trx_laporan_produksi trx_laporan_produksi_mesin_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2465,7 +2525,7 @@ ALTER TABLE ONLY public.trx_laporan_produksi
 
 
 --
--- TOC entry 4964 (class 2606 OID 33281)
+-- TOC entry 4970 (class 2606 OID 33281)
 -- Name: trx_laporan_produksi trx_laporan_produksi_operator_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2474,7 +2534,7 @@ ALTER TABLE ONLY public.trx_laporan_produksi
 
 
 --
--- TOC entry 4965 (class 2606 OID 33286)
+-- TOC entry 4971 (class 2606 OID 33286)
 -- Name: trx_laporan_produksi trx_laporan_produksi_pekerjaan_borong_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2483,7 +2543,7 @@ ALTER TABLE ONLY public.trx_laporan_produksi
 
 
 --
--- TOC entry 4966 (class 2606 OID 33291)
+-- TOC entry 4972 (class 2606 OID 33291)
 -- Name: trx_laporan_produksi trx_laporan_produksi_proses_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2492,7 +2552,7 @@ ALTER TABLE ONLY public.trx_laporan_produksi
 
 
 --
--- TOC entry 4967 (class 2606 OID 33296)
+-- TOC entry 4973 (class 2606 OID 33296)
 -- Name: trx_laporan_produksi trx_laporan_produksi_shift_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2501,7 +2561,7 @@ ALTER TABLE ONLY public.trx_laporan_produksi
 
 
 --
--- TOC entry 4968 (class 2606 OID 33301)
+-- TOC entry 4974 (class 2606 OID 33301)
 -- Name: trx_laporan_produksi trx_laporan_produksi_spv_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2510,7 +2570,7 @@ ALTER TABLE ONLY public.trx_laporan_produksi
 
 
 --
--- TOC entry 4969 (class 2606 OID 33338)
+-- TOC entry 4975 (class 2606 OID 33338)
 -- Name: trx_monitoring_produksi trx_monitoring_produksi_department_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2519,7 +2579,7 @@ ALTER TABLE ONLY public.trx_monitoring_produksi
 
 
 --
--- TOC entry 4970 (class 2606 OID 33333)
+-- TOC entry 4976 (class 2606 OID 33333)
 -- Name: trx_monitoring_produksi trx_monitoring_produksi_jf_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2528,7 +2588,7 @@ ALTER TABLE ONLY public.trx_monitoring_produksi
 
 
 --
--- TOC entry 4971 (class 2606 OID 33343)
+-- TOC entry 4977 (class 2606 OID 33343)
 -- Name: trx_monitoring_produksi trx_monitoring_produksi_proses_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2537,7 +2597,7 @@ ALTER TABLE ONLY public.trx_monitoring_produksi
 
 
 --
--- TOC entry 4972 (class 2606 OID 33348)
+-- TOC entry 4978 (class 2606 OID 33348)
 -- Name: trx_monitoring_produksi trx_monitoring_produksi_updated_by_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2546,7 +2606,7 @@ ALTER TABLE ONLY public.trx_monitoring_produksi
 
 
 --
--- TOC entry 4973 (class 2606 OID 33382)
+-- TOC entry 4979 (class 2606 OID 33382)
 -- Name: trx_pemakaian_material trx_pemakaian_material_inputer_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2555,7 +2615,7 @@ ALTER TABLE ONLY public.trx_pemakaian_material
 
 
 --
--- TOC entry 4974 (class 2606 OID 33372)
+-- TOC entry 4980 (class 2606 OID 33372)
 -- Name: trx_pemakaian_material trx_pemakaian_material_material_raw_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2564,7 +2624,7 @@ ALTER TABLE ONLY public.trx_pemakaian_material
 
 
 --
--- TOC entry 4975 (class 2606 OID 33367)
+-- TOC entry 4981 (class 2606 OID 33367)
 -- Name: trx_pemakaian_material trx_pemakaian_material_monitoring_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2573,7 +2633,7 @@ ALTER TABLE ONLY public.trx_pemakaian_material
 
 
 --
--- TOC entry 4976 (class 2606 OID 33377)
+-- TOC entry 4982 (class 2606 OID 33377)
 -- Name: trx_pemakaian_material trx_pemakaian_material_sumber_monitoring_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2581,11 +2641,11 @@ ALTER TABLE ONLY public.trx_pemakaian_material
     ADD CONSTRAINT trx_pemakaian_material_sumber_monitoring_id_fkey FOREIGN KEY (sumber_monitoring_id) REFERENCES public.trx_monitoring_produksi(id);
 
 
--- Completed on 2026-08-12 19:00:39
+-- Completed on 2026-08-12 19:44:03
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict iS3UeUqzxpWjF1jopaj04HNIeyTPFGFph5apR4vPbNWKSaTmgaidVAOpP4P8uzw
+\unrestrict VIs7bpKKHfKHqo8Bk9EGX02ghK52cU8XBkfSmWzKi8STh1ixoz1mky9vTDF8Dah
 
