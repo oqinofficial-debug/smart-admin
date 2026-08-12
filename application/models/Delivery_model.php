@@ -97,9 +97,10 @@ class Delivery_model extends CI_Model
     {
         $this->load->library('value_converter');
 
-        $inserted = 0;
-        $updated  = 0;
-        $errors   = array();
+        $inserted     = 0;
+        $updated      = 0;
+        $errors       = array();
+        $fg_candidates = array(); // baris sukses & aktual_kirim > 0 -- kandidat auto-alokasi FG
 
         foreach ($rows as $i => $cols) {
             $line         = $i + 1;
@@ -160,17 +161,34 @@ class Delivery_model extends CI_Model
                 if ($existing) {
                     $this->db->where('id', $existing['id'])->update('trx_delivery_record', $data);
                     $updated++;
+                    $delivery_id = $existing['id'];
                 } else {
                     $data['inputer_id'] = $inputer_id;
                     $this->db->insert('trx_delivery_record', $data);
                     $inserted++;
+                    $delivery_id = $this->db->insert_id();
+                }
+
+                if ($aktual_kirim !== null && $aktual_kirim > 0) {
+                    $fg_candidates[] = array(
+                        'delivery_id'  => $delivery_id,
+                        'jf_id'        => $jf_row['id'],
+                        'jf_kode'      => $jf_kode,
+                        'no_sp'        => $no_sp,
+                        'aktual_kirim' => $aktual_kirim,
+                    );
                 }
             } catch (Exception $e) {
                 $errors[] = array('line' => $line, 'message' => 'Gagal simpan: ' . $e->getMessage());
             }
         }
 
-        return array('inserted' => $inserted, 'updated' => $updated, 'errors' => $errors);
+        return array(
+            'inserted'      => $inserted,
+            'updated'       => $updated,
+            'errors'        => $errors,
+            'fg_candidates' => $fg_candidates,
+        );
     }
 
     // ---------------------------------------------------------------
@@ -215,6 +233,103 @@ class Delivery_model extends CI_Model
             ->order_by('m.periode', 'DESC')
             ->get()
             ->result_array();
+    }
+
+    /**
+     * Sama seperti search_stok_fg() tapi diurut periode ASC (FIFO -- stok
+     * paling lama diserap duluan) dan hanya baris bersisa (>0).
+     */
+    public function search_stok_fg_fifo($jf_id)
+    {
+        $rows = $this->search_stok_fg($jf_id);
+        $rows = array_values(array_filter($rows, function ($r) {
+            return (float) $r['sisa_qty'] > 0;
+        }));
+        usort($rows, function ($a, $b) {
+            return strcmp($a['periode'], $b['periode']);
+        });
+        return $rows;
+    }
+
+    /**
+     * Hitung rencana alokasi FIFO stok FG untuk qty tertentu milik satu JF.
+     * TIDAK menyimpan apa pun -- murni preview (poin 1 rancangan: auto-
+     * hitung, konfirmasi manual sebelum disimpan).
+     *
+     * @return array('allocations'=>[['monitoring_id','proses_nama',
+     *               'department_nama','periode','sisa_qty','alokasi_qty'], ...],
+     *               'shortfall'=>float, 'warning'=>string|null)
+     */
+    public function preview_fg_allocation($jf_id, $qty)
+    {
+        $sisa_qty_dibutuhkan = (float) $qty;
+        $rows = $this->search_stok_fg_fifo($jf_id);
+        $allocations = array();
+
+        foreach ($rows as $r) {
+            if ($sisa_qty_dibutuhkan <= 0) {
+                break;
+            }
+            $ambil = min($sisa_qty_dibutuhkan, (float) $r['sisa_qty']);
+            $allocations[] = array(
+                'monitoring_id'   => $r['monitoring_id'],
+                'proses_nama'     => $r['proses_nama'],
+                'department_nama' => $r['department_nama'],
+                'periode'         => $r['periode'],
+                'sisa_qty'        => (float) $r['sisa_qty'],
+                'alokasi_qty'     => $ambil,
+            );
+            $sisa_qty_dibutuhkan -= $ambil;
+        }
+
+        $warning = null;
+        if ($sisa_qty_dibutuhkan > 0) {
+            if (!empty($allocations)) {
+                // stok ada tapi tidak cukup -- tambahkan sisanya ke baris
+                // FIFO terakhir (over-alokasi, soft warning, tetap disimpan
+                // kalau user konfirmasi).
+                $last = count($allocations) - 1;
+                $allocations[$last]['alokasi_qty'] += $sisa_qty_dibutuhkan;
+                $warning = 'Stok FG tidak cukup. Kekurangan ' . $sisa_qty_dibutuhkan .
+                           ' dibebankan ke periode ' . $allocations[$last]['periode'] . ' (melebihi sisa stok).';
+            } else {
+                $warning = 'Tidak ada stok FG (status Finish Good Stok) tersedia untuk JF ini.';
+            }
+        }
+
+        return array(
+            'allocations' => $allocations,
+            'shortfall'   => max(0, $sisa_qty_dibutuhkan),
+            'warning'     => $warning,
+        );
+    }
+
+    /** Hapus semua cantolan FG milik satu delivery (dipakai sebelum re-apply auto-alokasi). */
+    public function delete_pemakaian_fg_by_delivery($delivery_id)
+    {
+        $this->db->where('delivery_id', $delivery_id)->delete('trx_delivery_pemakaian_fg');
+        return $this->db->affected_rows();
+    }
+
+    /**
+     * Terapkan hasil preview_fg_allocation() ke trx_delivery_pemakaian_fg.
+     * Mengganti (replace) seluruh cantolan FG milik delivery ini supaya
+     * tombol "Terapkan" aman diklik ulang (idempotent), bukan menumpuk.
+     *
+     * @param array $allocations [['monitoring_id'=>.., 'alokasi_qty'=>..], ...]
+     */
+    public function apply_fg_allocation($delivery_id, array $allocations, $inputer_id)
+    {
+        $this->delete_pemakaian_fg_by_delivery($delivery_id);
+        $count = 0;
+        foreach ($allocations as $a) {
+            if ((float) $a['alokasi_qty'] <= 0) {
+                continue;
+            }
+            $this->create_pemakaian_fg($delivery_id, $a['monitoring_id'], $a['alokasi_qty'], $inputer_id);
+            $count++;
+        }
+        return $count;
     }
 
     public function get_sisa_stok_fg($monitoring_id)

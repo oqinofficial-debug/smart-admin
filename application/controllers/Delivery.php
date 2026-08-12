@@ -50,9 +50,10 @@ class Delivery extends MY_Controller
                 $data = $this->_collect_post();
                 $data['inputer_id'] = $this->user['id'];
 
-                $this->Delivery_model->create($data);
+                $id = $this->Delivery_model->create($data);
                 $this->session->set_flashdata('success', 'Delivery record ditambahkan.');
-                redirect('delivery');
+                // redirect ke edit (bukan index) supaya panel auto-alokasi FG langsung terlihat
+                redirect('delivery/edit/' . $id);
                 return;
             }
         }
@@ -133,10 +134,20 @@ class Delivery extends MY_Controller
             }
         }
 
-        $data['title']  = 'Tambah Massal Delivery Record - ' . APP_NAME;
-        $data['menus']  = $this->menus;
-        $data['result'] = $result;
-        $data['raw']    = $this->input->post('data');
+        // Hitung preview auto-alokasi FG (FIFO) untuk tiap baris sukses yang punya aktual_kirim
+        $fg_previews = array();
+        if ($result && !empty($result['fg_candidates'])) {
+            foreach ($result['fg_candidates'] as $c) {
+                $preview = $this->Delivery_model->preview_fg_allocation($c['jf_id'], $c['aktual_kirim']);
+                $fg_previews[] = array_merge($c, $preview);
+            }
+        }
+
+        $data['title']       = 'Tambah Massal Delivery Record - ' . APP_NAME;
+        $data['menus']       = $this->menus;
+        $data['result']      = $result;
+        $data['raw']         = $this->input->post('data');
+        $data['fg_previews'] = $fg_previews;
 
         $this->load->view('templates/header', $data);
         $this->load->view('templates/sidebar', $data);
@@ -215,6 +226,73 @@ class Delivery extends MY_Controller
         $this->require_access('delivery', 'delete');
         $this->Delivery_model->delete_pemakaian_fg($id);
         $this->_json(array('success' => true));
+    }
+
+    // ---------------------------------------------------------------
+    // Auto-alokasi FG dari Aktual Kirim (poin 1 rancangan): FIFO by
+    // periode, preview dulu -- baru disimpan kalau user konfirmasi.
+    // ---------------------------------------------------------------
+
+    /** GET: jf_id, qty. Preview saja, tidak menyimpan apa pun. */
+    public function fg_auto_preview()
+    {
+        $this->require_access('delivery', 'input');
+        $jf_id = (int) $this->input->get('jf_id', true);
+        $qty   = (float) $this->input->get('qty', true);
+
+        if ($jf_id <= 0 || $qty <= 0) {
+            $this->_json(array('success' => false, 'message' => 'JF dan Qty wajib diisi.'), 400);
+            return;
+        }
+
+        $this->_json(array_merge(array('success' => true), $this->Delivery_model->preview_fg_allocation($jf_id, $qty)));
+    }
+
+    /**
+     * POST: delivery_id, allocations (JSON string hasil preview yang sudah
+     * dikonfirmasi user). Mengganti (replace) seluruh cantolan FG delivery
+     * ini -- aman diklik ulang.
+     */
+    public function fg_auto_confirm()
+    {
+        $this->require_access('delivery', 'input');
+        $delivery_id = (int) $this->input->post('delivery_id', true);
+        $raw         = (string) $this->input->post('allocations', true);
+        $allocations = json_decode($raw, true);
+
+        if (!$this->Delivery_model->get($delivery_id) || !is_array($allocations)) {
+            $this->_json(array('success' => false, 'message' => 'Data alokasi tidak valid.'), 400);
+            return;
+        }
+
+        $count = $this->Delivery_model->apply_fg_allocation($delivery_id, $allocations, $this->user['id']);
+        $this->_json(array('success' => true, 'count' => $count));
+    }
+
+    /**
+     * POST: items (JSON string [['delivery_id'=>..,'allocations'=>[...]], ...])
+     * dipakai dari halaman hasil Tambah Massal untuk terapkan semua
+     * alokasi FG sekaligus.
+     */
+    public function fg_auto_confirm_bulk()
+    {
+        $this->require_access('delivery', 'input');
+        $items = json_decode((string) $this->input->post('items', true), true);
+
+        if (!is_array($items)) {
+            $this->_json(array('success' => false, 'message' => 'Data tidak valid.'), 400);
+            return;
+        }
+
+        $total = 0;
+        foreach ($items as $item) {
+            if (empty($item['delivery_id']) || !is_array($item['allocations'] ?? null)) {
+                continue;
+            }
+            $total += $this->Delivery_model->apply_fg_allocation($item['delivery_id'], $item['allocations'], $this->user['id']);
+        }
+
+        $this->_json(array('success' => true, 'count' => $total));
     }
 
     private function _json($data, $http_code = 200)

@@ -56,6 +56,86 @@
 </div>
 
 <?php if ($delivery_row): ?>
+<?php if (!empty($access['can_input']) && $delivery_row['aktual_kirim']): ?>
+<div class="card" style="margin-top:16px;">
+    <h3>Auto-Alokasi Stok FG dari Aktual Kirim (FIFO)</h3>
+    <p class="text-muted">Hitung otomatis pengurangan stok FG (periode paling lama duluan) sejumlah
+        Aktual Kirim (<strong><?php echo htmlspecialchars($delivery_row['aktual_kirim']); ?></strong>).
+        Ini hanya PREVIEW -- klik "Terapkan" untuk menyimpan. Menerapkan akan MENGGANTI seluruh
+        cantolan FG yang sudah ada untuk kiriman ini.</p>
+
+    <button type="button" class="btn btn-primary" id="btn-hitung-auto-fg">Hitung Alokasi Otomatis</button>
+    <div id="auto-fg-alert-box" style="margin-top:8px;"></div>
+    <table class="table-list" id="auto-fg-table" style="display:none; margin-top:8px;">
+        <thead>
+            <tr><th>Proses</th><th>Departemen</th><th>Periode</th><th>Sisa Stok</th><th>Alokasi</th></tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <button type="button" class="btn btn-primary" id="btn-terapkan-auto-fg" style="display:none; margin-top:8px;">
+        Terapkan Alokasi Ini
+    </button>
+</div>
+<script>
+(function () {
+    var baseUrl = '<?php echo base_url(); ?>';
+    var deliveryId = <?php echo (int) $delivery_row['id']; ?>;
+    var jfId = <?php echo (int) $delivery_row['jf_id']; ?>;
+    var qty = <?php echo (float) $delivery_row['aktual_kirim']; ?>;
+    var alertBox = document.getElementById('auto-fg-alert-box');
+    var table = document.getElementById('auto-fg-table');
+    var tbody = table.querySelector('tbody');
+    var btnTerapkan = document.getElementById('btn-terapkan-auto-fg');
+    var currentAllocations = null;
+
+    function showAlert(type, msg) {
+        alertBox.innerHTML = msg ? ('<div class="alert alert-' + type + '">' + msg + '</div>') : '';
+    }
+
+    document.getElementById('btn-hitung-auto-fg').addEventListener('click', function () {
+        fetch(baseUrl + 'delivery/fg_auto_preview?jf_id=' + jfId + '&qty=' + qty)
+            .then(function (r) { return r.json(); })
+            .then(function (res) {
+                if (!res.success) {
+                    showAlert('danger', res.message || 'Gagal menghitung alokasi.');
+                    return;
+                }
+                currentAllocations = res.allocations;
+                tbody.innerHTML = '';
+                res.allocations.forEach(function (a) {
+                    var tr = document.createElement('tr');
+                    tr.innerHTML = '<td>' + a.proses_nama + '</td><td>' + a.department_nama + '</td>' +
+                        '<td>' + a.periode + '</td><td>' + a.sisa_qty + '</td><td>' + a.alokasi_qty + '</td>';
+                    tbody.appendChild(tr);
+                });
+                table.style.display = res.allocations.length ? '' : 'none';
+                btnTerapkan.style.display = res.allocations.length ? '' : 'none';
+                showAlert(res.warning ? 'danger' : 'success', res.warning || 'Alokasi siap, cek lalu klik Terapkan.');
+            });
+    });
+
+    btnTerapkan.addEventListener('click', function () {
+        if (!currentAllocations || !currentAllocations.length) { return; }
+        if (!confirm('Terapkan alokasi ini? Cantolan FG lama untuk kiriman ini akan diganti.')) { return; }
+        fetch(baseUrl + 'delivery/fg_auto_confirm', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({ delivery_id: deliveryId, allocations: JSON.stringify(currentAllocations) })
+        }).then(function (r) { return r.json(); })
+          .then(function (res) {
+              if (res.success) {
+                  showAlert('success', 'Alokasi FG diterapkan (' + res.count + ' baris).');
+                  table.style.display = 'none';
+                  btnTerapkan.style.display = 'none';
+                  if (window.__reloadFgList) { window.__reloadFgList(); }
+              } else {
+                  showAlert('danger', res.message || 'Gagal menerapkan alokasi.');
+              }
+          });
+    });
+})();
+</script>
+<?php endif; ?>
 <div class="card" style="margin-top:16px;">
     <h3>Cantolan Stok Finish Good (FG)</h3>
     <p class="text-muted">Kurangi stok FG hasil monitoring produksi (status output = Finish Good Stok) untuk
@@ -154,6 +234,7 @@
     }
 
     loadList();
+    window.__reloadFgList = loadList;
 
     var form = document.querySelector('.form-cantolan-fg');
     if (form) {

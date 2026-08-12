@@ -37,6 +37,62 @@ JF002	05/08/2026		SP-1002	Ekspress</pre>
 
     <?php echo form_close(); ?>
 
+    <?php if (!empty($fg_previews)): ?>
+        <div style="margin-top:20px;">
+            <h3>Preview Auto-Alokasi Stok FG (FIFO)</h3>
+            <p class="text-muted">Kandidat pengurangan stok FG dari Aktual Kirim baris di atas. Hanya preview --
+                klik "Terapkan Semua Alokasi FG" untuk menyimpan. Menerapkan akan MENGGANTI cantolan FG lama
+                (kalau ada) untuk tiap kiriman yang tercantum.</p>
+            <table class="table-list">
+                <thead>
+                    <tr><th>No. JF</th><th>No. SP</th><th>Aktual Kirim</th><th>Rincian Alokasi (proses/periode: qty)</th><th>Warning</th></tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($fg_previews as $p): ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($p['jf_kode']); ?></td>
+                            <td><?php echo htmlspecialchars($p['no_sp']); ?></td>
+                            <td><?php echo htmlspecialchars($p['aktual_kirim']); ?></td>
+                            <td>
+                                <?php foreach ($p['allocations'] as $a): ?>
+                                    <?php echo htmlspecialchars($a['proses_nama'] . '/' . $a['periode'] . ': ' . $a['alokasi_qty']); ?><br>
+                                <?php endforeach; ?>
+                            </td>
+                            <td><?php echo $p['warning'] ? htmlspecialchars($p['warning']) : '-'; ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+            <button type="button" class="btn btn-primary" id="btn-terapkan-semua-fg" style="margin-top:8px;">
+                Terapkan Semua Alokasi FG
+            </button>
+            <div id="bulk-fg-alert-box" style="margin-top:8px;"></div>
+        </div>
+        <script>
+        (function () {
+            var baseUrl = '<?php echo base_url(); ?>';
+            var items = <?php echo json_encode(array_map(function ($p) {
+                return array('delivery_id' => $p['delivery_id'], 'allocations' => $p['allocations']);
+            }, $fg_previews)); ?>;
+            var box = document.getElementById('bulk-fg-alert-box');
+
+            document.getElementById('btn-terapkan-semua-fg').addEventListener('click', function () {
+                if (!confirm('Terapkan semua alokasi FG di atas? Cantolan FG lama (kalau ada) akan diganti.')) { return; }
+                fetch(baseUrl + 'delivery/fg_auto_confirm_bulk', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({ items: JSON.stringify(items) })
+                }).then(function (r) { return r.json(); })
+                  .then(function (res) {
+                      box.innerHTML = '<div class="alert alert-' + (res.success ? 'success' : 'danger') + '">' +
+                          (res.success ? ('Alokasi diterapkan (' + res.count + ' baris cantolan FG).') : (res.message || 'Gagal.')) +
+                          '</div>';
+                  });
+            });
+        })();
+        </script>
+    <?php endif; ?>
+
     <?php if ($result !== null && !empty($result['errors'])): ?>
         <div style="margin-top:20px;">
             <h3>Baris Gagal (<?php echo count($result['errors']); ?>)</h3>
