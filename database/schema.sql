@@ -2,12 +2,12 @@
 -- PostgreSQL database dump
 --
 
-\restrict DD3cYD1xKqB0Sv1Jjbo4jMzjlFtxLGKCuyqijJb8k5PfZvYTygI5VEy8eqsanuR
+\restrict ozgOl0UcpFKpkQ7sqnR0bJVzVOGGmibXyUejf5A945H9iEdc4Y7eg2CtrLCUIao
 
 -- Dumped from database version 17.10
 -- Dumped by pg_dump version 17.10
 
--- Started on 2026-08-13 06:34:35
+-- Started on 2026-08-13 20:02:37
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -1348,6 +1348,7 @@ COPY public.mst_menu (id, parent_id, menu_code, menu_name, menu_url, menu_icon, 
 10	0	material_raw	Material RAW	material_raw	cubes	70	t
 11	0	material_wip	Material WIP	material_wip	recycle	71	f
 13	0	monitoring_produksi	Production Monitoring Report	monitoring_produksi	bar-chart-2	72	t
+14	0	kelengkapan_setor	Kelengkapan Setor	kelengkapan-setor	check-circle	73	t
 \.
 
 
@@ -1391,6 +1392,9 @@ COPY public.mst_menu_access (id, menu_id, level, can_view, can_input, can_edit, 
 31	13	1	t	f	f	f
 32	13	2	t	t	f	f
 33	13	3	t	t	t	t
+34	14	1	t	f	f	f
+35	14	2	t	f	f	f
+36	14	3	t	f	f	f
 \.
 
 
@@ -1441,7 +1445,7 @@ COPY public.mst_shift (id, kode, nama, is_active) FROM stdin;
 --
 
 COPY public.mst_user (id, username, password, fullname, is_active, last_login, created_at, can_view_all_departments) FROM stdin;
-1	admin	$2y$10$1H/r0Et4lzTkLh.2Qc3R4uQFk3HawyYINSNPnq/PlRsEjhP6394xW	Administrator	t	2026-08-12 13:58:04	2026-07-09 00:12:03.765824	t
+1	admin	$2y$10$sqb6MDQSO0NGRFMfaqVH5.RkN59ZjfaKe7FazPIVjqY42lBEwLF7K	Administrator	t	2026-08-13 14:22:14	2026-07-09 00:12:03.765824	t
 \.
 
 
@@ -1462,6 +1466,7 @@ COPY public.mst_user_department (id, user_id, department_id, is_primary) FROM st
 --
 
 COPY public.mst_user_menu_access (id, user_id, menu_id, level) FROM stdin;
+9	1	1	3
 8	1	2	3
 7	1	3	3
 16	1	6	3
@@ -1469,9 +1474,9 @@ COPY public.mst_user_menu_access (id, user_id, menu_id, level) FROM stdin;
 18	1	8	3
 19	1	9	3
 20	1	10	3
-9	1	1	3
 21	1	11	3
 22	1	13	3
+23	1	14	3
 13	1	5	3
 \.
 
@@ -1643,7 +1648,7 @@ SELECT pg_catalog.setval('public.mst_material_raw_id_seq', 1, false);
 -- Name: mst_menu_access_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.mst_menu_access_id_seq', 33, true);
+SELECT pg_catalog.setval('public.mst_menu_access_id_seq', 36, true);
 
 
 --
@@ -1652,7 +1657,7 @@ SELECT pg_catalog.setval('public.mst_menu_access_id_seq', 33, true);
 -- Name: mst_menu_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.mst_menu_id_seq', 13, true);
+SELECT pg_catalog.setval('public.mst_menu_id_seq', 14, true);
 
 
 --
@@ -1715,7 +1720,7 @@ SELECT pg_catalog.setval('public.mst_user_id_seq', 4, true);
 -- Name: mst_user_menu_access_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.mst_user_menu_access_id_seq', 22, true);
+SELECT pg_catalog.setval('public.mst_user_menu_access_id_seq', 23, true);
 
 
 --
@@ -2668,11 +2673,11 @@ ALTER TABLE ONLY public.trx_wip_pemakaian
     ADD CONSTRAINT trx_wip_pemakaian_monitoring_id_pakai_fkey FOREIGN KEY (monitoring_id_pakai) REFERENCES public.trx_monitoring_produksi(id);
 
 
--- Completed on 2026-08-13 06:34:35
+-- Completed on 2026-08-13 20:02:38
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict DD3cYD1xKqB0Sv1Jjbo4jMzjlFtxLGKCuyqijJb8k5PfZvYTygI5VEy8eqsanuR
+\unrestrict ozgOl0UcpFKpkQ7sqnR0bJVzVOGGmibXyUejf5A945H9iEdc4Y7eg2CtrLCUIao
 

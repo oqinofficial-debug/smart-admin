@@ -666,4 +666,49 @@ class Delivery_model extends CI_Model
             'catatan'     => null,
         );
     }
+
+    /**
+     * Rekap kelengkapan setor SEMUA JF untuk satu periode -- dipakai
+     * modul admin "Kelengkapan Setor" (menu terpisah, aksesnya diatur
+     * lewat mst_menu/mst_user_menu_access seperti modul lain, lihat
+     * Controller Kelengkapan_setor).
+     *
+     * Kandidat JF yang dicek: JF yang PERNAH ada baris monitoring
+     * SEBELUM periode ini (histori) di department yang boleh dilihat
+     * user -- basis yang sama dengan cek_kelengkapan_periode() per JF.
+     * JF yang baru pertama kali muncul di periode ini otomatis dilewati
+     * (belum ada histori utk dibandingkan, konsisten dengan 'catatan'
+     * pada cek_kelengkapan_periode()).
+     *
+     * @param array|null $dept_ids null = tidak dibatasi.
+     * @return array [['jf_id','jf','product','belum_input'=>[...]], ...]
+     *               hanya JF yang benar-benar ada outstanding yang disertakan.
+     */
+    public function get_kelengkapan_setor_report($periode, $dept_ids = null)
+    {
+        $this->db->select('DISTINCT jf_id')
+            ->from('trx_monitoring_produksi')
+            ->where('periode <', $periode);
+        if ($dept_ids !== null) {
+            $this->db->where_in('department_id', $dept_ids);
+        }
+        $candidates = $this->db->get()->result_array();
+
+        $report = array();
+        foreach ($candidates as $c) {
+            $jf_id = $c['jf_id'];
+            $hasil = $this->cek_kelengkapan_periode($jf_id, $periode, $dept_ids);
+            if (!empty($hasil['belum_input'])) {
+                $jf = $this->db->select('jf, product')->where('id', $jf_id)->get('mst_jf')->row_array();
+                $report[] = array(
+                    'jf_id'       => $jf_id,
+                    'jf'          => $jf ? $jf['jf'] : null,
+                    'product'     => $jf ? $jf['product'] : null,
+                    'belum_input' => $hasil['belum_input'],
+                );
+            }
+        }
+
+        return $report;
+    }
 }

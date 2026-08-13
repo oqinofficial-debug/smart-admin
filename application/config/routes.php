@@ -90,3 +90,6 @@ $route['delivery/fg/search']            = 'delivery/fg_search';
 $route['delivery/fg/list/(:num)']       = 'delivery/fg_list/$1';
 $route['delivery/fg/add']               = 'delivery/fg_add';
 $route['delivery/fg/delete/(:num)']     = 'delivery/fg_delete/$1';
+
+// Kelengkapan Setor -- rekap outstanding lintas JF per periode
+$route['kelengkapan-setor']             = 'kelengkapan_setor/index';
