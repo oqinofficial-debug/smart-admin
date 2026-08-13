@@ -20,8 +20,9 @@
     </div>
     <div class="user-info">
         <?php $u = current_user(); ?>
-        Selamat datang, <?php echo htmlspecialchars($u['fullname']); ?>
+        <span class="badge badge-department"><?php echo htmlspecialchars(current_user_department_label()); ?></span>
+        &nbsp;Selamat datang, <?php echo htmlspecialchars($u['fullname']); ?>
         &nbsp;<a href="<?php echo base_url('auth/logout'); ?>">Logout</a>
     </div>
-    <div style="clear:both;"></div>
+    <div class="clearfix"></div>
 </div>

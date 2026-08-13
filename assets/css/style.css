@@ -1,5 +1,7 @@
 /* ===================================================================
    smart-admin base stylesheet
+   Tema: Elegan Gelap - palet warna diselaraskan dengan GitHub Dark
+   (background utama #0d1117, panel #161b22, border #30363d, aksen biru #58a6ff)
    Ditulis manual (bukan Bootstrap) supaya ringan & aman di:
    - Chrome versi lama (WinXP, mentok Chrome 49)
    - Hardware lawas (Win7 32-bit)
@@ -16,18 +18,18 @@ html, body {
     height: 100%;
     font-family: Arial, Helvetica, "Segoe UI", sans-serif;
     font-size: 14px;
-    color: #2c3e50;
-    background: #f2f4f7;
+    color: #c9d1d9;
+    background: #0d1117;
 }
 
-a { color: #2d6cdf; text-decoration: none; }
-a:hover { text-decoration: underline; }
+a { color: #58a6ff; text-decoration: none; }
+a:hover { text-decoration: underline; color: #79c0ff; }
 
 /* ---------- Login page ---------- */
 .login-wrapper {
     width: 100%;
     min-height: 100%;
-    background: #1f2d3d;
+    background: #010409;
     display: table; /* aman di browser lama, ga perlu flex utk centering */
 }
 .login-cell {
@@ -39,20 +41,21 @@ a:hover { text-decoration: underline; }
     display: inline-block;
     width: 340px;
     max-width: 92%;
-    background: #ffffff;
-    border-radius: 4px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    box-shadow: 0 8px 24px rgba(1,4,9,0.6);
     padding: 30px 28px;
     text-align: left;
 }
 .login-box h1 {
     font-size: 20px;
     margin: 0 0 4px 0;
-    color: #1f2d3d;
+    color: #f0f6fc;
 }
 .login-box p.subtitle {
     margin: 0 0 20px 0;
-    color: #8492a6;
+    color: #8b949e;
     font-size: 12px;
 }
 .form-group { margin-bottom: 14px; }
@@ -60,44 +63,46 @@ a:hover { text-decoration: underline; }
     display: block;
     margin-bottom: 5px;
     font-size: 12px;
-    color: #566573;
+    color: #8b949e;
 }
 .form-control {
     width: 100%;
     padding: 8px 10px;
-    border: 1px solid #d0d5dc;
-    border-radius: 3px;
+    border: 1px solid #30363d;
+    border-radius: 4px;
     font-size: 14px;
-    background: #fbfcfd;
+    background: #0d1117;
+    color: #c9d1d9;
 }
-.form-control:focus { outline: none; border-color: #2d6cdf; }
+.form-control:focus { outline: none; border-color: #58a6ff; }
 
 .btn {
     display: inline-block;
     padding: 9px 16px;
-    border-radius: 3px;
+    border-radius: 4px;
     border: none;
     cursor: pointer;
     font-size: 14px;
 }
 .btn-block { width: 100%; }
-.btn-primary { background: #2d6cdf; color: #fff; }
-.btn-primary:hover { background: #245bbd; }
-.btn-secondary { background: #6c757d; color: #fff; }
-.btn-secondary:hover { background: #5a6268; }
+.btn-primary { background: #238636; color: #fff; }
+.btn-primary:hover { background: #2ea043; }
+.btn-secondary { background: #21262d; color: #c9d1d9; border: 1px solid #30363d; }
+.btn-secondary:hover { background: #30363d; }
 
-.alert { padding: 9px 12px; border-radius: 3px; font-size: 12px; margin-bottom: 14px; }
-.alert-danger { background: #fdecea; color: #b02a1f; border: 1px solid #f5c2bd; }
-.alert-warning { background: #fff8e1; color: #8a6100; border: 1px solid #ffe08a; }
-.alert-success { background: #eafaf0; color: #1e7e42; border: 1px solid #b7e6c6; }
+.alert { padding: 9px 12px; border-radius: 4px; font-size: 12px; margin-bottom: 14px; border: 1px solid; }
+.alert-danger { background: rgba(248,81,73,0.12); color: #f85149; border-color: rgba(248,81,73,0.4); }
+.alert-warning { background: rgba(210,153,34,0.12); color: #d29922; border-color: rgba(210,153,34,0.4); }
+.alert-success { background: rgba(63,185,80,0.12); color: #3fb950; border-color: rgba(63,185,80,0.4); }
 
 /* ---------- App shell (setelah login) ---------- */
 .app-header {
     position: fixed;
     top: 0; left: 0; right: 0;
     height: 50px;
-    background: #1f2d3d;
-    color: #fff;
+    background: #010409;
+    color: #c9d1d9;
+    border-bottom: 1px solid #30363d;
     z-index: 100;
 }
 .app-header .brand {
@@ -105,7 +110,7 @@ a:hover { text-decoration: underline; }
     padding: 13px 16px;
     font-weight: bold;
     font-size: 16px;
-    color: #fff;
+    color: #f0f6fc;
     display: flex;
     align-items: center;
 }
@@ -119,12 +124,14 @@ a:hover { text-decoration: underline; }
     padding: 13px 16px;
     font-size: 13px;
 }
-.app-header .user-info a { color: #cfd8e3; margin-left: 10px; }
+.app-header .user-info a { color: #8b949e; margin-left: 10px; }
+.app-header .user-info a:hover { color: #c9d1d9; }
 
 .app-sidebar {
     position: fixed;
     top: 50px; left: 0; right: 0;
-    background: #263544;
+    background: #161b22;
+    border-bottom: 1px solid #30363d;
     z-index: 90;
 }
 .app-sidebar ul {
@@ -143,16 +150,16 @@ a:hover { text-decoration: underline; }
     align-items: center;
     height: 44px; /* tinggi tetap per baris, supaya rapi saat menu jadi 2 baris atau lebih */
     padding: 0 16px;
-    color: #b6c2cf;
+    color: #8b949e;
     font-size: 13px;
     white-space: nowrap;
     border-bottom: 3px solid transparent;
 }
 .app-sidebar li a:hover,
 .app-sidebar li a.active {
-    background: #1f2d3d;
-    color: #fff;
-    border-bottom-color: #2d6cdf;
+    background: #0d1117;
+    color: #f0f6fc;
+    border-bottom-color: #58a6ff;
     text-decoration: none;
 }
 
@@ -163,26 +170,28 @@ a:hover { text-decoration: underline; }
 }
 
 .card {
-    background: #fff;
-    border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(1,4,9,0.4);
     padding: 18px;
     margin-bottom: 18px;
 }
-.card h2 { margin-top: 0; font-size: 16px; }
+.card h2 { margin-top: 0; font-size: 16px; color: #f0f6fc; }
 
 .badge {
     display: inline-block;
     padding: 2px 8px;
-    border-radius: 3px;
+    border-radius: 4px;
     font-size: 11px;
     color: #fff;
 }
-.badge-master  { background: #d9534f; }
-.badge-inputer { background: #f0ad4e; }
-.badge-viewer  { background: #5bc0de; }
-.badge-active   { background: #2fa864; }
-.badge-inactive { background: #95a5a6; }
+.badge-master  { background: #f85149; }
+.badge-inputer { background: #d29922; }
+.badge-viewer  { background: #58a6ff; }
+.badge-active   { background: #3fb950; }
+.badge-inactive { background: #6e7681; }
+.badge-department { background: #30363d; color: #c9d1d9; border: 1px solid #58a6ff; }
 
 /* ---------- Tabel data (dipakai di form matrix akses & modul departemen) ---------- */
 .table-list {
@@ -194,33 +203,35 @@ a:hover { text-decoration: underline; }
 .table-list th,
 .table-list td {
     padding: 9px 10px;
-    border-bottom: 1px solid #e5e9ef;
+    border-bottom: 1px solid #21262d;
     text-align: left;
     vertical-align: middle;
+    color: #c9d1d9;
 }
 .table-list thead th {
-    background: #f7f9fb;
-    color: #566573;
+    background: #0d1117;
+    color: #8b949e;
     font-weight: bold;
-    border-bottom: 2px solid #dde2e8;
+    border-bottom: 2px solid #30363d;
     white-space: nowrap;
 }
-.table-list tbody tr:hover { background: #fafbfd; }
+.table-list tbody tr:hover { background: #1c2128; }
 .table-list td form { margin: 0; } /* form kecil di dalam sel, mis. toggle bypass */
 
 .section-divider {
     border: none;
-    border-top: 1px solid #e5e9ef;
+    border-top: 1px solid #21262d;
     margin: 22px 0 16px 0;
 }
 
-.text-muted { color: #8492a6; }
+.text-muted { color: #8b949e; }
+.clearfix { clear: both; }
 
 .app-footer {
     margin-left: 0;
     padding: 14px 22px;
     font-size: 12px;
-    color: #8492a6;
+    color: #8b949e;
     text-align: center;
 }
 
@@ -238,11 +249,12 @@ a:hover { text-decoration: underline; }
     border-radius: 6px;
     text-align: center;
     color: #fff;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 2px 5px rgba(1,4,9,0.4);
 }
 .menu-tile:hover {
     text-decoration: none;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.22);
+    box-shadow: 0 4px 10px rgba(1,4,9,0.55);
     opacity: 0.94;
 }
 .menu-tile-icon {
@@ -252,7 +264,7 @@ a:hover { text-decoration: underline; }
     line-height: 40px;
     margin: 0 auto 10px auto;
     border-radius: 50%;
-    background: rgba(255,255,255,0.28);
+    background: rgba(255,255,255,0.18);
     font-size: 17px;
     font-weight: bold;
     color: #fff;
@@ -263,12 +275,12 @@ a:hover { text-decoration: underline; }
     font-weight: bold;
 }
 
-.tile-blue   { background: #2d6cdf; }
-.tile-green  { background: #2fa864; }
-.tile-orange { background: #e08a2c; }
-.tile-purple { background: #7c5cd6; }
-.tile-red    { background: #d9534f; }
-.tile-teal   { background: #17a2a2; }
+.tile-blue   { background: #1f6feb; }
+.tile-green  { background: #238636; }
+.tile-orange { background: #bd561d; }
+.tile-purple { background: #8957e5; }
+.tile-red    { background: #da3633; }
+.tile-teal   { background: #1b7c83; }
 
 /* ---------- Layar kecil / kompatibilitas ---------- */
 @media (max-width: 782px) {

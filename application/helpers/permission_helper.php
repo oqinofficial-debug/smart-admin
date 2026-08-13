@@ -24,6 +24,45 @@ if (!function_exists('current_user')) {
     }
 }
 
+if (!function_exists('current_user_department_label')) {
+    /**
+     * Label bagian/departemen user yang sedang login, untuk ditampilkan di header.
+     * - Kalau can_view_all_departments = true          -> "Semua Bagian"
+     * - Kalau punya department dengan is_primary       -> nama department itu
+     * - Kalau punya department tapi tidak ada primary  -> department pertama
+     * - Kalau tidak terdaftar di department manapun    -> "-"
+     */
+    function current_user_department_label()
+    {
+        $CI =& get_instance();
+        $user_id = $CI->session->userdata('user_id');
+
+        if (!$user_id) {
+            return '-';
+        }
+
+        $user = $CI->db->select('can_view_all_departments')
+            ->where('id', $user_id)
+            ->get('mst_user')
+            ->row_array();
+
+        if ($user && normalize_bool($user['can_view_all_departments'])) {
+            return 'Semua Bagian';
+        }
+
+        $dept = $CI->db->select('d.department_name')
+            ->from('mst_user_department ud')
+            ->join('mst_department d', 'd.id = ud.department_id')
+            ->where('ud.user_id', $user_id)
+            ->order_by('ud.is_primary', 'DESC')
+            ->limit(1)
+            ->get()
+            ->row_array();
+
+        return $dept ? $dept['department_name'] : '-';
+    }
+}
+
 if (!function_exists('cek_akses')) {
     /**
      * Cek akses menu tertentu untuk user yang sedang login.
