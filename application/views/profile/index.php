@@ -1,7 +1,3 @@
-<p>
-    <a href="<?php echo base_url('dashboard'); ?>">&laquo; Kembali ke Dashboard</a>
-</p>
-
 <div class="card">
     <h2>Akun Saya</h2>
     <p style="font-size:12px; color:#8492a6; margin:0 0 16px 0;">
