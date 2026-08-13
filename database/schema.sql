@@ -2,12 +2,12 @@
 -- PostgreSQL database dump
 --
 
-\restrict ozgOl0UcpFKpkQ7sqnR0bJVzVOGGmibXyUejf5A945H9iEdc4Y7eg2CtrLCUIao
+\restrict omHQCeIQxecE30cPBA56J6F4OCFoN3DzsB2R8yNO7DTR9IgF2dc7FQ8brkdCp4s
 
 -- Dumped from database version 17.10
 -- Dumped by pg_dump version 17.10
 
--- Started on 2026-08-13 20:02:37
+-- Started on 2026-08-13 20:21:53
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -1229,6 +1229,14 @@ COPY public.mst_aktivitas (id, kode, nama, is_active) FROM stdin;
 
 COPY public.mst_department (id, department_code, department_name, is_active) FROM stdin;
 1	DPT-0001	PPR	t
+2	DPT-0002	PML	t
+3	DPT-0003	PLM	t
+4	DPT-0004	PIS-PCB	t
+5	DPT-0005	PMC	t
+6	DPT-0006	PIS-PME	t
+7	DPT-0007	PRS	t
+8	DPT-0008	PRN	t
+9	DPT-0009	PPP	t
 \.
 
 
@@ -1445,7 +1453,7 @@ COPY public.mst_shift (id, kode, nama, is_active) FROM stdin;
 --
 
 COPY public.mst_user (id, username, password, fullname, is_active, last_login, created_at, can_view_all_departments) FROM stdin;
-1	admin	$2y$10$sqb6MDQSO0NGRFMfaqVH5.RkN59ZjfaKe7FazPIVjqY42lBEwLF7K	Administrator	t	2026-08-13 14:22:14	2026-07-09 00:12:03.765824	t
+1	admin	$2y$10$sqb6MDQSO0NGRFMfaqVH5.RkN59ZjfaKe7FazPIVjqY42lBEwLF7K	Administrator	t	2026-08-13 15:21:14	2026-07-09 00:12:03.765824	t
 \.
 
 
@@ -1576,7 +1584,7 @@ SELECT pg_catalog.setval('public.mst_aktivitas_id_seq', 1, false);
 -- Name: mst_department_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.mst_department_id_seq', 1, true);
+SELECT pg_catalog.setval('public.mst_department_id_seq', 9, true);
 
 
 --
@@ -2673,11 +2681,11 @@ ALTER TABLE ONLY public.trx_wip_pemakaian
     ADD CONSTRAINT trx_wip_pemakaian_monitoring_id_pakai_fkey FOREIGN KEY (monitoring_id_pakai) REFERENCES public.trx_monitoring_produksi(id);
 
 
--- Completed on 2026-08-13 20:02:38
+-- Completed on 2026-08-13 20:21:54
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict ozgOl0UcpFKpkQ7sqnR0bJVzVOGGmibXyUejf5A945H9iEdc4Y7eg2CtrLCUIao
+\unrestrict omHQCeIQxecE30cPBA56J6F4OCFoN3DzsB2R8yNO7DTR9IgF2dc7FQ8brkdCp4s
 
