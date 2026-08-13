@@ -568,7 +568,7 @@ class Delivery_model extends CI_Model
      */
     private function get_histori_departemen_proses_jf($jf_id, $periode_sebelum)
     {
-        return $this->db->select('DISTINCT department_id, proses_id')
+        return $this->db->distinct()->select('department_id, proses_id')
             ->from('trx_monitoring_produksi')
             ->where('jf_id', $jf_id)
             ->where('periode <', $periode_sebelum)
@@ -608,7 +608,7 @@ class Delivery_model extends CI_Model
             );
         }
 
-        $actual = $this->db->select('DISTINCT department_id, proses_id')
+        $actual = $this->db->distinct()->select('department_id, proses_id')
             ->from('trx_monitoring_produksi')
             ->where('jf_id', $jf_id)
             ->where('periode', $periode)
@@ -686,7 +686,7 @@ class Delivery_model extends CI_Model
      */
     public function get_kelengkapan_setor_report($periode, $dept_ids = null)
     {
-        $this->db->select('DISTINCT jf_id')
+        $this->db->distinct()->select('jf_id')
             ->from('trx_monitoring_produksi')
             ->where('periode <', $periode);
         if ($dept_ids !== null) {
