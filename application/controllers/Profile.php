@@ -61,7 +61,7 @@ class Profile extends MY_Controller
 
             $this->session->set_flashdata('success', 'Akun berhasil diperbarui.' .
                 (!empty($new_password) ? ' Password baru sudah aktif.' : ''));
-            redirect('profile');
+            redirect('dashboard');
             return;
         }
 

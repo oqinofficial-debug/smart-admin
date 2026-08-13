@@ -76,6 +76,74 @@ a:hover { text-decoration: underline; color: #79c0ff; }
 }
 .form-control:focus { outline: none; border-color: #58a6ff; }
 
+/* ---------- Penanda field yang TIDAK BISA diedit (disabled / readonly) ----------
+   Berlaku untuk semua input/select/textarea di seluruh aplikasi, termasuk yang
+   bukan .form-control (mis. .realisasi-input, .status-output-select), supaya
+   selalu jelas beda tampilannya dibanding field yang masih bisa diisi/diubah. */
+.form-control[disabled],
+.form-control[readonly],
+input[disabled],
+input[readonly],
+select[disabled],
+select[readonly],
+textarea[disabled],
+textarea[readonly] {
+    background-color: #161b22;
+    background-image: repeating-linear-gradient(
+        45deg,
+        rgba(255,255,255,0.035) 0px,
+        rgba(255,255,255,0.035) 5px,
+        transparent 5px,
+        transparent 10px
+    );
+    border: 1px dashed #484f58;
+    color: #8b949e;
+    font-style: italic;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+.form-control[disabled]:focus,
+.form-control[readonly]:focus,
+input[disabled]:focus,
+input[readonly]:focus,
+select[disabled]:focus,
+select[readonly]:focus {
+    border-color: #484f58;
+    outline: none;
+    box-shadow: none;
+}
+/* Ikon gembok kecil di pojok kanan field yang terkunci (dekorasi, tidak menutupi teks) */
+.field-locked {
+    position: relative;
+}
+.field-locked::after {
+    content: "\1F512"; /* 🔒 */
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    opacity: 0.65;
+    pointer-events: none;
+}
+/* Label kecil "tidak bisa diedit" untuk dipasang di sebelah <label> field terkunci */
+.field-lock-note {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: normal;
+    font-style: normal;
+    background: rgba(110,118,129,0.18);
+    color: #8b949e;
+    border: 1px solid #30363d;
+    vertical-align: middle;
+}
+.field-lock-note:before {
+    content: "\1F512 "; /* 🔒 */
+}
+
 .btn {
     display: inline-block;
     padding: 9px 16px;

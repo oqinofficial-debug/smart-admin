@@ -64,6 +64,14 @@ if (!function_exists('render_menu_tile')) {
 ?>
 
 <?php $u = current_user(); ?>
+
+<?php if ($this->session->flashdata('success')): ?>
+    <div class="alert alert-success"><?php echo $this->session->flashdata('success'); ?></div>
+<?php endif; ?>
+<?php if ($this->session->flashdata('error')): ?>
+    <div class="alert alert-danger"><?php echo $this->session->flashdata('error'); ?></div>
+<?php endif; ?>
+
 <div class="card">
     <h2>Selamat datang, <?php echo htmlspecialchars($u['fullname']); ?></h2>
     <p class="text-muted">

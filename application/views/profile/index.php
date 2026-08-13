@@ -1,3 +1,7 @@
+<p>
+    <a href="<?php echo base_url('dashboard'); ?>">&laquo; Kembali ke Dashboard</a>
+</p>
+
 <div class="card">
     <h2>Akun Saya</h2>
     <p style="font-size:12px; color:#8492a6; margin:0 0 16px 0;">
@@ -5,9 +9,6 @@
         diisi setiap kali menyimpan perubahan, sebagai konfirmasi bahwa benar Anda pemilik akun.
     </p>
 
-    <?php if ($this->session->flashdata('success')): ?>
-        <div class="alert alert-success"><?php echo $this->session->flashdata('success'); ?></div>
-    <?php endif; ?>
     <?php if (validation_errors()): ?>
         <div class="alert alert-danger"><?php echo validation_errors(); ?></div>
     <?php endif; ?>
@@ -15,8 +16,8 @@
     <?php echo form_open(current_url()); ?>
 
         <div class="form-group">
-            <label>Nama Lengkap</label>
-            <input type="text" class="form-control" value="<?php echo htmlspecialchars($user_data['fullname']); ?>" disabled>
+            <label>Nama Lengkap <span class="field-lock-note">Tidak bisa diedit</span></label>
+            <input type="text" class="form-control field-locked" value="<?php echo htmlspecialchars($user_data['fullname']); ?>" disabled>
         </div>
 
         <div class="form-group">
@@ -45,10 +46,7 @@
         </div>
 
         <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+        <a href="<?php echo base_url('dashboard'); ?>" class="btn btn-secondary">Batal</a>
 
     <?php echo form_close(); ?>
 </div>
-
-<style>
-.alert-success { background: #eafaf1; color: #1e7e4f; border: 1px solid #b7ebc6; padding: 9px 12px; border-radius: 3px; margin-bottom: 14px; font-size: 12px; }
-</style>

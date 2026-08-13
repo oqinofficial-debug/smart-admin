@@ -124,7 +124,14 @@
                     <tr>
                         <th>Kolom</th>
                         <th>Hasil Import (agg)</th>
-                        <th>Realisasi (bisa diedit)</th>
+                        <th>
+                            Realisasi
+                            <?php if (!empty($access['can_edit'])): ?>
+                                <span class="field-lock-note" style="background:rgba(63,185,80,0.15); color:#3fb950; border-color:rgba(63,185,80,0.4);">✎ Bisa diedit</span>
+                            <?php else: ?>
+                                <span class="field-lock-note">Tidak bisa diedit</span>
+                            <?php endif; ?>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -141,7 +148,8 @@
                             <td><?php echo htmlspecialchars($row['agg_' . $col]); ?></td>
                             <td>
                                 <input type="number" step="any"
-                                       class="realisasi-input" data-col="<?php echo $col; ?>"
+                                       class="realisasi-input<?php echo empty($access['can_edit']) ? ' field-locked' : ''; ?>"
+                                       data-col="<?php echo $col; ?>"
                                        value="<?php echo htmlspecialchars($row['realisasi_' . $col]); ?>"
                                        <?php echo empty($access['can_edit']) ? 'disabled' : ''; ?>>
                             </td>
@@ -155,8 +163,14 @@
             <?php endif; ?>
 
             <div style="margin-top:12px;">
-                <label>Status Output:</label>
-                <select class="status-output-select" <?php echo empty($access['can_edit']) ? 'disabled' : ''; ?>>
+                <label>
+                    Status Output:
+                    <?php if (empty($access['can_edit'])): ?>
+                        <span class="field-lock-note">Tidak bisa diedit</span>
+                    <?php endif; ?>
+                </label>
+                <select class="status-output-select<?php echo empty($access['can_edit']) ? ' field-locked' : ''; ?>"
+                        <?php echo empty($access['can_edit']) ? 'disabled' : ''; ?>>
                     <option value="" <?php echo empty($row['status_output']) ? 'selected' : ''; ?>>- Belum ditentukan -</option>
                     <option value="PROSES_SELANJUTNYA" <?php echo ($row['status_output'] === 'PROSES_SELANJUTNYA') ? 'selected' : ''; ?>>Proses Selanjutnya</option>
                     <option value="WIP_STOK" <?php echo ($row['status_output'] === 'WIP_STOK') ? 'selected' : ''; ?>>WIP Stok</option>
