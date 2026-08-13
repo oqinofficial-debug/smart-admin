@@ -37,6 +37,24 @@ class User_model extends CI_Model
         return $user;
     }
 
+    /**
+     * Cek apakah password yang diinput cocok dengan password user tertentu
+     * (dipakai untuk konfirmasi diri sendiri sebelum ganti username/password,
+     * tanpa peduli status is_active seperti verify_login()).
+     */
+    public function verify_password($id, $password)
+    {
+        $user = $this->db->select('password')
+            ->get_where($this->table, array('id' => $id))
+            ->row_array();
+
+        if (!$user || empty($user['password'])) {
+            return FALSE;
+        }
+
+        return password_verify((string) $password, $user['password']);
+    }
+
     public function update_last_login($id)
     {
         $this->db->where('id', $id)->update($this->table, array('last_login' => date('Y-m-d H:i:s')));
@@ -53,6 +71,17 @@ class User_model extends CI_Model
     public function find_by_username_any_status($username)
     {
         return $this->db->get_where($this->table, array('username' => $username))->row_array();
+    }
+
+    /**
+     * TRUE kalau username sudah dipakai user LAIN (bukan $id sendiri).
+     * Dipakai validasi ganti username mandiri supaya user boleh submit
+     * form tanpa mengubah username-nya sendiri.
+     */
+    public function username_taken_by_other($username, $id)
+    {
+        $existing = $this->find_by_username_any_status($username);
+        return $existing && (int) $existing['id'] !== (int) $id;
     }
 
     public function create($data)

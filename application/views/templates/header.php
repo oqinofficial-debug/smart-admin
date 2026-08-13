@@ -22,6 +22,7 @@
         <?php $u = current_user(); ?>
         <span class="badge badge-department"><?php echo htmlspecialchars(current_user_department_label()); ?></span>
         &nbsp;Selamat datang, <?php echo htmlspecialchars($u['fullname']); ?>
+        &nbsp;<a href="<?php echo base_url('profile'); ?>">Akun Saya</a>
         &nbsp;<a href="<?php echo base_url('auth/logout'); ?>">Logout</a>
     </div>
     <div class="clearfix"></div>

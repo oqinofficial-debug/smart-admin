@@ -62,6 +62,10 @@ $route['dashboard']     = 'dashboard/index';
 // nanti setelah User.php dibuat:
 // $route['user']        = 'user/index';
 
+// Akun Saya -- ganti username & password sendiri (self-service, semua user login)
+$route['profile']        = 'profile/index';
+$route['profile/update'] = 'profile/index';
+
 // Import Data Laporan Produksi (Excel) + manajemen alias kolom
 $route['import']                     = 'import/index';
 $route['import/preview']             = 'import/preview';
