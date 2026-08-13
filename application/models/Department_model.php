@@ -30,7 +30,7 @@ class Department_model extends CI_Model
             FROM mst_department d
             LEFT JOIN mst_user_department ud ON ud.department_id = d.id
             GROUP BY d.id
-            ORDER BY d.department_name ASC
+            ORDER BY d.department_code ASC
         ";
         $rows = $this->db->query($sql)->result_array();
 
@@ -126,7 +126,7 @@ class Department_model extends CI_Model
             FROM mst_user_department ud
             JOIN mst_department d ON d.id = ud.department_id
             WHERE ud.user_id = ?
-            ORDER BY d.department_name ASC
+            ORDER BY d.department_code ASC
         ";
         $rows = $this->db->query($sql, [$user_id])->result_array();
         foreach ($rows as &$row) {

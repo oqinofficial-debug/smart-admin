@@ -22,8 +22,8 @@
                 <th>Produk</th>
                 <th>Qty</th>
                 <?php foreach ($departments as $dept): ?>
-                    <th title="<?php echo htmlspecialchars($dept['department_name']); ?>">
-                        <?php echo htmlspecialchars($dept['department_code']); ?>
+                    <th title="Kode: <?php echo htmlspecialchars($dept['department_code']); ?>">
+                        <?php echo htmlspecialchars($dept['department_name']); ?>
                     </th>
                 <?php endforeach; ?>
                 <th>Kirim Bulan Ini</th>

@@ -17,7 +17,7 @@ class Material_raw_model extends CI_Model
 
     public function get_all()
     {
-        $rows = $this->db->order_by('nama_material', 'ASC')
+        $rows = $this->db->order_by('kode_material', 'ASC')
             ->get('mst_material_raw')
             ->result_array();
 

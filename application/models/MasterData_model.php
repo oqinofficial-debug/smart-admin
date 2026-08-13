@@ -73,7 +73,7 @@ class MasterData_model extends CI_Model
 
     public function get_all($type)
     {
-        $rows = $this->db->order_by('nama', 'ASC')->get($this->_table($type))->result_array();
+        $rows = $this->db->order_by('kode', 'ASC')->get($this->_table($type))->result_array();
         foreach ($rows as &$row) {
             $row['is_active'] = normalize_bool($row['is_active']);
         }
