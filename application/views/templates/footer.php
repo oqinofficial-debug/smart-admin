@@ -1,4 +1,4 @@
-    </div><!-- /.app-content -->
+</div><!-- /.app-content -->
 
     <div class="app-footer">
         &copy; <?php echo date('Y'); ?> <?php echo APP_NAME; ?> v<?php echo APP_VERSION; ?>
@@ -20,6 +20,10 @@
 
         var totalH = headerH + sidebar.offsetHeight;
         content.style.paddingTop = (totalH + 14) + 'px';
+
+        // Dipakai oleh thead th (header tabel) supaya nempel tepat di bawah
+        // navbar+sidebar saat halaman discroll, bukan ketiban/ketutup navbar.
+        document.documentElement.style.setProperty('--sticky-top', totalH + 'px');
     }
 
     document.addEventListener('DOMContentLoaded', layoutOffset);

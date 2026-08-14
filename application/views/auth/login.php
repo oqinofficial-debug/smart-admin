@@ -15,6 +15,7 @@
 <div class="login-wrapper">
     <div class="login-cell">
         <div class="login-box">
+            <img src="<?php echo base_url('assets/favicon/android-chrome-192x192.png'); ?>" alt="Logo" class="login-logo">
             <h1><?php echo APP_NAME; ?></h1>
             <p class="subtitle">Silakan login untuk melanjutkan</p>
 
