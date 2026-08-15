@@ -2,12 +2,12 @@
 -- PostgreSQL database dump
 --
 
-\restrict GZFA8jEuO8JTTLRhZLEnagMHDAx7wexzgeFdWpyOEFDgfkc1UCiPlg4TA1E9nNW
+\restrict 4lTUngc9zPql61RNFT442VNsKmhV3aKkGXafPwpBVxVnf8hqMZDKRw0e1slFpCJ
 
 -- Dumped from database version 17.10
 -- Dumped by pg_dump version 17.10
 
--- Started on 2026-08-15 16:14:56
+-- Started on 2026-08-15 16:18:17
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -1489,6 +1489,7 @@ COPY public.mst_mesin (id, kode, nama, is_active) FROM stdin;
 --
 
 COPY public.mst_nama_laporan (id, department_id, kode, nama, is_active, created_at) FROM stdin;
+1	1	LAP-0001	LAPORAN CETAK	t	2026-08-15 16:16:31.532482
 \.
 
 
@@ -1529,8 +1530,8 @@ COPY public.mst_shift (id, kode, nama, is_active) FROM stdin;
 --
 
 COPY public.mst_user (id, username, password, fullname, is_active, last_login, created_at, can_view_all_departments) FROM stdin;
-5	ppr	$2y$10$RzAevtps60wmsgKhjuNBcuuMueFH92ViC7ptTAngxu4MlyCltL36m	PPR	t	2026-08-13 16:43:05	2026-08-13 21:22:38.259911	f
-1	admin	$2y$10$sqb6MDQSO0NGRFMfaqVH5.RkN59ZjfaKe7FazPIVjqY42lBEwLF7K	Administrator	t	2026-08-15 11:14:42	2026-07-09 00:12:03.765824	t
+1	admin	$2y$10$eCB3b3MFxZs0Hqy2nxBowOvBdlcDmy2.6MZpAJo9D.9sw/rdJNcpS	Administrator	t	2026-08-15 11:17:33	2026-07-09 00:12:03.765824	t
+6	ppr	$2y$10$IzmDtrrbNTt67G9ESBbc.eO1jY57bKoiDw1iWSrGSrDcpVp8wmBuy	ppr	t	2026-08-15 11:17:56	2026-08-15 16:16:55.719111	f
 \.
 
 
@@ -1541,7 +1542,7 @@ COPY public.mst_user (id, username, password, fullname, is_active, last_login, c
 --
 
 COPY public.mst_user_department (id, user_id, department_id, is_primary) FROM stdin;
-1	5	1	t
+3	6	1	f
 \.
 
 
@@ -1555,6 +1556,7 @@ COPY public.mst_user_menu_access (id, user_id, menu_id, level) FROM stdin;
 9	1	1	3
 8	1	2	3
 7	1	3	3
+35	1	15	3
 16	1	6	3
 17	1	7	3
 18	1	8	3
@@ -1564,17 +1566,18 @@ COPY public.mst_user_menu_access (id, user_id, menu_id, level) FROM stdin;
 22	1	13	3
 23	1	14	3
 13	1	5	3
-24	5	2	0
-25	5	3	0
-26	5	6	0
-27	5	7	0
-28	5	8	0
-29	5	9	0
-30	5	10	0
-31	5	11	0
-32	5	13	3
-33	5	14	0
-34	5	5	0
+36	6	2	0
+37	6	3	3
+38	6	15	0
+39	6	6	0
+40	6	7	0
+41	6	8	0
+42	6	9	0
+43	6	10	0
+44	6	11	0
+45	6	13	0
+46	6	14	0
+47	6	5	0
 \.
 
 
@@ -1772,7 +1775,7 @@ SELECT pg_catalog.setval('public.mst_mesin_id_seq', 1, false);
 -- Name: mst_nama_laporan_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.mst_nama_laporan_id_seq', 1, false);
+SELECT pg_catalog.setval('public.mst_nama_laporan_id_seq', 1, true);
 
 
 --
@@ -1808,7 +1811,7 @@ SELECT pg_catalog.setval('public.mst_shift_id_seq', 1, false);
 -- Name: mst_user_department_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.mst_user_department_id_seq', 1, true);
+SELECT pg_catalog.setval('public.mst_user_department_id_seq', 3, true);
 
 
 --
@@ -1817,7 +1820,7 @@ SELECT pg_catalog.setval('public.mst_user_department_id_seq', 1, true);
 -- Name: mst_user_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.mst_user_id_seq', 5, true);
+SELECT pg_catalog.setval('public.mst_user_id_seq', 6, true);
 
 
 --
@@ -1826,7 +1829,7 @@ SELECT pg_catalog.setval('public.mst_user_id_seq', 5, true);
 -- Name: mst_user_menu_access_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.mst_user_menu_access_id_seq', 34, true);
+SELECT pg_catalog.setval('public.mst_user_menu_access_id_seq', 47, true);
 
 
 --
@@ -2848,11 +2851,11 @@ ALTER TABLE ONLY public.trx_wip_pemakaian
     ADD CONSTRAINT trx_wip_pemakaian_monitoring_id_pakai_fkey FOREIGN KEY (monitoring_id_pakai) REFERENCES public.trx_monitoring_produksi(id);
 
 
--- Completed on 2026-08-15 16:14:56
+-- Completed on 2026-08-15 16:18:17
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict GZFA8jEuO8JTTLRhZLEnagMHDAx7wexzgeFdWpyOEFDgfkc1UCiPlg4TA1E9nNW
+\unrestrict 4lTUngc9zPql61RNFT442VNsKmhV3aKkGXafPwpBVxVnf8hqMZDKRw0e1slFpCJ
 
