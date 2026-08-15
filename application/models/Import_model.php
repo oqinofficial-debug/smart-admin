@@ -180,8 +180,14 @@ class Import_model extends CI_Model
      *
      * @param  array      $rows       array of associative array siap insert
      * @param  int        $chunk_size jumlah baris per statement insert_batch
-     * @param  array|null $pre_delete opsional, untuk mode "timpa periode ini":
-     *                    ['periode' => 'YYYY-MM', 'department_ids' => array|null]
+     * @param  array|null $pre_delete opsional, untuk mode "timpa data lama laporan ini":
+     *                    - timpa 1 periode utuh:
+     *                      ['type' => 'periode', 'periode' => 'YYYY-MM',
+     *                       'nama_laporan_id' => int, 'department_ids' => array|null]
+     *                    - timpa rentang tanggal (bisa lintas periode):
+     *                      ['type' => 'range', 'tanggal_mulai' => 'YYYY-MM-DD',
+     *                       'tanggal_selesai' => 'YYYY-MM-DD',
+     *                       'nama_laporan_id' => int, 'department_ids' => array|null]
      *                    dijalankan dalam transaksi YANG SAMA dengan insert,
      *                    supaya kalau insert gagal, data lama yang sudah
      *                    "ditimpa" ikut di-rollback (tidak hilang tanpa gantinya).
@@ -194,10 +200,22 @@ class Import_model extends CI_Model
 
         $deleted = 0;
         if ($pre_delete !== null) {
-            $deleted = $this->delete_periode_import_rows(
-                $pre_delete['periode'],
-                isset($pre_delete['department_ids']) ? $pre_delete['department_ids'] : null
-            );
+            $department_ids = isset($pre_delete['department_ids']) ? $pre_delete['department_ids'] : null;
+
+            if ($pre_delete['type'] === 'periode') {
+                $deleted = $this->delete_periode_import_rows(
+                    $pre_delete['periode'],
+                    $pre_delete['nama_laporan_id'],
+                    $department_ids
+                );
+            } elseif ($pre_delete['type'] === 'range') {
+                $deleted = $this->delete_range_import_rows(
+                    $pre_delete['tanggal_mulai'],
+                    $pre_delete['tanggal_selesai'],
+                    $pre_delete['nama_laporan_id'],
+                    $department_ids
+                );
+            }
         }
 
         $inserted = 0;
@@ -243,18 +261,50 @@ class Import_model extends CI_Model
     // ---------------------------------------------------------------
 
     /**
-     * Hapus baris laporan produksi milik periode tertentu YANG BERASAL DARI
-     * IMPORT (import_batch_id tidak null), untuk fitur "timpa data periode
-     * ini". Data yang diinput manual (import_batch_id null) sengaja TIDAK
-     * ikut terhapus.
+     * Hapus baris laporan produksi milik SATU periode utuh, untuk laporan
+     * (nama_laporan_id) yang sama, YANG BERASAL DARI IMPORT (import_batch_id
+     * tidak null) -- fitur "timpa data periode ini". Di-scope ke
+     * nama_laporan_id supaya laporan lain yang kebetulan punya baris di
+     * periode yang sama tidak ikut terhapus. Data yang diinput manual
+     * (import_batch_id null) sengaja TIDAK ikut terhapus.
      *
-     * @param string     $periode        format YYYY-MM
-     * @param array|null $department_ids batasi hanya departemen ini (null = semua)
+     * @param string     $periode         format YYYY-MM
+     * @param int        $nama_laporan_id acuan replace: identitas laporan yang sama
+     * @param array|null $department_ids  batasi hanya departemen ini (null = semua)
      * @return int jumlah baris yang dihapus
      */
-    public function delete_periode_import_rows($periode, array $department_ids = null)
+    public function delete_periode_import_rows($periode, $nama_laporan_id, array $department_ids = null)
     {
         $this->db->where('periode', $periode);
+        $this->db->where('nama_laporan_id', $nama_laporan_id);
+        $this->db->where('import_batch_id IS NOT NULL', null, false);
+        if ($department_ids !== null) {
+            $this->db->where_in('department_id', $department_ids);
+        }
+        $this->db->delete('trx_laporan_produksi');
+        return $this->db->affected_rows();
+    }
+
+    /**
+     * Hapus baris laporan produksi dalam RENTANG TANGGAL tertentu (bisa
+     * lintas periode/bulan), untuk laporan (nama_laporan_id) yang sama,
+     * YANG BERASAL DARI IMPORT -- fitur "timpa rentang tanggal ini".
+     *
+     * Beda dari delete_periode_import_rows(): acuannya per TANGGAL (bukan
+     * kolom periode/bulan utuh), jadi bisa memotong sebagian dari satu
+     * periode, atau mencakup beberapa periode sekaligus.
+     *
+     * @param string     $tanggal_mulai   format YYYY-MM-DD
+     * @param string     $tanggal_selesai format YYYY-MM-DD
+     * @param int        $nama_laporan_id acuan replace: identitas laporan yang sama
+     * @param array|null $department_ids  batasi hanya departemen ini (null = semua)
+     * @return int jumlah baris yang dihapus
+     */
+    public function delete_range_import_rows($tanggal_mulai, $tanggal_selesai, $nama_laporan_id, array $department_ids = null)
+    {
+        $this->db->where('tanggal >=', $tanggal_mulai);
+        $this->db->where('tanggal <=', $tanggal_selesai);
+        $this->db->where('nama_laporan_id', $nama_laporan_id);
         $this->db->where('import_batch_id IS NOT NULL', null, false);
         if ($department_ids !== null) {
             $this->db->where_in('department_id', $department_ids);

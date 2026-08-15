@@ -35,6 +35,7 @@ class Import extends MY_Controller
         $this->load->model('Import_model');
         $this->load->model('Import_alias_model');
         $this->load->model('Import_batch_model');
+        $this->load->model('Master_file_model');
         $this->load->library(array('Xlsx_reader', 'Xls_reader', 'Csv_reader', 'File_reader_factory', 'Value_converter'));
 
         if (!is_dir(UPLOAD_TEMP_PATH)) {
@@ -46,12 +47,21 @@ class Import extends MY_Controller
     {
         $this->require_access('import', 'view');
 
+        $allowed_departments = $this->Import_model->get_user_allowed_departments($this->user['id']);
+
         $data['title']            = 'Import Data Laporan Produksi - ' . APP_NAME;
         $data['menus']            = $this->menus;
         $data['access']           = cek_akses('import');
         $data['fields']           = $this->Import_alias_model->get_active_alias_map();
         $data['supported_ext']    = File_reader_factory::SUPPORTED_EXTENSIONS;
         $data['riwayat_import']   = $this->Import_batch_model->get_recent(10);
+        // daftar "Nama Laporan" yang boleh dipilih user, dibatasi ke departemen
+        // yang dia punya akses -- lihat Master_file_model & catatan di form
+        $data['nama_laporan_options'] = $this->Master_file_model->get_active_for_import($allowed_departments);
+        // periode selalu punya nilai default di awal (bisa diganti user),
+        // defaultnya adalah bulan dari H-1 (kemarin) dari hari ini
+        $data['default_periode']  = date('Y-m', strtotime('-1 day'));
+        $data['default_tanggal']  = date('Y-m-d', strtotime('-1 day'));
 
         $this->load->view('templates/header', $data);
         $this->load->view('templates/sidebar', $data);
@@ -212,11 +222,13 @@ class Import extends MY_Controller
             'nama_file'       => $original_name,
             'format_file'     => $ext,
             'sheet_name'      => $sheet_name,
+            'nama_laporan_id' => $period_filter['nama_laporan_id'],
             'mode'            => $period_filter['mode'],
             'periode'         => $period_filter['periode'],
             'tanggal_mulai'   => $period_filter['tanggal_mulai'],
             'tanggal_selesai' => $period_filter['tanggal_selesai'],
             'replace_periode' => $period_filter['replace_periode'],
+            'replace_range'   => $period_filter['replace_range'],
             'user_id'         => $this->user['id'],
         ));
 
@@ -246,18 +258,33 @@ class Import extends MY_Controller
 
             $resolved['inputer_id'] = $this->user['id'];
             $resolved['import_batch_id'] = $batch_id;
+            $resolved['nama_laporan_id'] = $period_filter['nama_laporan_id'];
             $success_rows[] = $resolved;
         }
 
         // --- Percepatan #2: insert semua baris valid dalam 1 transaksi
         //     memakai insert_batch (bukan loop insert satu-satu). Kalau mode
-        //     "timpa periode ini" aktif, penghapusan data lama juga masuk
-        //     dalam transaksi yang sama supaya atomik. ---
+        //     "timpa periode ini" atau "timpa rentang tanggal ini" aktif,
+        //     penghapusan data lama (di-scope ke nama_laporan_id yang sama)
+        //     juga masuk dalam transaksi yang sama supaya atomik. ---
         $pre_delete = null;
         if ($period_filter['mode'] === 'periode' && $period_filter['replace_periode']) {
+            // timpa SATU periode utuh, untuk laporan yang sama
             $pre_delete = array(
-                'periode'        => $period_filter['periode'],
-                'department_ids' => $allowed_departments,
+                'type'            => 'periode',
+                'periode'         => $period_filter['periode'],
+                'nama_laporan_id' => $period_filter['nama_laporan_id'],
+                'department_ids'  => $allowed_departments,
+            );
+        } elseif ($period_filter['mode'] === 'range' && $period_filter['replace_range']) {
+            // timpa PER TANGGAL sesuai rentang yang dipilih -- bisa lintas
+            // periode, beda dari mode periode yang menghapus 1 bulan utuh
+            $pre_delete = array(
+                'type'            => 'range',
+                'tanggal_mulai'   => $period_filter['tanggal_mulai'],
+                'tanggal_selesai' => $period_filter['tanggal_selesai'],
+                'nama_laporan_id' => $period_filter['nama_laporan_id'],
+                'department_ids'  => $allowed_departments,
             );
         }
 
@@ -293,6 +320,8 @@ class Import extends MY_Controller
         $data['skipped_count'] = $skipped_count;
         $data['total_rows']    = count($rows);
         $data['period_filter'] = $period_filter;
+        $data['nama_laporan']  = $this->Master_file_model->get($period_filter['nama_laporan_id']);
+        $data['deleted_count'] = isset($result['deleted']) ? $result['deleted'] : 0;
 
         $this->load->view('templates/header', $data);
         $this->load->view('templates/sidebar', $data);
@@ -314,32 +343,63 @@ class Import extends MY_Controller
     }
 
     /**
-     * Baca & validasi input mode periode/tanggal dari form index.
+     * Baca & validasi input nama laporan + mode periode/tanggal dari form
+     * index. Nama laporan WAJIB dipilih (tidak ada default) supaya sistem
+     * tahu identitas laporan mana yang sedang diimport -- inilah acuan
+     * fitur "replace" (baik per periode maupun per rentang tanggal).
+     *
      * @return array|false array siap simpan ke session, atau false kalau invalid
      *                      (pesan error sudah di-set ke flashdata).
      */
     private function _read_period_filter_from_post()
     {
+        // --- nama laporan: wajib dipilih, dan harus salah satu laporan
+        //     aktif milik departemen yang boleh diakses user ---
+        $nama_laporan_id = (int) $this->input->post('nama_laporan_id');
+        $allowed_departments = $this->Import_model->get_user_allowed_departments($this->user['id']);
+        $nama_laporan = $nama_laporan_id ? $this->Master_file_model->get_by_id($nama_laporan_id) : null;
+
+        if (!$nama_laporan_id || !$nama_laporan) {
+            $this->session->set_flashdata('error', 'Silakan pilih Nama Laporan terlebih dahulu.');
+            return false;
+        }
+        if (!normalize_bool($nama_laporan['is_active'])) {
+            $this->session->set_flashdata('error', 'Nama laporan yang dipilih sudah tidak aktif.');
+            return false;
+        }
+        if (is_array($allowed_departments) && !in_array((int) $nama_laporan['department_id'], $allowed_departments, true)) {
+            $this->session->set_flashdata('error', 'Anda tidak punya akses ke departemen pemilik laporan ini.');
+            return false;
+        }
+
         $mode = $this->input->post('import_mode'); // all | periode | range
         if (!in_array($mode, array('all', 'periode', 'range'), true)) {
-            $mode = 'all';
+            $mode = 'periode';
         }
 
         $filter = array(
+            'nama_laporan_id' => $nama_laporan_id,
             'mode' => $mode,
             'periode' => null,
             'tanggal_mulai' => null,
             'tanggal_selesai' => null,
             'replace_periode' => false,
+            'replace_range' => false,
         );
 
         if ($mode === 'periode') {
+            // kalau kosong, fallback ke default periode (bulan dari H-1) --
+            // field ini SELALU punya nilai state, tidak boleh benar-benar kosong
             $periode = trim((string) $this->input->post('periode'));
+            if ($periode === '') {
+                $periode = date('Y-m', strtotime('-1 day'));
+            }
             if (!$this->value_converter->is_valid_periode($periode)) {
                 $this->session->set_flashdata('error', 'Periode harus diisi dengan format tahun-bulan (YYYY-MM), misal 2026-07.');
                 return false;
             }
             $filter['periode'] = $periode;
+            // replace di-scope ke 1 periode utuh, untuk laporan yang sama
             $filter['replace_periode'] = $this->input->post('replace_periode') ? true : false;
         } elseif ($mode === 'range') {
             $mulai = trim((string) $this->input->post('tanggal_mulai'));
@@ -350,6 +410,9 @@ class Import extends MY_Controller
             }
             $filter['tanggal_mulai'] = $mulai;
             $filter['tanggal_selesai'] = $selesai;
+            // replace di-scope PER TANGGAL (bukan per periode utuh), jadi bisa
+            // lintas periode -- lihat Import_model::delete_range_import_rows()
+            $filter['replace_range'] = $this->input->post('replace_range') ? true : false;
         }
 
         return $filter;
@@ -391,10 +454,23 @@ class Import extends MY_Controller
         $data['sheet_name']    = $sheet_name;
         $data['ext']           = $ext;
         $data['period_filter'] = $this->session->userdata('import_period_filter');
+        $data['nama_laporan']  = $this->Master_file_model->get($data['period_filter']['nama_laporan_id']);
 
+        // peringatan halus "laporan ini + periode/rentang ini sudah pernah
+        // diimport sebelumnya" -- dasar dari fitur replace otomatis
         $data['periode_summary'] = null;
+        $data['range_summary'] = null;
         if ($data['period_filter']['mode'] === 'periode') {
-            $data['periode_summary'] = $this->Import_batch_model->get_periode_summary($data['period_filter']['periode']);
+            $data['periode_summary'] = $this->Import_batch_model->get_periode_summary(
+                $data['period_filter']['periode'],
+                $data['period_filter']['nama_laporan_id']
+            );
+        } elseif ($data['period_filter']['mode'] === 'range') {
+            $data['range_summary'] = $this->Import_batch_model->get_range_summary(
+                $data['period_filter']['tanggal_mulai'],
+                $data['period_filter']['tanggal_selesai'],
+                $data['period_filter']['nama_laporan_id']
+            );
         }
 
         $this->load->view('templates/header', $data);

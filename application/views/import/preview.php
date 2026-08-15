@@ -12,24 +12,40 @@
     <?php endif; ?>
 
     <div class="alert alert-info">
+        Nama Laporan: <strong><?php echo htmlspecialchars($nama_laporan['nama'] ?? '-'); ?></strong>
+        <?php if (!empty($nama_laporan['department_name'])): ?>
+            (<?php echo htmlspecialchars($nama_laporan['department_name']); ?>)
+        <?php endif; ?><br>
         Format: <strong>.<?php echo htmlspecialchars($ext); ?></strong><?php echo $sheet_name ? ', Sheet: <strong>' . htmlspecialchars($sheet_name) . '</strong>' : ''; ?><br>
         Cakupan:
         <?php if ($period_filter['mode'] === 'all'): ?>
-            <strong>Semua data di file</strong> (boleh lintas periode/bulan)
+            <strong>Semua data di file</strong> (boleh lintas periode/bulan, tidak ada opsi timpa)
         <?php elseif ($period_filter['mode'] === 'periode'): ?>
             hanya baris periode <strong><?php echo htmlspecialchars($period_filter['periode']); ?></strong>
-            <?php echo !empty($period_filter['replace_periode']) ? ' &mdash; <strong>data lama periode ini akan ditimpa</strong>' : ' &mdash; ditambahkan ke data yang sudah ada'; ?>
+            <?php echo !empty($period_filter['replace_periode']) ? ' &mdash; <strong>data lama periode ini (laporan yang sama) akan ditimpa</strong>' : ' &mdash; ditambahkan ke data yang sudah ada'; ?>
         <?php else: ?>
             hanya baris tanggal <strong><?php echo htmlspecialchars($period_filter['tanggal_mulai']); ?></strong> s/d <strong><?php echo htmlspecialchars($period_filter['tanggal_selesai']); ?></strong>
+            <?php echo !empty($period_filter['replace_range']) ? ' &mdash; <strong>data lama di rentang tanggal ini (laporan yang sama) akan ditimpa</strong>' : ' &mdash; ditambahkan ke data yang sudah ada'; ?>
         <?php endif; ?>
     </div>
 
     <?php if (!empty($periode_summary) && (int) $periode_summary['jumlah_batch'] > 0): ?>
         <div class="alert alert-warning">
-            Periode <?php echo htmlspecialchars($period_filter['periode']); ?> sudah pernah diimport
+            Laporan <strong><?php echo htmlspecialchars($nama_laporan['nama'] ?? ''); ?></strong>
+            periode <?php echo htmlspecialchars($period_filter['periode']); ?> sudah pernah diimport
             <strong><?php echo (int) $periode_summary['jumlah_batch']; ?>x</strong> sebelumnya
             (total <?php echo (int) $periode_summary['total_baris']; ?> baris tersimpan).
             <?php echo empty($period_filter['replace_periode']) ? 'Data ini akan DITAMBAHKAN ke data lama (bisa dobel kalau filenya sama).' : 'Data lama akan DITIMPA sebelum data baru disimpan.'; ?>
+        </div>
+    <?php endif; ?>
+
+    <?php if (!empty($range_summary) && (int) $range_summary['jumlah_batch'] > 0): ?>
+        <div class="alert alert-warning">
+            Laporan <strong><?php echo htmlspecialchars($nama_laporan['nama'] ?? ''); ?></strong>
+            pernah diimport sebelumnya dengan rentang tanggal yang beririsan dengan yang
+            Anda pilih sekarang (<strong><?php echo (int) $range_summary['jumlah_batch']; ?>x</strong>,
+            total <?php echo (int) $range_summary['total_baris']; ?> baris tersimpan).
+            <?php echo empty($period_filter['replace_range']) ? 'Data ini akan DITAMBAHKAN ke data lama (bisa dobel kalau filenya sama).' : 'Data lama di rentang tanggal ini akan DITIMPA sebelum data baru disimpan.'; ?>
         </div>
     <?php endif; ?>
 

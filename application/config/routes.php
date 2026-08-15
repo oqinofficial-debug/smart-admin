@@ -66,6 +66,12 @@ $route['dashboard']     = 'dashboard/index';
 $route['profile']        = 'profile/index';
 $route['profile/update'] = 'profile/index';
 
+// Master File -- identitas nama laporan per departemen (dipilih saat Import Data)
+$route['master-file']             = 'master_file/index';
+$route['master-file/add']         = 'master_file/add';
+$route['master-file/edit/(:num)'] = 'master_file/edit/$1';
+$route['master-file/delete/(:num)'] = 'master_file/delete/$1';
+
 // Import Data Laporan Produksi (Excel) + manajemen alias kolom
 $route['import']                     = 'import/index';
 $route['import/preview']             = 'import/preview';

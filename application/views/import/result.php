@@ -1,6 +1,19 @@
 <div class="card">
     <h2>Hasil Import</h2>
 
+    <p class="text-muted">
+        Nama Laporan: <strong><?php echo htmlspecialchars($nama_laporan['nama'] ?? '-'); ?></strong>
+        <?php if (!empty($nama_laporan['department_name'])): ?>
+            (<?php echo htmlspecialchars($nama_laporan['department_name']); ?>)
+        <?php endif; ?>
+    </p>
+
+    <?php if (!empty($deleted_count)): ?>
+        <div class="alert alert-info">
+            <?php echo (int) $deleted_count; ?> baris data lama (laporan &amp; cakupan yang sama) ditimpa/dihapus sebelum data baru disimpan.
+        </div>
+    <?php endif; ?>
+
     <?php if ($success_count > 0): ?>
         <div class="alert alert-success">
             <?php echo $success_count; ?> dari <?php echo $total_rows; ?> baris berhasil disimpan.
