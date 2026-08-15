@@ -2,12 +2,12 @@
 -- PostgreSQL database dump
 --
 
-\restrict 4lTUngc9zPql61RNFT442VNsKmhV3aKkGXafPwpBVxVnf8hqMZDKRw0e1slFpCJ
+\restrict lqFYim37KqYNd6MGrykWgeth5F4MuW7hgF3UfhKUNA5RjYFregfrE1hbaBu65OI
 
 -- Dumped from database version 17.10
 -- Dumped by pg_dump version 17.10
 
--- Started on 2026-08-15 16:18:17
+-- Started on 2026-08-15 17:16:17
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -223,7 +223,7 @@ ALTER TABLE public.mst_import_sheet_alias ALTER COLUMN id ADD GENERATED ALWAYS A
 CREATE TABLE public.mst_jf (
     id integer NOT NULL,
     jf character varying(50) NOT NULL,
-    product character varying(200),
+    product character varying(500),
     qty numeric,
     bapob character varying(100),
     chip character varying(100),
@@ -2851,11 +2851,11 @@ ALTER TABLE ONLY public.trx_wip_pemakaian
     ADD CONSTRAINT trx_wip_pemakaian_monitoring_id_pakai_fkey FOREIGN KEY (monitoring_id_pakai) REFERENCES public.trx_monitoring_produksi(id);
 
 
--- Completed on 2026-08-15 16:18:17
+-- Completed on 2026-08-15 17:16:17
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 4lTUngc9zPql61RNFT442VNsKmhV3aKkGXafPwpBVxVnf8hqMZDKRw0e1slFpCJ
+\unrestrict lqFYim37KqYNd6MGrykWgeth5F4MuW7hgF3UfhKUNA5RjYFregfrE1hbaBu65OI
 
