@@ -23,7 +23,7 @@
             + Tambah <?php echo htmlspecialchars($label); ?>
         </a>
         <a href="<?php echo base_url('masterdata/bulk/' . $type); ?>" class="btn" style="background:#e9ecef; color:#2c3e50; margin-left:6px;">
-            Tambah Massal (Copy-Paste)
+            Tambah Massal
         </a>
     <?php endif; ?>
 

@@ -11,7 +11,7 @@
     <?php if (!empty($access['can_input'])): ?>
         <a href="<?php echo base_url('delivery/add'); ?>" class="btn btn-primary">+ Tambah Delivery Record</a>
         <a href="<?php echo base_url('delivery/bulk'); ?>" class="btn" style="background:#e9ecef; color:#2c3e50; margin-left:6px;">
-            Tambah Massal (Copy-Paste)
+            Tambah Massal
         </a>
     <?php endif; ?>
 
