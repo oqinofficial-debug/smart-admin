@@ -9,7 +9,7 @@
     <?php endif; ?>
 
     <p class="text-muted">
-        Copy-paste data langsung dari Excel (atau ketik manual satu baris per data).
+        Tempel data langsung dari Excel (atau ketik manual satu baris per data).
         Urutan kolom: <strong>JF</strong>, Product, Qty, BAPOB, Chip, Customer, PO,
         Kelompok Produk (diisi <em>nama</em> kelompok produk, harus sudah ada di Master Data),
         Status JF (opsional, <code>AKTIF</code>/<code>FINAL</code>). Hanya kolom JF yang wajib diisi,

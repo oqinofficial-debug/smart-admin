@@ -166,6 +166,7 @@
 </div>
 <?php endif; ?>
 
+<?php if (!empty($is_master)): ?>
 <div class="card">
     <h2>Field yang Bisa Diisi</h2>
     <p class="text-muted">
@@ -198,3 +199,4 @@
         </tbody>
     </table>
 </div>
+<?php endif; ?>

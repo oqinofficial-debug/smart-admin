@@ -130,6 +130,12 @@ class Delivery extends MY_Controller
                         $msg .= ' ' . count($result['errors']) . ' baris gagal, lihat detail di bawah.';
                     }
                     $this->session->set_flashdata('success', $msg);
+
+                    // Keluar dari halaman tambah massal begitu berhasil, kecuali masih ada
+                    // preview alokasi FG yang perlu ditinjau/diterapkan oleh user.
+                    if (empty($result['errors']) && empty($result['fg_candidates'])) {
+                        redirect('delivery');
+                    }
                 }
             }
         }

@@ -128,6 +128,10 @@ class Karyawan extends MY_Controller
                         $msg .= ' ' . count($result['errors']) . ' baris gagal, lihat detail di bawah.';
                     }
                     $this->session->set_flashdata('success', $msg);
+
+                    if (empty($result['errors'])) {
+                        redirect('karyawan');
+                    }
                 }
             }
         }

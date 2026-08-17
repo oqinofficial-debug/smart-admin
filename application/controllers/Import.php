@@ -36,6 +36,7 @@ class Import extends MY_Controller
         $this->load->model('Import_alias_model');
         $this->load->model('Import_batch_model');
         $this->load->model('Master_file_model');
+        $this->load->model('Menu_model');
         $this->load->library(array('Xlsx_reader', 'Xls_reader', 'Csv_reader', 'File_reader_factory', 'Value_converter'));
 
         if (!is_dir(UPLOAD_TEMP_PATH)) {
@@ -52,6 +53,7 @@ class Import extends MY_Controller
         $data['title']            = 'Import Data Laporan Produksi - ' . APP_NAME;
         $data['menus']            = $this->menus;
         $data['access']           = cek_akses('import');
+        $data['is_master']        = ($this->Menu_model->get_effective_level('import', $this->user['id']) === ROLE_MASTER);
         $data['fields']           = $this->Import_alias_model->get_active_alias_map();
         $data['supported_ext']    = File_reader_factory::SUPPORTED_EXTENSIONS;
         $data['riwayat_import']   = $this->Import_batch_model->get_recent(10);

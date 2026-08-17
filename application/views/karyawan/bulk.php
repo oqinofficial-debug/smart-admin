@@ -9,7 +9,7 @@
     <?php endif; ?>
 
     <p class="text-muted">
-        Copy-paste data langsung dari Excel (atau ketik manual satu baris per data).
+        Tempel data langsung dari Excel (atau ketik manual satu baris per data).
         Urutan kolom: <strong>NIK</strong>, <strong>Nama</strong>, <strong>Status Kepegawaian</strong>
         (<code>HARIAN</code> atau <code>BORONG</code>), <strong>Aktif</strong> (opsional, isi
         <code>1</code>/<code>0</code> atau <code>ya</code>/<code>tidak</code>, kalau kosong dianggap Aktif).

@@ -9,7 +9,7 @@
     <?php endif; ?>
 
     <p class="text-muted">
-        Copy-paste data langsung dari Excel (atau ketik manual satu baris per data).
+        Tempel data langsung dari Excel (atau ketik manual satu baris per data).
         Urutan kolom: <strong>Kode</strong>, <strong>Nama</strong>, <strong>Aktif</strong> (opsional, isi
         <code>1</code>/<code>0</code> atau <code>ya</code>/<code>tidak</code>, kalau kosong dianggap Aktif).
         Kolom dipisah TAB (otomatis kalau paste dari Excel) — kalau ketik manual boleh pakai <code>;</code>.
